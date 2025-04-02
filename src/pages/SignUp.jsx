@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock, faUser, faPhone } from '@fortawesome/free-solid-svg-icons';
-import { faGoogle, faFacebook } from '@fortawesome/free-brands-svg-icons';
+import { faFacebook } from '@fortawesome/free-brands-svg-icons';
+import { SiGoogle } from 'react-icons/si'; // New Google icon
 import { useAuth } from '../contexts/AuthContext';
 
 const SignUp = () => {
@@ -109,18 +110,18 @@ const SignUp = () => {
           <button 
             type="button"
             onClick={() => handleSocialSignup('google')}
-            className="group relative w-full flex justify-center py-3 px-4 border border-gray-300 rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
+            className="group relative w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
           >
-            <FontAwesomeIcon icon={faGoogle} className="mr-3 text-red-500" />
+            <SiGoogle className="mr-3" style={{ color: '#DB4437' }} />
             Continue with Google
           </button>
           
           <button 
             type="button"
             onClick={() => handleSocialSignup('facebook')}
-            className="group relative w-full flex justify-center py-3 px-4 border border-gray-300 rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
+            className="group relative w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
           >
-            <FontAwesomeIcon icon={faFacebook} className="mr-3 text-blue-600" />
+            <FontAwesomeIcon icon={faFacebook} className="mr-3" style={{ color: '#3b5998' }} />
             Continue with Facebook
           </button>
         </div>
@@ -287,4 +288,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp; 
+export default SignUp;

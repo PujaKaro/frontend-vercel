@@ -361,7 +361,7 @@ const PujaBooking = () => {
   ];
   
   return (
-    <div className="min-h-screen bg-gray-100 pt-20 pb-12">
+    <div className="min-h-screen bg-gray-100 pt-2 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">Book a Puja</h1>
         
@@ -418,202 +418,89 @@ const PujaBooking = () => {
         </div>
         
         <div className="flex flex-col lg:flex-row mb-8">
-          <div className="w-full lg:w-64 flex-shrink-0 mb-6 lg:mb-0 lg:mr-8">
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-4">
-              <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-                <h2 className="text-lg font-semibold">Filters</h2>
-                <button 
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="lg:hidden text-gray-500 hover:text-gray-700"
-                >
-                  <FontAwesomeIcon icon={faFilter} />
-                </button>
-              </div>
+          <div className="w-64 space-y-6">
+            <div className="bg-white p-4 rounded-lg shadow-sm">
+              <h3 className="font-semibold mb-4">Filters</h3>
               
-              <div className={`p-4 lg:block ${showFilters ? 'block' : 'hidden'}`}>
-                <div className="mb-6">
-                  <h3 className="font-medium text-gray-900 mb-2">Price Range</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center">
-                      <input
-                        id="price-all"
-                        name="price-range"
-                        type="radio"
-                        checked={filters.priceRange === 'all'}
-                        onChange={() => handleFilterChange('priceRange', 'all')}
-                        className="h-4 w-4 text-[#317bea] focus:ring-[#317bea] border-gray-300"
-                      />
-                      <label htmlFor="price-all" className="ml-2 text-gray-700">All Prices</label>
-                    </div>
-                    
-                    <div className="flex items-center">
-                      <input
-                        id="under-1500"
-                        name="price-range"
-                        type="radio"
-                        checked={filters.priceRange === 'under-1500'}
-                        onChange={() => handleFilterChange('priceRange', 'under-1500')}
-                        className="h-4 w-4 text-[#317bea] focus:ring-[#317bea] border-gray-300"
-                      />
-                      <label htmlFor="under-1500" className="ml-2 text-gray-700">Under ₹1,500</label>
-                    </div>
-                    
-                    <div className="flex items-center">
-                      <input
-                        id="1500-2500"
-                        name="price-range"
-                        type="radio"
-                        checked={filters.priceRange === '1500-2500'}
-                        onChange={() => handleFilterChange('priceRange', '1500-2500')}
-                        className="h-4 w-4 text-[#317bea] focus:ring-[#317bea] border-gray-300"
-                      />
-                      <label htmlFor="1500-2500" className="ml-2 text-gray-700">₹1,500 - ₹2,500</label>
-                    </div>
-                    
-                    <div className="flex items-center">
-                      <input
-                        id="above-2500"
-                        name="price-range"
-                        type="radio"
-                        checked={filters.priceRange === 'above-2500'}
-                        onChange={() => handleFilterChange('priceRange', 'above-2500')}
-                        className="h-4 w-4 text-[#317bea] focus:ring-[#317bea] border-gray-300"
-                      />
-                      <label htmlFor="above-2500" className="ml-2 text-gray-700">Above ₹2,500</label>
-                    </div>
-                  </div>
+              {/* Search and Sort */}
+              <div className="mb-6">
+                <div className="relative mb-4">
+                  <input
+                    type="text"
+                    placeholder="Search pujas..."
+                    className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#317bea] focus:border-[#317bea]"
+                  />
+                  <button className="absolute right-0 top-0 mt-2 mr-3 text-gray-400">
+                    <FontAwesomeIcon icon={faSearch} />
+                  </button>
                 </div>
-                
-                <div className="mb-6">
-                  <h3 className="font-medium text-gray-900 mb-2">Duration</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center">
-                      <input
-                        id="duration-all"
-                        name="duration"
-                        type="radio"
-                        checked={filters.duration === 'all'}
-                        onChange={() => handleFilterChange('duration', 'all')}
-                        className="h-4 w-4 text-[#317bea] focus:ring-[#317bea] border-gray-300"
-                      />
-                      <label htmlFor="duration-all" className="ml-2 text-gray-700">All Durations</label>
-                    </div>
-                    
-                    <div className="flex items-center">
-                      <input
-                        id="short"
-                        name="duration"
-                        type="radio"
-                        checked={filters.duration === 'short'}
-                        onChange={() => handleFilterChange('duration', 'short')}
-                        className="h-4 w-4 text-[#317bea] focus:ring-[#317bea] border-gray-300"
-                      />
-                      <label htmlFor="short" className="ml-2 text-gray-700">Short (&le; 1.5 hours)</label>
-                    </div>
-                    
-                    <div className="flex items-center">
-                      <input
-                        id="medium"
-                        name="duration"
-                        type="radio"
-                        checked={filters.duration === 'medium'}
-                        onChange={() => handleFilterChange('duration', 'medium')}
-                        className="h-4 w-4 text-[#317bea] focus:ring-[#317bea] border-gray-300"
-                      />
-                      <label htmlFor="medium" className="ml-2 text-gray-700">Medium (1.5 - 2.5 hours)</label>
-                    </div>
-                    
-                    <div className="flex items-center">
-                      <input
-                        id="long"
-                        name="duration"
-                        type="radio"
-                        checked={filters.duration === 'long'}
-                        onChange={() => handleFilterChange('duration', 'long')}
-                        className="h-4 w-4 text-[#317bea] focus:ring-[#317bea] border-gray-300"
-                      />
-                      <label htmlFor="long" className="ml-2 text-gray-700">Long (&gt; 2.5 hours)</label>
-                    </div>
-                  </div>
-                </div>
+                <select className="w-full py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#317bea] focus:border-[#317bea]">
+                  <option value="">Sort By</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                  <option value="rating">Rating</option>
+                  <option value="popular">Most Popular</option>
+                </select>
+              </div>
 
-                <div className="mb-6">
-                  <h3 className="font-medium text-gray-900 mb-2">Occasion</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center">
-                      <input
-                        id="occasion-all"
-                        name="occasion"
-                        type="radio"
-                        checked={filters.occasion === 'all'}
-                        onChange={() => handleFilterChange('occasion', 'all')}
-                        className="h-4 w-4 text-[#317bea] focus:ring-[#317bea] border-gray-300"
-                      />
-                      <label htmlFor="occasion-all" className="ml-2 text-gray-700">All Occasions</label>
-                    </div>
-                    
-                    <div className="flex items-center">
-                      <input
-                        id="housewarming"
-                        name="occasion"
-                        type="radio"
-                        checked={filters.occasion === 'housewarming'}
-                        onChange={() => handleFilterChange('occasion', 'housewarming')}
-                        className="h-4 w-4 text-[#317bea] focus:ring-[#317bea] border-gray-300"
-                      />
-                      <label htmlFor="housewarming" className="ml-2 text-gray-700">Housewarming</label>
-                    </div>
-                    
-                    <div className="flex items-center">
-                      <input
-                        id="prosperity"
-                        name="occasion"
-                        type="radio"
-                        checked={filters.occasion === 'prosperity'}
-                        onChange={() => handleFilterChange('occasion', 'prosperity')}
-                        className="h-4 w-4 text-[#317bea] focus:ring-[#317bea] border-gray-300"
-                      />
-                      <label htmlFor="prosperity" className="ml-2 text-gray-700">Prosperity & Success</label>
-                    </div>
-                    
-                    <div className="flex items-center">
-                      <input
-                        id="healing"
-                        name="occasion"
-                        type="radio"
-                        checked={filters.occasion === 'healing'}
-                        onChange={() => handleFilterChange('occasion', 'healing')}
-                        className="h-4 w-4 text-[#317bea] focus:ring-[#317bea] border-gray-300"
-                      />
-                      <label htmlFor="healing" className="ml-2 text-gray-700">Health & Healing</label>
-                    </div>
-
-                    <div className="flex items-center">
-                      <input
-                        id="festivals"
-                        name="occasion"
-                        type="radio"
-                        checked={filters.occasion === 'festivals'}
-                        onChange={() => handleFilterChange('occasion', 'festivals')}
-                        className="h-4 w-4 text-[#317bea] focus:ring-[#317bea] border-gray-300"
-                      />
-                      <label htmlFor="festivals" className="ml-2 text-gray-700">Festivals</label>
-                    </div>
-                  </div>
+              {/* Occasion Filter */}
+              <div className="mb-6">
+                <h4 className="font-medium mb-2">Occasion</h4>
+                <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input type="checkbox" className="mr-2" />
+                    <span>Wedding</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input type="checkbox" className="mr-2" />
+                    <span>House Warming</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input type="checkbox" className="mr-2" />
+                    <span>Birthday</span>
+                  </label>
                 </div>
-                
-                <div>
-                  <h3 className="font-medium text-gray-900 mb-2">Sort By</h3>
-                  <select
-                    className="block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#317bea] focus:border-[#317bea]"
-                    value={filters.sortBy}
-                    onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                  >
-                    <option value="popularity">Popularity</option>
-                    <option value="price-low-high">Price: Low to High</option>
-                    <option value="price-high-low">Price: High to Low</option>
-                    <option value="rating">Rating</option>
-                  </select>
+              </div>
+
+              {/* Duration Filter */}
+              <div className="mb-6">
+                <h4 className="font-medium mb-2">Duration</h4>
+                <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input type="checkbox" className="mr-2" />
+                    <span>1-2 hours</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input type="checkbox" className="mr-2" />
+                    <span>2-3 hours</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input type="checkbox" className="mr-2" />
+                    <span>3+ hours</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Price Range Filter */}
+              <div>
+                <h4 className="font-medium mb-2">Price Range</h4>
+                <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input type="checkbox" className="mr-2" />
+                    <span>Under ₹1000</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input type="checkbox" className="mr-2" />
+                    <span>₹1000 - ₹2000</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input type="checkbox" className="mr-2" />
+                    <span>₹2000 - ₹3000</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input type="checkbox" className="mr-2" />
+                    <span>Over ₹3000</span>
+                  </label>
                 </div>
               </div>
             </div>

@@ -1,5 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar, faClock } from '@fortawesome/free-regular-svg-icons';
+import { Link } from 'react-router-dom';
 
 const FeaturedPuja = () => {
   return (
@@ -30,9 +31,12 @@ const FeaturedPuja = () => {
                   <span>Duration: 2 hours</span>
                 </div>
               </div>
-              <button className="px-8 py-3 bg-[#317bea] text-white font-semibold rounded-button hover:bg-[#317bea]/90">
+              <Link 
+                to="/puja-booking" 
+                className="px-8 py-3 bg-[#317bea] text-white font-semibold rounded-button hover:bg-[#317bea]/90"
+              >
                 Book Now at ₹2,100
-              </button>
+              </Link>
             </div>
             <div className="relative h-full min-h-[300px]">
               <img 
@@ -48,4 +52,4 @@ const FeaturedPuja = () => {
   );
 };
 
-export default FeaturedPuja; 
+export default FeaturedPuja;

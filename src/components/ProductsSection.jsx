@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import Glide from '@glidejs/glide';
 
 const ProductsSection = () => {
@@ -11,15 +12,9 @@ const ProductsSection = () => {
       perView: 4,
       gap: 32,
       breakpoints: {
-        1024: {
-          perView: 3
-        },
-        768: {
-          perView: 2
-        },
-        480: {
-          perView: 1
-        }
+        1024: { perView: 3 },
+        768: { perView: 2 },
+        480: { perView: 1 }
       }
     });
 
@@ -60,12 +55,18 @@ const ProductsSection = () => {
   ];
 
   return (
-    <section className="py-16 max-w-8xl mx-auto px-4 bg-[#ffeee7] relative">
-      <div className="absolute inset-0 opacity-10"></div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-3xl font-bold">Popular Products</h2>
-        <div className="flex gap-4">
-          <button className="px-6 py-2 bg-[#317bea] text-white font-medium rounded-button">All</button>
+    <section className="py-16 max-w-8xl mx-auto px-4 bg-[#ffeee7] relative overflow-hidden">
+      {/* Background overlay with pointer-events-none so it doesn't block clicks */}
+      <div className="absolute inset-0 opacity-10 pointer-events-none"></div>
+      
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+        <h2 className="text-3xl font-bold mb-4 md:mb-0 text-center md:text-left">
+          Popular Products
+        </h2>
+        <div className="flex flex-wrap gap-2 justify-center md:justify-end">
+          <button className="px-6 py-2 bg-[#317bea] text-white font-medium rounded-button">
+            All
+          </button>
           <button className="px-6 py-2 bg-gray-100 text-gray-600 font-medium rounded-button hover:bg-custom/10 hover:text-custom">
             Puja Items
           </button>
@@ -79,7 +80,7 @@ const ProductsSection = () => {
       </div>
       
       <div className="glide" ref={glideRef}>
-        <div className="glide__track" data-glide-el="track">
+        <div className="glide__track overflow-hidden" data-glide-el="track">
           <ul className="glide__slides">
             {products.map((product, index) => (
               <li key={index} className="glide__slide">
@@ -95,9 +96,12 @@ const ProductsSection = () => {
                     <h3 className="font-semibold mb-2">{product.title}</h3>
                     <div className="flex items-center justify-between">
                       <span className="text-lg font-bold text-custom">{product.price}</span>
-                      <button className="px-4 py-2 bg-[#317bea] text-white rounded-button text-sm">
+                      <Link 
+                        to="/cart" 
+                        className="px-4 py-2 bg-[#317bea] text-white rounded-button text-sm"
+                      >
                         Add to Cart
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -109,8 +113,8 @@ const ProductsSection = () => {
           {products.map((_, index) => (
             <button 
               key={index} 
-              className="glide__bullet mx-1 w-3 h-3 rounded-full bg-gray-300 hover:bg-custom" 
-              data-glide-dir={`=${index}`}
+              // className=" mx-1 mt-8 w-3 h-3 rounded-full bg-gray-300 hover:bg-custom" 
+              // data-glide-dir={`=${index}`}
             ></button>
           ))}
         </div>
@@ -119,4 +123,4 @@ const ProductsSection = () => {
   );
 };
 
-export default ProductsSection; 
+export default ProductsSection;

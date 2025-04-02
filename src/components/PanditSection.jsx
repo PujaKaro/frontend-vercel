@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import { Link } from 'react-router-dom';
 import Glide from '@glidejs/glide';
 
 const PanditSection = () => {
@@ -13,15 +14,9 @@ const PanditSection = () => {
       perView: 4,
       gap: 32,
       breakpoints: {
-        1024: {
-          perView: 3
-        },
-        768: {
-          perView: 2
-        },
-        480: {
-          perView: 1
-        }
+        1024: { perView: 3 },
+        768: { perView: 2 },
+        480: { perView: 1 }
       }
     });
 
@@ -86,9 +81,12 @@ const PanditSection = () => {
                         </span>
                       </div>
                       <p className="text-sm text-gray-600 mb-4">{pandit.experience}</p>
-                      <button className="w-full py-2 bg-[#317bea] text-white font-medium rounded-button hover:bg-[#317bea]/90">
+                      <Link 
+                        to="/puja-booking" 
+                        className="w-full py-2 bg-[#317bea] text-white font-medium rounded-button hover:bg-[#317bea]/90 text-center block"
+                      >
                         Book Now
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </li>
@@ -110,4 +108,4 @@ const PanditSection = () => {
   );
 };
 
-export default PanditSection; 
+export default PanditSection;
