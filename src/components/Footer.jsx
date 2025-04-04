@@ -68,7 +68,7 @@ const Footer = () => {
                 </li>
                 <li className="mt-4">
                   <p className="text-gray-400 mb-1">Office Address:</p>
-                  <p className="text-gray-400">G-275 Molarband Extn, New Delhi-110044<br />Delhi - 110019</p>
+                  <p className="text-gray-400">G-275 Molarband Extn,<br />New Delhi-110044</p>
                 </li>
               </ul>
             </div>
