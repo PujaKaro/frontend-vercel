@@ -112,7 +112,11 @@ const SignUp = () => {
             onClick={() => handleSocialSignup('google')}
             className="group relative w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
           >
-            <SiGoogle className="mr-3" style={{ color: '#DB4437' }} />
+            <img
+              src="https://developers.google.com/identity/images/g-logo.png"
+              alt="Google"
+              style={{ width: '20px', height: '20px', marginRight: '8px' }}
+            />
             Continue with Google
           </button>
           
@@ -121,7 +125,11 @@ const SignUp = () => {
             onClick={() => handleSocialSignup('facebook')}
             className="group relative w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
           >
-            <FontAwesomeIcon icon={faFacebook} className="mr-3" style={{ color: '#3b5998' }} />
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png"
+              alt="Facebook"
+              style={{ width: '20px', height: '20px', marginRight: '8px' }}
+            />
             Continue with Facebook
           </button>
         </div>

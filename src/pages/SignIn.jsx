@@ -139,7 +139,11 @@ const SignIn = () => {
                 disabled={loading}
                 className="w-full inline-flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm sm:text-base font-medium text-gray-500 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#317bea] disabled:opacity-50"
               >
-                <SiGoogle className="h-5 w-5" style={{ color: '#DB4437' }} />
+                <img
+                  src="https://developers.google.com/identity/images/g-logo.png"
+                  alt="Google"
+                  style={{ width: '20px', height: '20px', marginRight: '8px' }}
+                />
                 <span className="ml-2">Google</span>
               </button>
 
