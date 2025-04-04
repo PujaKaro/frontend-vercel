@@ -30,22 +30,22 @@ const PanditSection = () => {
 
   const pandits = [
     {
-      name: "Pandit Ramesh Sharma",
+      name: "Pandit Shiv Mishra",
       experience: "15+ years experience",
       image: "/images/rameshJi.jpg"
     },
     {
-      name: "Pandit Suresh Verma",
+      name: "Pandit Gajendra Shastri",
       experience: "10+ years experience",
       image: "/images/rameshJi.jpg"
     },
     {
-      name: "Pandit Mahesh Gupta",
+      name: "Pandit Awdhesh Tiwari",
       experience: "20+ years experience",
       image: "/images/rameshJi.jpg"
     },
     {
-      name: "Pandit Rajesh Kumar",
+      name: "Pandit Hariom Pathak",
       experience: "8+ years experience",
       image: "/images/rameshJi.jpg"
     }

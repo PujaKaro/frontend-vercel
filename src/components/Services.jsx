@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPray } from '@fortawesome/free-solid-svg-icons';
+import { faPray, faSeedling, faOm} from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 
 const Services = () => {
@@ -8,19 +8,22 @@ const Services = () => {
       icon: faPray,
       title: "Puja Booking",
       description: "Book authentic pujas performed by verified pandits",
-      link: "/puja-booking"
+      link: "/puja-booking",
+      buttonText: "Book Now"
     },
     {
-      icon: faPray, // Using same icon as placeholder
+      icon: faSeedling, // Using same icon as placeholder
       title: "Flowers & Mala",
       description: "Fresh flowers and garlands delivered to your doorstep",
-      link: "/flowers-and-mala"
+      link: "/flowers-and-mala",
+      buttonText: "Subscribe Now"
     },
     {
-      icon: faPray, // Using same icon as placeholder
+      icon: faOm, // Using same icon as placeholder
       title: "Prashad Services",
-      description: "Sacred offerings prepared with pure devotion",
-      link: "/prashad-services"
+      description: "Sacred Prasad offerings prepared with pure devotion",
+      link: "/prashad-services",
+      buttonText: "Subscribe Now"
     }
   ];
 
@@ -41,7 +44,7 @@ const Services = () => {
               to={service.link} 
               className="inline-block px-4 py-2 bg-[#317bea] text-white font-medium rounded-button hover:bg-[#317bea]/90"
             >
-              Learn More
+              {service.buttonText}
             </Link>
           </div>
         ))}

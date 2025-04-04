@@ -13,13 +13,13 @@ const Footer = () => {
               <Link to="/" className="text-2xl font-bold text-custom mb-6 block">PujaKaro</Link>
               <p className="text-gray-400">Your trusted platform for authentic puja services and religious products.</p>
               <div className="flex space-x-4 mt-6">
-                <a href="#" className="text-gray-400 hover:text-white">
+              <a href="https://www.facebook.com/your-facebook-profile" className="text-gray-400 hover:text-white" target="_blank" rel="noopener noreferrer">
                   <FontAwesomeIcon icon={faFacebook} className="text-xl" />
                 </a>
-                <a href="#" className="text-gray-400 hover:text-white">
+                <a href="https://www.instagram.com/pujakaro.in" className="text-gray-400 hover:text-white" target="_blank" rel="noopener noreferrer">
                   <FontAwesomeIcon icon={faInstagram} className="text-xl" />
                 </a>
-                <a href="#" className="text-gray-400 hover:text-white">
+                <a href="https://twitter.com/your-twitter-profile" className="text-gray-400 hover:text-white" target="_blank" rel="noopener noreferrer">
                   <FontAwesomeIcon icon={faTwitter} className="text-xl" />
                 </a>
               </div>
@@ -39,15 +39,15 @@ const Footer = () => {
               <ul className="space-y-2">
                 <li className="flex items-center gap-2 text-gray-400">
                   <FontAwesomeIcon icon={faPhone} />
-                  <span>+91 98765 43210</span>
+                  <span>+91 79825 45360</span>
                 </li>
                 <li className="flex items-center gap-2 text-gray-400">
                   <FontAwesomeIcon icon={faEnvelope} />
-                  <span>support@pujakaro.in</span>
+                  <span>pujakaro.in@gmail.com</span>
                 </li>
                 <li className="mt-4">
                   <p className="text-gray-400 mb-1">Office Address:</p>
-                  <p className="text-gray-400">123 Devotee Lane, Spiritual Complex,<br />Mumbai, Maharashtra - 400001</p>
+                  <p className="text-gray-400">1160/13 Govindpuri, Kalka Ji<br />Delhi - 110019</p>
                 </li>
               </ul>
             </div>
