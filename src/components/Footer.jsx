@@ -12,6 +12,13 @@ const Footer = () => {
       alert('Please enter a valid email address.');
       return;
     }
+
+      // Regular expression to validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert('Please enter a valid email address.');
+      return;
+    }
     // Save or process the email (e.g., send it to a server or API)
     console.log('Email submitted:', email);
     alert('Thank you for subscribing to our newsletter!');
