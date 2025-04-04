@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 const HeroSection = () => {
   return (
     <section className="relative h-[600px]">
@@ -16,12 +18,18 @@ const HeroSection = () => {
             religious products, and spiritual guidance
           </p>
           <div className="flex gap-4">
-            <button className="px-8 py-3 bg-[#fb9548] text-white font-semibold rounded-button hover:bg-[#fb9548]/90 transition-colors">
+          <Link 
+              to="/puja-booking" 
+              className="px-8 py-3 bg-[#fb9548] text-white font-semibold rounded-button hover:bg-[#fb9548]/90 transition-colors text-center"
+            >
               Book a Puja
-            </button>
-            <button className="px-8 py-3 bg-[#317bea] text-white font-semibold rounded-button hover:bg-[#317bea]/90 transition-colors">
+            </Link>
+            <Link 
+              to="/shop" 
+              className="px-8 py-3 bg-[#317bea] text-white font-semibold rounded-button hover:bg-[#317bea]/90 transition-colors text-center"
+            >
               Shop Now
-            </button>
+            </Link>
           </div>
         </div>
       </div>
