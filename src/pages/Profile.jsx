@@ -8,8 +8,8 @@ const Profile = () => {
   const [userData, setUserData] = useState({
     fullName: '',
     email: '',
-    phone: '9876543210',
-    address: '123 Main Street, Mumbai, India - 400001',
+    phone: '9717283829',
+    address: 'G-275 Main Street, Delhi, India - 110044',
     profileImage: null
   });
   
