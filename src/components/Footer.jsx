@@ -1,9 +1,23 @@
+import { useState } from 'react'; // Import useState
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPhone, faEnvelope, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp, faFacebook, faInstagram, faTwitter } from '@fortawesome/free-brands-svg-icons';
 
 const Footer = () => {
+  const [email, setEmail] = useState(''); // State to store the email
+
+  const handleNewsletterSubmit = () => {
+    if (email.trim() === '') {
+      alert('Please enter a valid email address.');
+      return;
+    }
+    // Save or process the email (e.g., send it to a server or API)
+    console.log('Email submitted:', email);
+    alert('Thank you for subscribing to our newsletter!');
+    setEmail(''); // Clear the input field after submission
+  };
+
   return (
     <>
       <footer className="bg-gray-900 text-white pt-16 pb-8">
@@ -29,7 +43,7 @@ const Footer = () => {
               <ul className="space-y-2">
                 <li><Link to="/" className="text-gray-400 hover:text-white">Home</Link></li>
                 <li><Link to="/shop" className="text-gray-400 hover:text-white">Shop</Link></li>
-                <li><Link to="/pujaBooking" className="text-gray-400 hover:text-white">Book a Puja</Link></li>
+                <li><Link to="/puja-booking" className="text-gray-400 hover:text-white">Book a Puja</Link></li>
                 <li><Link to="/profile" className="text-gray-400 hover:text-white">My Account</Link></li>
                 <li><Link to="/cart" className="text-gray-400 hover:text-white">Cart</Link></li>
               </ul>
@@ -58,12 +72,17 @@ const Footer = () => {
                 <input 
                   type="email" 
                   placeholder="Enter your email" 
+                  value={email} // Bind the input value to state
+                  onChange={(e) => setEmail(e.target.value)} // Update state on input change
                   className="w-full pl-4 pr-12 py-2.5 bg-gray-800 border border-gray-700 text-white rounded-button placeholder-gray-500" 
                 />
-                <button className="absolute right-2 top-2 p-1 bg-custom text-white rounded-button">
+                <button 
+                  onClick={handleNewsletterSubmit} // Handle button click
+                  className="absolute right-2 top-2 p-1 bg-custom text-white rounded-button"
+                >
                   <FontAwesomeIcon icon={faArrowRight} />
                 </button>
-              </div>
+                </div>
             </div>
           </div>
           <div className="border-t border-gray-800 pt-8 text-center">
@@ -81,4 +100,4 @@ const Footer = () => {
   );
 };
 
-export default Footer; 
+export default Footer;
