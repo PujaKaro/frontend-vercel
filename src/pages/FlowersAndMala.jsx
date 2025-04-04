@@ -213,17 +213,17 @@ const FlowersAndMala = () => {
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <FontAwesomeIcon icon={faPhone} className="h-6 w-6 text-[#FF8C00] mb-3" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Call Us</h3>
-            <p className="text-gray-600">+91 1234567890</p>
+            <p className="text-gray-600">+91 7982545360</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <FontAwesomeIcon icon={faEnvelope} className="h-6 w-6 text-[#FF8C00] mb-3" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Email Us</h3>
-            <p className="text-gray-600">support@pujakaro.com</p>
+            <p className="text-gray-600">pujakaro.in@gmail.com</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <FontAwesomeIcon icon={faMapMarkerAlt} className="h-6 w-6 text-[#FF8C00] mb-3" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Visit Us</h3>
-            <p className="text-gray-600">123, Puja Street, City</p>
+            <p className="text-gray-600">G-275 Molarband Extn. New Delhi</p>
           </div>
         </div>
       </div>

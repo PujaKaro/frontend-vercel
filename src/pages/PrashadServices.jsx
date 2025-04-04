@@ -239,7 +239,7 @@ const PrashadServices = () => {
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <FontAwesomeIcon icon={faEnvelope} className="h-6 w-6 text-[#FF8C00] mb-3" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Email Us</h3>
-            <p className="text-gray-600">pujakar.in@gmail.com</p>
+            <p className="text-gray-600">pujakaro.in@gmail.com</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <FontAwesomeIcon icon={faMapMarkerAlt} className="h-6 w-6 text-[#FF8C00] mb-3" />
