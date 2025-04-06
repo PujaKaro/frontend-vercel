@@ -1,69 +1,71 @@
-import { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 
+// Create context
 const AuthContext = createContext();
 
-export const useAuth = () => useContext(AuthContext);
-
+// Provider component
 export const AuthProvider = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already logged in on mount
-    const checkAuthStatus = () => {
-      const isAuthenticated = localStorage.getItem('isAuthenticated');
-      
-      if (isAuthenticated === 'true') {
-        const userEmail = localStorage.getItem('userEmail');
-        const userName = localStorage.getItem('userName');
-        
-        setCurrentUser({
-          email: userEmail || '',
-          name: userName || 'User',
-          isAuthenticated: true
-        });
-      }
-      
-      setLoading(false);
-    };
-    
-    checkAuthStatus();
+    // Check for existing user in localStorage (for demo purposes)
+    const user = localStorage.getItem('user');
+    if (user) {
+      setCurrentUser(JSON.parse(user));
+      setIsAuthenticated(true);
+    }
+    setLoading(false);
   }, []);
 
   // Sign in function
-  const login = (email, name = '') => {
-    localStorage.setItem('isAuthenticated', 'true');
-    localStorage.setItem('userEmail', email);
+  const signIn = (email, password) => {
+    // In a real app, you would validate credentials with an API
+    // This is just a mock implementation
+    const mockUser = {
+      id: '1',
+      name: 'Test User',
+      email: email,
+    };
     
-    if (name) {
-      localStorage.setItem('userName', name);
-    }
-    
-    setCurrentUser({
-      email,
-      name: name || 'User',
-      isAuthenticated: true
-    });
-    
-    return true;
+    localStorage.setItem('user', JSON.stringify(mockUser));
+    setCurrentUser(mockUser);
+    setIsAuthenticated(true);
+    return Promise.resolve(mockUser);
   };
 
   // Sign out function
-  const logout = () => {
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userName');
-    
+  const signOut = () => {
+    localStorage.removeItem('user');
     setCurrentUser(null);
+    setIsAuthenticated(false);
+    return Promise.resolve();
+  };
+
+  // Sign up function
+  const signUp = (name, email, password) => {
+    // In a real app, you would register the user with an API
+    // This is just a mock implementation
+    const mockUser = {
+      id: '1',
+      name: name,
+      email: email,
+    };
     
-    return true;
+    localStorage.setItem('user', JSON.stringify(mockUser));
+    setCurrentUser(mockUser);
+    setIsAuthenticated(true);
+    return Promise.resolve(mockUser);
   };
 
   const value = {
     currentUser,
-    login,
-    logout,
-    isAuthenticated: !!currentUser?.isAuthenticated
+    isAuthenticated,
+    loading,
+    signIn,
+    signOut,
+    signUp
   };
 
   return (
@@ -73,4 +75,9 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export default AuthContext; 
+// Custom hook to use auth context
+export const useAuth = () => {
+  return useContext(AuthContext);
+};
+
+export default AuthContext;

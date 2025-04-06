@@ -18,6 +18,8 @@ import {
   faLanguage
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const PujaBooking = () => {
   const [pujas, setPujas] = useState([
@@ -29,6 +31,7 @@ const PujaBooking = () => {
       price: 2100,
       rating: 4.8,
       reviews: 126,
+      occasions: ['house-warming', 'new-venture'],
       description: 'Dedicated to Lord Vishnu, Satyanarayan Puja is performed to seek blessings for prosperity, well-being, and success in new ventures. This auspicious ceremony is conducted by our experienced pandits following all Vedic rituals.'
     },
     {
@@ -39,6 +42,7 @@ const PujaBooking = () => {
       price: 1800,
       rating: 4.7,
       reviews: 98,
+      occasions: ['new-venture', 'festival'],
       description: 'Invoke the blessings of Lord Ganesha, the remover of obstacles, with this traditional puja. Perfect for beginning new ventures, celebrating Ganesh Chaturthi, or seeking divine intervention for success in your endeavors.'
     },
     {
@@ -49,6 +53,7 @@ const PujaBooking = () => {
       price: 2500,
       rating: 4.9,
       reviews: 155,
+      occasions: ['diwali', 'financial-success'],
       description: 'Attract wealth, prosperity and abundance with this sacred puja dedicated to Goddess Lakshmi. Especially auspicious during Diwali, but beneficial throughout the year for financial growth and stability.'
     },
     {
@@ -59,6 +64,7 @@ const PujaBooking = () => {
       price: 3500,
       rating: 4.8,
       reviews: 87,
+      occasions: ['house-warming'],
       description: 'Begin your journey in your new home with this sacred housewarming ceremony. This comprehensive puja purifies the new space, invites positive energies, and seeks blessings from household deities for peace and harmony.'
     },
     {
@@ -69,6 +75,7 @@ const PujaBooking = () => {
       price: 2800,
       rating: 4.6,
       reviews: 72,
+      occasions: ['astrological-remedy', 'peace'],
       description: 'Balance the influences of the nine celestial planets in your life with this powerful ritual. Recommended for those facing astrological challenges or seeking to enhance positive planetary influences.'
     },
     {
@@ -79,6 +86,7 @@ const PujaBooking = () => {
       price: 2300,
       rating: 4.7,
       reviews: 105,
+      occasions: ['shiva-worship', 'peace'],
       description: 'Honor Lord Shiva with this divine abhishekam ritual. Performed with milk, honey, yogurt, and other sacred offerings, Rudrabhishek brings spiritual growth, removes negativity, and bestows peace and prosperity.'
     },
     {
@@ -89,6 +97,7 @@ const PujaBooking = () => {
       price: 1900,
       rating: 4.5,
       reviews: 63,
+      occasions: ['navratri', 'festival'],
       description: 'A significant ritual during Navratri where young girls are worshipped as manifestations of the goddess. This puja honors the divine feminine energy and is believed to bring blessings from Goddess Durga.'
     },
     {
@@ -99,6 +108,7 @@ const PujaBooking = () => {
       price: 1700,
       rating: 4.8,
       reviews: 92,
+      occasions: ['peace', 'obstacle-removal'],
       description: 'A sacred recitation of Sundarkand from the Ramcharitmanas, describing Hanuman\'s journey to Lanka. This powerful path removes obstacles, fulfills wishes, and brings peace and prosperity to the household.'
     },
     {
@@ -109,6 +119,7 @@ const PujaBooking = () => {
       price: 2600,
       rating: 4.6,
       reviews: 78,
+      occasions: ['house-warming', 'peace'],
       description: 'Harmonize the energies of your home or office according to Vastu Shastra principles. This puja corrects Vastu defects, removes negative energies, and enhances positive vibrations in your living or working space.'
     },
     {
@@ -119,6 +130,7 @@ const PujaBooking = () => {
       price: 2200,
       rating: 4.9,
       reviews: 111,
+      occasions: ['health', 'protection'],
       description: 'A powerful ritual centered around the Maha Mrityunjaya mantra, dedicated to Lord Shiva. This puja promotes healing, longevity, removes fear of death, and protects from accidents and illnesses.'
     },
     {
@@ -129,6 +141,7 @@ const PujaBooking = () => {
       price: 3000,
       rating: 4.9,
       reviews: 143,
+      occasions: ['navratri', 'festival'],
       description: 'Invoke the divine power of Goddess Durga to defeat negative forces in your life. This ceremonial worship includes mantras, offerings, and rituals that channel the protective and nurturing energy of the goddess.'
     },
     {
@@ -139,6 +152,7 @@ const PujaBooking = () => {
       price: 3200,
       rating: 4.7,
       reviews: 89,
+      occasions: ['astrological-remedy', 'obstacle-removal'],
       description: 'A specialized puja to mitigate the effects of Kaal Sarp Yoga in the horoscope. This comprehensive ritual helps overcome obstacles, delays, and challenges caused by this astrological alignment.'
     }
   ]);
@@ -161,104 +175,54 @@ const PujaBooking = () => {
   const { isAuthenticated } = useAuth();
   
   const handleFilterChange = (filterType, value) => {
-    setFilters(prevFilters => ({
-      ...prevFilters,
-      [filterType]: value
-    }));
+    setFilters(prev => ({ ...prev, [filterType]: value }));
   };
   
   const filterPujas = () => {
-    let filteredPujas = [...pujas];
+    let filtered = [...pujas];
     
-    // Filter by search term
     if (filters.searchTerm) {
-      filteredPujas = filteredPujas.filter(puja => 
-        puja.name.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
-        puja.description.toLowerCase().includes(filters.searchTerm.toLowerCase())
+      filtered = filtered.filter(p => 
+        p.name.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        p.description.toLowerCase().includes(filters.searchTerm.toLowerCase())
       );
     }
-    
-    // Filter by price range
+
     if (filters.priceRange !== 'all') {
-      switch (filters.priceRange) {
-        case 'under-1500':
-          filteredPujas = filteredPujas.filter(puja => puja.price < 1500);
-          break;
-        case '1500-2500':
-          filteredPujas = filteredPujas.filter(puja => puja.price >= 1500 && puja.price <= 2500);
-          break;
-        case 'above-2500':
-          filteredPujas = filteredPujas.filter(puja => puja.price > 2500);
-          break;
-        default:
-          break;
-      }
+      const [min, max] = filters.priceRange.split('-').map(Number);
+      filtered = filtered.filter(p => 
+        max ? p.price >= min && p.price <= max : p.price >= min
+      );
     }
-    
-    // Filter by duration
+
     if (filters.duration !== 'all') {
-      switch (filters.duration) {
-        case 'short':
-          filteredPujas = filteredPujas.filter(puja => 
-            parseFloat(puja.duration.split(' ')[0]) <= 1.5
-          );
-          break;
-        case 'medium':
-          filteredPujas = filteredPujas.filter(puja => {
-            const hours = parseFloat(puja.duration.split(' ')[0]);
-            return hours > 1.5 && hours <= 2.5;
-          });
-          break;
-        case 'long':
-          filteredPujas = filteredPujas.filter(puja => 
-            parseFloat(puja.duration.split(' ')[0]) > 2.5
-          );
-          break;
-        default:
-          break;
-      }
+      filtered = filtered.filter(p => {
+        const hours = parseFloat(p.duration);
+        return filters.duration === 'short' ? hours <= 2 :
+               filters.duration === 'medium' ? hours > 2 && hours <= 3 :
+               hours > 3;
+      });
     }
-    
-    // Filter by occasion
+
     if (filters.occasion !== 'all') {
-      // In a real application, we would filter by occasion
-      // Since our mock data doesn't have an occasion field, this is just a placeholder
+      filtered = filtered.filter(p => 
+        p.occasions.includes(filters.occasion)
+      );
     }
-    
-    // Sort pujas
+
     switch (filters.sortBy) {
-      case 'price-low-high':
-        filteredPujas.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-high-low':
-        filteredPujas.sort((a, b) => b.price - a.price);
-        break;
-      case 'rating':
-        filteredPujas.sort((a, b) => b.rating - a.rating);
-        break;
-      case 'popularity':
-      default:
-        filteredPujas.sort((a, b) => b.reviews - a.reviews);
-        break;
+      case 'price-low-high': filtered.sort((a, b) => a.price - b.price); break;
+      case 'price-high-low': filtered.sort((a, b) => b.price - a.price); break;
+      case 'rating': filtered.sort((a, b) => b.rating - a.rating); break;
+      default: filtered.sort((a, b) => b.reviews - a.reviews);
     }
-    
-    return filteredPujas;
+
+    return filtered;
   };
   
   const handleBookPuja = (puja) => {
-    if (!isAuthenticated) {
-      navigate('/signin');
-      return;
-    }
-    
-    if (!selectedDate) {
-      alert('Please select a date for your puja booking');
-      return;
-    }
-    
-    // Set the selected puja and show pandit selection modal
-    setSelectedPuja(puja);
-    setShowPanditModal(true);
+    // Navigate directly to the puja details page
+    navigate(`/puja-booking/${puja.id}`);
   };
 
   const handleSelectPandit = (pandit) => {
@@ -267,12 +231,12 @@ const PujaBooking = () => {
 
   const handleConfirmBooking = () => {
     if (!selectedPandit) {
-      alert('Please select a pandit to continue');
+      toast.error('Please select a pandit to continue');
       return;
     }
 
     // In a real app, you would handle the booking process here
-    alert(`Booking confirmed for ${selectedPuja.name} on ${selectedDate} with ${selectedPandit.name}. Our team will contact you shortly for confirmation.`);
+    toast.success(`Booking confirmed for ${selectedPuja.name} on ${selectedDate} with ${selectedPandit.name}. Our team will contact you shortly for confirmation.`);
     setShowPanditModal(false);
     setSelectedPuja(null);
     setSelectedPandit(null);
@@ -361,210 +325,203 @@ const PujaBooking = () => {
   ];
   
   return (
-    <div className="min-h-screen bg-gray-100 pt-2 pb-12">
+    <div className="min-h-screen bg-gray-50 py-6">
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Book a Puja</h1>
+        <h1 className="text-3xl font-bold text-center text-gray-900 mb-6">Book a Puja</h1>
         
-        {/* Search and Date picker */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FontAwesomeIcon icon={faSearch} className="text-gray-400" />
+        {/* Search and Filter Bar */}
+        <div className="bg-white rounded-xl shadow-sm mb-6">
+          <div className="p-4">
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="flex-1 min-w-[200px]">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search for pujas..."
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    value={filters.searchTerm}
+                    onChange={(e) => handleFilterChange('searchTerm', e.target.value)}
+                  />
+                  <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-3 text-gray-400" />
                 </div>
-                <input
-                  type="text"
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-[#317bea] focus:border-[#317bea]"
-                  placeholder="Search for pujas..."
-                  value={filters.searchTerm}
-                  onChange={(e) => handleFilterChange('searchTerm', e.target.value)}
-                />
               </div>
-              
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FontAwesomeIcon icon={faCalendar} className="text-gray-400" />
-                </div>
+
+              <div className="flex items-center">
                 <input
                   type="date"
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-[#317bea] focus:border-[#317bea]"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
                   min={new Date().toISOString().split('T')[0]}
                 />
               </div>
-              
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FontAwesomeIcon icon={faMapMarkerAlt} className="text-gray-400" />
-                </div>
-                <select
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-[#317bea] focus:border-[#317bea] appearance-none bg-white"
-                >
-                  <option value="">Select your location</option>
-                  <option value="mumbai">Mumbai</option>
-                  <option value="delhi">Delhi</option>
-                  <option value="bangalore">Bangalore</option>
-                  <option value="kolkata">Kolkata</option>
-                  <option value="chennai">Chennai</option>
-                  <option value="hyderabad">Hyderabad</option>
-                  <option value="pune">Pune</option>
-                  <option value="ahmedabad">Ahmedabad</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex flex-col lg:flex-row mb-8">
-          <div className="w-64 space-y-6">
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <h3 className="font-semibold mb-4">Filters</h3>
-              
-              {/* Search and Sort */}
-              <div className="mb-6">
-                <div className="relative mb-4">
-                  <input
-                    type="text"
-                    placeholder="Search pujas..."
-                    className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#317bea] focus:border-[#317bea]"
-                  />
-                  <button className="absolute right-0 top-0 mt-2 mr-3 text-gray-400">
-                    <FontAwesomeIcon icon={faSearch} />
-                  </button>
-                </div>
-                <select className="w-full py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#317bea] focus:border-[#317bea]">
-                  <option value="">Sort By</option>
-                  <option value="price-asc">Price: Low to High</option>
-                  <option value="price-desc">Price: High to Low</option>
-                  <option value="rating">Rating</option>
-                  <option value="popular">Most Popular</option>
-                </select>
-              </div>
 
-              {/* Occasion Filter */}
-              <div className="mb-6">
-                <h4 className="font-medium mb-2">Occasion</h4>
-                <div className="space-y-2">
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span>Wedding</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span>House Warming</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span>Birthday</span>
-                  </label>
-                </div>
-              </div>
+              <button
+                className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 md:hidden"
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                <FontAwesomeIcon icon={faFilter} />
+                Filters
+                <FontAwesomeIcon icon={showFilters ? faChevronUp : faChevronDown} />
+              </button>
 
-              {/* Duration Filter */}
-              <div className="mb-6">
-                <h4 className="font-medium mb-2">Duration</h4>
-                <div className="space-y-2">
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span>1-2 hours</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span>2-3 hours</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span>3+ hours</span>
-                  </label>
+              <div className="hidden md:flex md:items-center md:gap-4">
+                <div>
+                  <select
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    value={filters.occasion}
+                    onChange={(e) => handleFilterChange('occasion', e.target.value)}
+                  >
+                    <option value="all">All Occasions</option>
+                    <option value="house-warming">House Warming</option>
+                    <option value="new-venture">New Venture</option>
+                    <option value="festival">Festival</option>
+                    <option value="diwali">Diwali</option>
+                    <option value="navratri">Navratri</option>
+                    <option value="peace">Peace & Harmony</option>
+                    <option value="financial-success">Financial Success</option>
+                    <option value="health">Health & Wellbeing</option>
+                    <option value="astrological-remedy">Astrological Remedy</option>
+                  </select>
                 </div>
-              </div>
 
-              {/* Price Range Filter */}
-              <div>
-                <h4 className="font-medium mb-2">Price Range</h4>
-                <div className="space-y-2">
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span>Under ₹1000</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span>₹1000 - ₹2000</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span>₹2000 - ₹3000</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span>Over ₹3000</span>
-                  </label>
+                <div>
+                  <select
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    value={filters.sortBy}
+                    onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+                  >
+                    <option value="popularity">Sort by: Popularity</option>
+                    <option value="price-low-high">Price: Low to High</option>
+                    <option value="price-high-low">Price: High to Low</option>
+                    <option value="rating">Highest Rated</option>
+                  </select>
                 </div>
               </div>
             </div>
-          </div>
-          
-          <div className="flex-1">
-            {filteredPujas.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {filteredPujas.map(puja => (
-                  <div key={puja.id} className="bg-white rounded-lg shadow-sm overflow-hidden flex flex-col h-full">
-                    <div className="relative">
-                      <img 
-                        src={puja.image} 
-                        alt={puja.name} 
-                        className="w-full h-48 object-cover"
-                      />
-                      <div className="absolute bottom-0 right-0 bg-[#317bea] text-white px-3 py-1 text-sm font-medium">
-                        ₹{puja.price.toLocaleString()}
-                      </div>
-                    </div>
-                    
-                    <div className="p-6 flex-1 flex flex-col">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-xl font-semibold text-gray-900">{puja.name}</h3>
-                        <div className="flex items-center text-sm">
-                          <FontAwesomeIcon icon={faClock} className="text-gray-500 mr-1" />
-                          <span className="text-gray-700">{puja.duration}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center mb-3">
-                        <div className="flex items-center text-yellow-400">
-                          <FontAwesomeIcon icon={faStar} />
-                          <span className="ml-1 text-gray-700">{puja.rating}</span>
-                        </div>
-                        <span className="mx-2 text-gray-400">|</span>
-                        <span className="text-gray-700">{puja.reviews} reviews</span>
-                      </div>
-                      
-                      <p className="text-gray-600 mb-4 flex-1">{puja.description}</p>
-                      
-                      <button
-                        onClick={() => handleBookPuja(puja)}
-                        className="w-full bg-[#317bea] text-white py-2 rounded-md hover:bg-[#317bea]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#317bea]"
-                      >
-                        Book Now
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="bg-white rounded-lg shadow-sm overflow-hidden p-8 text-center">
-                <p className="text-xl font-medium text-gray-500 mb-3">No pujas found</p>
-                <p className="text-gray-500">
-                  Try adjusting your filters or search term to find what you're looking for.
-                </p>
+
+            {/* Mobile Filters */}
+            {showFilters && (
+              <div className="mt-4 md:hidden space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Occasion</label>
+                  <select
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    value={filters.occasion}
+                    onChange={(e) => handleFilterChange('occasion', e.target.value)}
+                  >
+                    <option value="all">All Occasions</option>
+                    <option value="house-warming">House Warming</option>
+                    <option value="new-venture">New Venture</option>
+                    <option value="festival">Festival</option>
+                    <option value="diwali">Diwali</option>
+                    <option value="navratri">Navratri</option>
+                    <option value="peace">Peace & Harmony</option>
+                    <option value="financial-success">Financial Success</option>
+                    <option value="health">Health & Wellbeing</option>
+                    <option value="astrological-remedy">Astrological Remedy</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+                  <select
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    value={filters.duration}
+                    onChange={(e) => handleFilterChange('duration', e.target.value)}
+                  >
+                    <option value="all">Any Duration</option>
+                    <option value="short">Short (Up to 2 hours)</option>
+                    <option value="medium">Medium (2-3 hours)</option>
+                    <option value="long">Long (3+ hours)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Price Range</label>
+                  <select
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    value={filters.priceRange}
+                    onChange={(e) => handleFilterChange('priceRange', e.target.value)}
+                  >
+                    <option value="all">Any Price</option>
+                    <option value="0-2000">Under ₹2,000</option>
+                    <option value="2000-3000">₹2,000 - ₹3,000</option>
+                    <option value="3000">₹3,000+</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+                  <select
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    value={filters.sortBy}
+                    onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+                  >
+                    <option value="popularity">Popularity</option>
+                    <option value="price-low-high">Price: Low to High</option>
+                    <option value="price-high-low">Price: High to Low</option>
+                    <option value="rating">Highest Rated</option>
+                  </select>
+                </div>
               </div>
             )}
           </div>
         </div>
         
+        {/* Puja Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filterPujas().map((puja) => (
+            <div 
+              key={puja.id} 
+              className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300 cursor-pointer"
+              onClick={() => navigate(`/puja-booking/${puja.id}`)}
+            >
+              <div className="h-48 overflow-hidden">
+                <img
+                  src={puja.image}
+                  alt={puja.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              
+              <div className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-lg font-bold text-gray-900">{puja.name}</h3>
+                  <div className="flex items-center">
+                    <FontAwesomeIcon icon={faStar} className="text-yellow-400 mr-1" />
+                    <span className="text-gray-700">{puja.rating}</span>
+                    <span className="text-gray-500 text-xs ml-1">({puja.reviews})</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-center text-gray-600 text-sm mb-3">
+                  <FontAwesomeIcon icon={faClock} className="mr-1" />
+                  <span>{puja.duration}</span>
+                </div>
+                
+                <p className="text-gray-600 text-sm mb-4">{puja.description.length > 120 ? `${puja.description.substring(0, 120)}...` : puja.description}</p>
+                
+                <div className="flex items-center justify-between">
+                  <div className="text-blue-600 font-bold">₹{puja.price.toLocaleString()}</div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent navigation to detail page
+                      handleBookPuja(puja);
+                    }}
+                    className="px-4 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors"
+                  >
+                    Book Now
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        
         {/* FAQs Section */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden mt-12 mb-8">
+        <div className="bg-white rounded-lg shadow-sm mt-12 mb-8">
           <div className="p-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h2>
             
@@ -576,7 +533,7 @@ const PujaBooking = () => {
                     onClick={() => handleFaqToggle(index)}
                   >
                     <div className="flex items-center">
-                      <FontAwesomeIcon icon={faQuestionCircle} className="text-[#317bea] mr-3" />
+                      <FontAwesomeIcon icon={faQuestionCircle} className="text-blue-600 mr-3" />
                       <span className="font-medium text-gray-900">{faq.question}</span>
                     </div>
                     <FontAwesomeIcon 
@@ -597,14 +554,14 @@ const PujaBooking = () => {
         </div>
         
         {/* Call to Action */}
-        <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg shadow-md overflow-hidden mt-12">
+        <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg shadow-md mt-12">
           <div className="p-8 text-center text-white">
             <h2 className="text-2xl font-bold mb-4">Need a Custom Puja Package?</h2>
             <p className="mb-6 max-w-2xl mx-auto">
               We can arrange customized puja services for special occasions, corporate events, or specific requirements. 
               Our expert pandits can guide you through the process and help create a meaningful spiritual experience.
             </p>
-            <button className="bg-white text-[#317bea] px-8 py-3 rounded-md font-medium hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-500">
+            <button className="bg-white text-blue-600 px-8 py-3 rounded-md font-medium hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-500">
               Contact Us for Custom Packages
             </button>
           </div>
@@ -631,17 +588,17 @@ const PujaBooking = () => {
 
                 <div className="mb-6">
                   <div className="p-4 bg-blue-50 rounded-lg border border-blue-100 mb-4">
-                    <div className="flex items-center">
-                      <div className="mr-4">
+                    <div className="flex flex-col md:flex-row">
+                      <div className="md:mr-4 mb-4 md:mb-0">
                         <img 
                           src={selectedPuja.image} 
                           alt={selectedPuja.name}
-                          className="w-16 h-16 object-cover rounded-lg"
+                          className="w-full md:w-16 h-32 md:h-16 object-cover rounded-lg"
                         />
                       </div>
-                      <div>
+                      <div className="flex-1">
                         <h3 className="text-lg font-semibold">{selectedPuja.name}</h3>
-                        <div className="flex text-sm text-gray-600 mt-1">
+                        <div className="flex flex-wrap text-sm text-gray-600 mt-1">
                           <div className="flex items-center mr-4">
                             <FontAwesomeIcon icon={faCalendar} className="mr-1" />
                             <span>{selectedDate}</span>
@@ -652,7 +609,7 @@ const PujaBooking = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="ml-auto">
+                      <div className="mt-3 md:mt-0 md:ml-auto">
                         <span className="font-bold text-lg">₹{selectedPuja.price.toLocaleString()}</span>
                       </div>
                     </div>
@@ -663,10 +620,10 @@ const PujaBooking = () => {
                     {pandits.map(pandit => (
                       <div 
                         key={pandit.id} 
-                        className={`border rounded-lg p-4 ${selectedPandit?.id === pandit.id ? 'border-[#317bea] bg-blue-50' : 'border-gray-200'} ${!pandit.availability ? 'opacity-50' : ''}`}
+                        className={`border rounded-lg p-4 ${selectedPandit?.id === pandit.id ? 'border-blue-600 bg-blue-50' : 'border-gray-200'} ${!pandit.availability ? 'opacity-50' : ''}`}
                       >
-                        <div className="flex">
-                          <div className="mr-4">
+                        <div className="flex flex-col md:flex-row">
+                          <div className="md:mr-4 mb-4 md:mb-0 flex justify-center">
                             <img 
                               src={pandit.image} 
                               alt={pandit.name}
@@ -674,9 +631,9 @@ const PujaBooking = () => {
                             />
                           </div>
                           <div className="flex-1">
-                            <div className="flex justify-between items-start">
-                              <h4 className="text-lg font-semibold">{pandit.name}</h4>
-                              <div className="flex items-center">
+                            <div className="flex flex-col md:flex-row md:justify-between md:items-start">
+                              <h4 className="text-lg font-semibold mb-2 md:mb-0">{pandit.name}</h4>
+                              <div className="flex items-center mb-2 md:mb-0">
                                 <FontAwesomeIcon icon={faStar} className="text-yellow-400 mr-1" />
                                 <span>{pandit.rating}</span>
                                 <span className="text-gray-500 text-sm ml-1">({pandit.reviews})</span>
@@ -684,15 +641,15 @@ const PujaBooking = () => {
                             </div>
                             <div className="mt-1 text-sm text-gray-600">
                               <div className="flex items-center mb-1">
-                                <FontAwesomeIcon icon={faUser} className="mr-2 text-[#317bea]" />
+                                <FontAwesomeIcon icon={faUser} className="mr-2 text-blue-600" />
                                 <span>Experience: {pandit.experience}</span>
                               </div>
                               <div className="flex items-center mb-1">
-                                <FontAwesomeIcon icon={faCheckCircle} className="mr-2 text-[#317bea]" />
+                                <FontAwesomeIcon icon={faCheckCircle} className="mr-2 text-blue-600" />
                                 <span>Specialization: {pandit.specialization}</span>
                               </div>
                               <div className="flex items-center">
-                                <FontAwesomeIcon icon={faLanguage} className="mr-2 text-[#317bea]" />
+                                <FontAwesomeIcon icon={faLanguage} className="mr-2 text-blue-600" />
                                 <span>Languages: {pandit.languages.join(", ")}</span>
                               </div>
                             </div>
@@ -701,7 +658,7 @@ const PujaBooking = () => {
                         {pandit.availability ? (
                           <button
                             onClick={() => handleSelectPandit(pandit)}
-                            className={`mt-3 w-full py-2 rounded-md ${selectedPandit?.id === pandit.id ? 'bg-[#317bea] text-white' : 'border border-[#317bea] text-[#317bea]'}`}
+                            className={`mt-3 w-full py-2 rounded-md ${selectedPandit?.id === pandit.id ? 'bg-blue-600 text-white' : 'border border-blue-600 text-blue-600'}`}
                           >
                             {selectedPandit?.id === pandit.id ? 'Selected' : 'Select Pandit'}
                           </button>
@@ -732,7 +689,7 @@ const PujaBooking = () => {
                   <button
                     onClick={handleConfirmBooking}
                     disabled={!selectedPandit}
-                    className={`px-4 py-2 rounded-md ${selectedPandit ? 'bg-[#317bea] text-white' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
+                    className={`px-4 py-2 rounded-md ${selectedPandit ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
                   >
                     Confirm Booking
                   </button>
@@ -746,4 +703,4 @@ const PujaBooking = () => {
   );
 };
 
-export default PujaBooking; 
+export default PujaBooking;

@@ -15,6 +15,8 @@ import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import '@glidejs/glide/dist/css/glide.core.min.css';
 import '@glidejs/glide/dist/css/glide.theme.min.css';
+import ProductDetail from './pages/ProductDetail';
+import BookingForm from './pages/BookingForm';
 
 function App() {
   return (
@@ -31,7 +33,10 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/shop" element={<Shop />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/puja-booking" element={<PujaBooking />} />
+                <Route path="/puja-booking/:id" element={<ProductDetail />} />
+                <Route path="/booking-form/:id" element={<BookingForm />} />
                 <Route path="/flowers-and-mala" element={<FlowersAndMala />} />
                 <Route path="/prashad-services" element={<PrashadServices />} />
               </Routes>

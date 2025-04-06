@@ -97,7 +97,7 @@ const ProductsSection = () => {
                     <div className="flex items-center justify-between">
                       <span className="text-lg font-bold text-custom">{product.price}</span>
                       <Link 
-                        to="/cart" 
+                        to="/shop" 
                         className="px-4 py-2 bg-[#317bea] text-white rounded-button text-sm"
                       >
                         Add to Cart

@@ -11,7 +11,6 @@ import {
   faGlobe 
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
-import { useCart } from '../contexts/CartContext';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -21,10 +20,10 @@ const Header = () => {
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
   
   const navigate = useNavigate();
   const { currentUser, isAuthenticated } = useAuth();
-  const { getCartCount } = useCart();
 
   const locations = [
     'Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata', 
@@ -42,6 +41,34 @@ const Header = () => {
     
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  
+  // Get cart count from localStorage
+  useEffect(() => {
+    const updateCartCount = () => {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const count = cart.reduce((total, item) => total + item.quantity, 0);
+      setCartCount(count);
+    };
+    
+    // Update count on mount
+    updateCartCount();
+    
+    // Listen for changes to localStorage
+    window.addEventListener('storage', updateCartCount);
+    
+    // Also check for sessionStorage cartUpdated flag
+    const interval = setInterval(() => {
+      const cartUpdated = sessionStorage.getItem('cartUpdated');
+      if (cartUpdated) {
+        updateCartCount();
+      }
+    }, 1000);
+    
+    return () => {
+      window.removeEventListener('storage', updateCartCount);
+      clearInterval(interval);
+    };
   }, []);
 
   const handleSearch = (e) => {
@@ -184,9 +211,9 @@ const Header = () => {
               className="text-gray-700 hover:text-[#317bea] p-2 rounded-full hover:bg-gray-100 relative"
             >
               <FontAwesomeIcon icon={faShoppingCart} />
-              {getCartCount() > 0 && (
+              {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {getCartCount()}
+                  {cartCount}
                 </span>
               )}
             </Link>
@@ -277,4 +304,4 @@ const Header = () => {
   );
 };
 
-export default Header; 
+export default Header;
