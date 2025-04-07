@@ -1,0 +1,16 @@
+{
+  "name": "PujaKaro - Your One-Stop Solution for Religious Needs",
+  "short_name": "PujaKaro",
+  "description": "Book authentic pujas, purchase religious items, and connect with experienced pandits.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#fb9548",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "32x32",
+      "type": "image/svg+xml"
+    }
+  ]
+} 

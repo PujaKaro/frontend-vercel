@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinus, faPlus, faTrash, faArrowLeft, faShoppingBag } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { trackPurchase } from '../utils/analytics';
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -117,6 +118,15 @@ const Cart = () => {
               paymentId: response.razorpay_payment_id
             } 
           });
+          
+          // When payment is successful, track the purchase
+          const transactionId = `ORDER-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+          
+          trackPurchase(
+            transactionId,
+            calculateTotal(),
+            cartItems
+          );
         },
         prefill: {
           name: "John Doe",

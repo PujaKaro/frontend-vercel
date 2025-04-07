@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt, faClock, faUser, faMapMarkerAlt, faPhoneAlt, faEnvelope, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { pujaServices } from '../data/data';
+import { trackPujaBooking, trackPurchase } from '../utils/analytics';
 
 const BookingForm = () => {
   const { id } = useParams();
@@ -41,7 +42,12 @@ const BookingForm = () => {
         navigate('/puja-booking');
       }
     }
-  }, [id, location.state, navigate]);
+    
+    // Track puja booking view in Google Analytics
+    if (puja) {
+      trackPujaBooking(puja);
+    }
+  }, [id, location, navigate]);
   
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -88,7 +94,7 @@ const BookingForm = () => {
     return Object.keys(newErrors).length === 0;
   };
   
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (validateForm()) {
@@ -104,14 +110,33 @@ const BookingForm = () => {
           user: formData
         });
         
-        navigate('/booking-confirmation', { 
-          state: { 
-            puja,
-            date: bookingDate,
-            timeSlot: bookingTime,
-            user: formData
-          } 
-        });
+        // When payment/booking is successful
+        const paymentSuccess = true;
+        
+        if (paymentSuccess) {
+          const transactionId = `PUJA-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+          
+          trackPurchase(
+            transactionId,
+            puja.price,
+            [{
+              id: puja.id,
+              name: puja.name,
+              price: puja.price,
+              type: 'puja',
+              quantity: 1
+            }]
+          );
+          
+          navigate('/booking-confirmation', { 
+            state: { 
+              puja,
+              date: bookingDate,
+              timeSlot: bookingTime,
+              user: formData
+            } 
+          });
+        }
         
         setIsSubmitting(false);
       }, 1500);

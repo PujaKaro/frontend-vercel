@@ -1,0 +1,14 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow private user areas
+Disallow: /profile
+Disallow: /order-confirmation
+Disallow: /booking-confirmation
+
+# Crawl delay
+Crawl-delay: 10
+
+# Sitemap location
+Sitemap: https://pujakaro.com/sitemap.xml 

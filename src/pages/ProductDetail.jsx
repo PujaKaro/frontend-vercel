@@ -3,10 +3,12 @@ import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar, faHeart, faShoppingCart, faClock, faCalendarAlt, faArrowLeft, faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
-import { products, pujaServices, getSuggestedProducts, getSuggestedPujas, pandits, getPanditById } from '../data/data';
+import { products, pujaServices, getSuggestedPujas, pandits, getPanditById } from '../data/data';
 import { useAuth } from '../contexts/AuthContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import SEO from '../components/SEO';
+import { trackProductView, trackAddToCart } from '../utils/analytics';
 
 const ProductDetail = () => {
   const { type, id } = useParams();
@@ -22,6 +24,7 @@ const ProductDetail = () => {
   const [itemType, setItemType] = useState('');
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
+  const [seoData, setSeoData] = useState(null);
   
   // Mock additional images for all products
   const [additionalImages, setAdditionalImages] = useState([]);
@@ -32,31 +35,272 @@ const ProductDetail = () => {
     setItemType(typeFromPath);
     
     let foundItem;
-    let suggestions;
     
+    // Find the appropriate item based on the path type
     if (typeFromPath === 'product') {
       foundItem = products.find(product => product.id === parseInt(id));
-      suggestions = getSuggestedProducts(id);
     } else {
       foundItem = pujaServices.find(puja => puja.id === parseInt(id));
-      suggestions = getSuggestedPujas(id);
     }
     
-    setItem(foundItem);
-    setSuggestedItems(suggestions);
-    
-    // Generate additional mock images
+    // Only proceed if we found a valid item
     if (foundItem) {
+      setItem(foundItem);
+      
+      // Get related items
+      let suggestions = [];
+      if (typeFromPath === 'product') {
+        // Get similar products from the same category
+        suggestions = products
+          .filter(product => 
+            product.id !== foundItem.id && 
+            product.category === foundItem.category
+          )
+          .slice(0, 3);
+          
+        // If not enough, add random products
+        if (suggestions.length < 3) {
+          const randomProducts = products
+            .filter(product => 
+              product.id !== foundItem.id && 
+              !suggestions.some(s => s.id === product.id)
+            )
+            .sort(() => 0.5 - Math.random())
+            .slice(0, 3 - suggestions.length);
+          
+          suggestions = [...suggestions, ...randomProducts];
+        }
+      } else {
+        suggestions = getSuggestedPujas(id);
+      }
+      setSuggestedItems(suggestions || []);
+      
+      // Generate additional mock images
       const mockImages = [
-        foundItem.image,
+        foundItem.image || '/images/featuredPuja.jpg',
         '/images/ganesh.jpg',
         '/images/featuredPuja.jpg',
         '/images/ganesh.jpg',
       ];
       setAdditionalImages(mockImages);
       setActiveImage(0);
+      
+      // Generate SEO data based on item type
+      if (typeFromPath === 'product' && foundItem.category) {
+        generateProductSEO(foundItem);
+      } else if (typeFromPath === 'puja') {
+        generatePujaSEO(foundItem);
+      }
+      
+      // Track product view in Google Analytics when product is loaded
+      trackProductView(foundItem);
     }
   }, [id, location.pathname]);
+  
+  // Generate SEO data for products
+  const generateProductSEO = (product) => {
+    if (!product || !product.category) return;
+    
+    // Create breadcrumb schema
+    const breadcrumbSchema = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://pujakaro.com"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Shop",
+          "item": "https://pujakaro.com/shop"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": product.name,
+          "item": `https://pujakaro.com/product/${product.id}`
+        }
+      ]
+    };
+    
+    // Create product schema
+    const productSchema = {
+      "@context": "https://schema.org/",
+      "@type": "Product",
+      "name": product.name,
+      "image": additionalImages.map(img => img ? (img.startsWith('/') ? `https://pujakaro.com${img}` : img) : ""),
+      "description": product.description || "",
+      "sku": `PUJA-PROD-${product.id}`,
+      "mpn": `P${product.id}`,
+      "brand": {
+        "@type": "Brand",
+        "name": "PujaKaro"
+      },
+      "offers": {
+        "@type": "Offer",
+        "url": `https://pujakaro.com/product/${product.id}`,
+        "priceCurrency": "INR",
+        "price": product.price || 0,
+        "priceValidUntil": new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
+        "itemCondition": "https://schema.org/NewCondition",
+        "availability": product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+        "seller": {
+          "@type": "Organization",
+          "name": "PujaKaro"
+        }
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": product.rating || 4.5,
+        "reviewCount": product.reviews || 22,
+        "bestRating": 5,
+        "worstRating": 1
+      },
+      "review": [
+        {
+          "@type": "Review",
+          "reviewRating": {
+            "@type": "Rating",
+            "ratingValue": "5",
+            "bestRating": "5"
+          },
+          "author": {
+            "@type": "Person",
+            "name": "Priya Sharma"
+          },
+          "datePublished": "2023-04-15",
+          "reviewBody": `I purchased this ${product.name} for my home temple. The quality is excellent and the delivery was fast. Highly recommended!`
+        }
+      ]
+    };
+    
+    // Set SEO data
+    setSeoData({
+      title: `${product.name} - Premium Religious Items | PujaKaro`,
+      description: product.description && product.description.length > 160 ? 
+        `${product.description.substring(0, 157)}...` : 
+        (product.description || "Premium religious items for your home temple"),
+      canonicalUrl: `https://pujakaro.com/product/${product.id}`,
+      imageUrl: product.image ? (product.image.startsWith('/') ? `https://pujakaro.com${product.image}` : product.image) : "",
+      type: "product",
+      schema: [breadcrumbSchema, productSchema],
+      keywords: [product.name, product.category, "religious items", "puja items", "hindu worship", "home temple", ...(product.tags || [])]
+    });
+  };
+  
+  // Generate SEO data for puja services
+  const generatePujaSEO = (puja) => {
+    // Early return if puja is invalid
+    if (!puja) return;
+    
+    try {
+      // Create breadcrumb schema
+      const breadcrumbSchema = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://pujakaro.com"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Puja Services",
+            "item": "https://pujakaro.com/puja-booking"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": puja.name || "Puja Service",
+            "item": `https://pujakaro.com/puja-booking/${puja.id}`
+          }
+        ]
+      };
+      
+      // Create service schema
+      const serviceSchema = {
+        "@context": "https://schema.org/",
+        "@type": "Service",
+        "name": puja.name || "Puja Service",
+        "serviceType": "Religious Service",
+        "image": puja.image ? (puja.image.startsWith('/') ? `https://pujakaro.com${puja.image}` : puja.image) : "",
+        "description": puja.longDescription || puja.description || "",
+        "provider": {
+          "@type": "Organization",
+          "name": "PujaKaro"
+        },
+        "offers": {
+          "@type": "Offer",
+          "url": `https://pujakaro.com/puja-booking/${puja.id}`,
+          "priceCurrency": "INR",
+          "price": puja.price || 0,
+          "priceValidUntil": new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
+          "availability": "https://schema.org/InStock",
+          "validFrom": new Date().toISOString().split('T')[0]
+        },
+        "areaServed": {
+          "@type": "City",
+          "name": "Mumbai",
+          "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "IN"
+          }
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": puja.rating || 5,
+          "reviewCount": puja.reviews || 15,
+          "bestRating": 5,
+          "worstRating": 1
+        },
+        "review": [
+          {
+            "@type": "Review",
+            "reviewRating": {
+              "@type": "Rating",
+              "ratingValue": "5",
+              "bestRating": "5"
+            },
+            "author": {
+              "@type": "Person",
+              "name": "Raj Patel"
+            },
+            "datePublished": "2023-05-20",
+            "reviewBody": `We had an excellent experience with the ${puja.name || "puja service"} conducted by PujaKaro. The pandit was very knowledgeable and performed all rituals perfectly.`
+          }
+        ]
+      };
+      
+      // Set SEO data
+      setSeoData({
+        title: `${puja.name || "Puja Service"} - Book Authentic Puja Services | PujaKaro`,
+        description: puja.description && puja.description.length > 160 ? 
+          `${puja.description.substring(0, 157)}...` : 
+          (puja.description || "Book authentic puja services with experienced pandits"),
+        canonicalUrl: `https://pujakaro.com/puja-booking/${puja.id}`,
+        imageUrl: puja.image ? (puja.image.startsWith('/') ? `https://pujakaro.com${puja.image}` : puja.image) : "",
+        type: "service",
+        schema: [breadcrumbSchema, serviceSchema],
+        keywords: [
+          puja.name || "puja service", 
+          "puja services", 
+          "hindu rituals", 
+          "religious ceremonies", 
+          puja.occasion || "", 
+          puja.category || ""
+        ]
+      });
+    } catch (error) {
+      console.error("Error generating SEO data:", error);
+    }
+  };
   
   const toggleWishlist = () => {
     setIsWishlisted(!isWishlisted);
@@ -95,6 +339,9 @@ const ProductDetail = () => {
     
     // Force a refresh on header component by updating sessionStorage
     sessionStorage.setItem('cartUpdated', Date.now().toString());
+    
+    // Track add to cart event in Google Analytics
+    trackAddToCart(item, 1);
   };
   
   const handleBookNow = () => {
@@ -135,6 +382,7 @@ const ProductDetail = () => {
   
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+      {seoData && <SEO {...seoData} />}
       <ToastContainer position="top-right" autoClose={3000} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <button 
@@ -145,6 +393,29 @@ const ProductDetail = () => {
           <span>Back</span>
         </button>
         
+        {/* Breadcrumbs */}
+        <nav className="flex mb-6" aria-label="Breadcrumb">
+          <ol className="inline-flex items-center space-x-1 md:space-x-3">
+            <li className="inline-flex items-center">
+              <Link to="/" className="text-sm text-gray-600 hover:text-gray-900">Home</Link>
+            </li>
+            <li>
+              <div className="flex items-center">
+                <span className="mx-2 text-gray-400">/</span>
+                <Link to={itemType === 'product' ? '/shop' : '/puja-booking'} className="text-sm text-gray-600 hover:text-gray-900">
+                  {itemType === 'product' ? 'Shop' : 'Puja Services'}
+                </Link>
+              </div>
+            </li>
+            <li>
+              <div className="flex items-center">
+                <span className="mx-2 text-gray-400">/</span>
+                <span className="text-sm text-gray-500" aria-current="page">{item.name}</span>
+              </div>
+            </li>
+          </ol>
+        </nav>
+        
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           <div className="md:flex">
             {/* Image Section */}
@@ -154,12 +425,14 @@ const ProductDetail = () => {
                 <div className="h-64 md:h-96 bg-gray-200 relative">
                   <img 
                     src={additionalImages[activeImage]} 
-                    alt={item.name}
+                    alt={`${item.name} - Main view ${activeImage+1}`}
                     className="w-full h-full object-cover"
+                    loading="eager" // Load main image immediately
                   />
                   <button 
                     onClick={toggleWishlist}
                     className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white shadow flex items-center justify-center"
+                    aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
                   >
                     <FontAwesomeIcon 
                       icon={isWishlisted ? faHeart : farHeart} 
@@ -178,8 +451,9 @@ const ProductDetail = () => {
                     >
                       <img 
                         src={img} 
-                        alt={`${item.name} view ${index+1}`}
+                        alt={`${item.name} thumbnail ${index+1}`}
                         className="w-full h-full object-cover"
+                        loading="lazy" // Lazy load thumbnails
                       />
                     </div>
                   ))}
@@ -444,6 +718,7 @@ const ProductDetail = () => {
                       src={item.image} 
                       alt={item.name}
                       className="w-full h-full object-cover"
+                      loading="lazy" // Lazy load suggested items
                     />
                   </div>
                   

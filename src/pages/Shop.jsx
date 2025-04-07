@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFilter, faStar, faSearch, faHeart, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
+import { faFilter, faStar, faSearch, faHeart, faShoppingCart, faChevronDown, faChevronUp, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
 import { products } from '../data/data';
 import { useAuth } from '../contexts/AuthContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import SEO from '../components/SEO';
 
 const Shop = () => {
   const [productList, setProductList] = useState([]);
@@ -168,8 +169,61 @@ const Shop = () => {
     applyFilters(productList, filters, searchTerm);
   };
 
+  // Create structured data for Shop page
+  const createStructuredData = () => {
+    const itemList = {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "itemListElement": filteredProducts.slice(0, 10).map((product, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "item": {
+          "@type": "Product",
+          "name": product.name,
+          "image": product.image.startsWith('/') ? `https://pujakaro.com${product.image}` : product.image,
+          "description": product.description.substring(0, 150),
+          "url": `https://pujakaro.com/product/${product.id}`,
+          "offers": {
+            "@type": "Offer",
+            "price": product.price,
+            "priceCurrency": "INR",
+            "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+          }
+        }
+      }))
+    };
+
+    const breadcrumb = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://pujakaro.com"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Shop",
+          "item": "https://pujakaro.com/shop"
+        }
+      ]
+    };
+
+    return [itemList, breadcrumb];
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+      <SEO
+        title="Shop Religious Products Online - PujaKaro"
+        description="Browse and buy authentic religious products online. Wide selection of puja items, idols, and more for your spiritual needs."
+        canonicalUrl="https://pujakaro.com/shop"
+        schema={createStructuredData()}
+        keywords={["religious products", "puja items", "idols", "spiritual products", "online religious store"]}
+      />
       <ToastContainer position="top-right" autoClose={3000} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Mobile Header */}

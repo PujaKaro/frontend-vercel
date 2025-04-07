@@ -1,13 +1,72 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="PujaKaro - Your one-stop solution for authentic puja services, religious products, and spiritual guidance." />
+    <meta name="keywords" content="puja, hindu rituals, religious products, pandit, spiritual services, online puja booking" />
+    <meta name="author" content="PujaKaro" />
+    
+    <!-- Google Analytics -->
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-C4T23TJGS5"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-C4T23TJGS5');
+    </script>
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://pujakaro.com/" />
+    <meta property="og:title" content="PujaKaro - Your One-Stop Solution for Religious Needs" />
+    <meta property="og:description" content="Book authentic pujas, purchase religious items, and connect with experienced pandits." />
+    <meta property="og:image" content="https://pujakaro.com/images/og-image.jpg" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://pujakaro.com/" />
+    <meta property="twitter:title" content="PujaKaro - Your One-Stop Solution for Religious Needs" />
+    <meta property="twitter:description" content="Book authentic pujas, purchase religious items, and connect with experienced pandits." />
+    <meta property="twitter:image" content="https://pujakaro.com/images/og-image.jpg" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://pujakaro.com/" />
+    
+    <!-- PWA Support -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#fb9548" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    
+    <!-- Preconnect to External Resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
     <title>PujaKaro - Your One-Stop Solution for Religious Needs</title>
+    
+    <!-- Font preloading for better performance -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js')
+            .then(registration => {
+              console.log('Service Worker registered: ', registration);
+            })
+            .catch(registrationError => {
+              console.log('Service Worker registration failed: ', registrationError);
+            });
+        });
+      }
+    </script>
   </body>
 </html>
