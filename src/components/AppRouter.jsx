@@ -15,6 +15,7 @@ import NotFound from '../pages/NotFound';
 // Import authentication pages
 import SignIn from '../pages/SignIn';
 import SignUp from '../pages/SignUp';
+import Profile from '../pages/Profile';
 
 const AppRouter = () => {
   return (
@@ -28,6 +29,7 @@ const AppRouter = () => {
       <Route path="/cart" element={<Cart />} />
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
+      <Route path="/profile" element={<Profile />} />
       <Route path="/order-confirmation" element={<OrderConfirmation />} />
       <Route path="/booking-confirmation" element={<BookingConfirmation />} />
       <Route path="/flowers-and-mala" element={<FlowersAndMala />} />
