@@ -26,8 +26,8 @@ const AppRouter = () => {
       <Route path="/puja-booking/:id" element={<ProductDetail />} />
       <Route path="/booking-form/:id" element={<BookingForm />} />
       <Route path="/cart" element={<Cart />} />
-      <Route path="/sign-in" element={<SignIn />} />
-      <Route path="/sign-up" element={<SignUp />} />
+      <Route path="/signin" element={<SignIn />} />
+      <Route path="/signup" element={<SignUp />} />
       <Route path="/order-confirmation" element={<OrderConfirmation />} />
       <Route path="/booking-confirmation" element={<BookingConfirmation />} />
       <Route path="/flowers-and-mala" element={<FlowersAndMala />} />
