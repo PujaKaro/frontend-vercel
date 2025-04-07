@@ -8,3 +8,55 @@ body {
   font-family: 'Poppins', sans-serif;
   background-color: #fefefe;
 }
+
+/* Glide.js custom styles */
+.glide__track {
+  overflow: hidden;
+}
+
+.glide__slides {
+  display: flex;
+  width: 100%;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.glide__slide {
+  flex: 0 0 auto;
+  width: 100%;
+  height: auto;
+  white-space: normal;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.glide {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.glide__bullets {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.glide__bullet {
+  width: 0.75rem;
+  height: 0.75rem;
+  margin: 0 0.25rem;
+  border-radius: 9999px;
+  background-color: #e5e7eb;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.glide__bullet:hover,
+.glide__bullet--active {
+  background-color: #fb9548;
+}
