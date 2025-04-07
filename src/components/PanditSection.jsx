@@ -3,6 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import Glide from '@glidejs/glide';
+import '@glidejs/glide/dist/css/glide.core.min.css';
+import '@glidejs/glide/dist/css/glide.theme.min.css';
 
 const PanditSection = () => {
   const glideRef = useRef(null);
@@ -13,6 +15,8 @@ const PanditSection = () => {
       type: 'carousel',
       perView: 4,
       gap: 32,
+      focusAt: 'center',
+      bound: true,
       breakpoints: {
         1024: { perView: 3 },
         768: { perView: 2 },
@@ -56,34 +60,33 @@ const PanditSection = () => {
       className="py-16 bg-[#fb9548] relative" 
       style={{ backgroundImage: "url('/images/Section.png')", backgroundSize: "cover", backgroundPosition: "center" }}
     >
-      <div className="absolute inset-0 opacity-10"></div>
-      <div className="max-w-8xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-3xl font-bold text-center mb-6">Our Verified Pandits</h2>
         <div className="glide-pandits" ref={glideRef}>
           <div className="glide__track" data-glide-el="track">
             <ul className="glide__slides">
               {pandits.map((pandit, index) => (
                 <li key={index} className="glide__slide">
-                  <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                    <div className="relative aspect-w-1 aspect-h-1">
+                  <div className="bg-white rounded-lg shadow-sm overflow-hidden h-[150px] flex flex-col">
+                    {/* <div className="h-48 flex-shrink-0">
                       <img 
                         src={pandit.image} 
-                        className="absolute inset-0 w-full h-full object-cover" 
+                        className="w-full h-full object-cover" 
                         alt={pandit.name} 
                       />
-                    </div>
-                    <div className="p-4">
+                    </div> */}
+                    <div className="p-4 flex flex-col flex-grow">
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-semibold">{pandit.name}</h3>
+                        <h3 className="font-semibold line-clamp-1">{pandit.name}</h3>
                         <span className="flex items-center gap-1 text-green-500">
                           <FontAwesomeIcon icon={faCheckCircle} />
                           <span className="text-sm">Verified</span>
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600 mb-4">{pandit.experience}</p>
+                      <p className="text-sm text-gray-600 mb-4 line-clamp-2">{pandit.experience}</p>
                       <Link 
                         to="/puja-booking" 
-                        className="w-full py-2 bg-[#317bea] text-white font-medium rounded-button hover:bg-[#317bea]/90 text-center block"
+                        className="mt-auto w-full py-2 bg-[#317bea] text-white font-medium rounded-button hover:bg-[#317bea]/90 text-center block"
                       >
                         Book Now
                       </Link>
@@ -93,11 +96,11 @@ const PanditSection = () => {
               ))}
             </ul>
           </div>
-          <div className="glide__bullets mt-6 flex justify-center" data-glide-el="controls[nav]">
+          <div className="glide__bullets" data-glide-el="controls[nav]">
             {pandits.map((_, index) => (
               <button 
                 key={index} 
-                className="glide__bullet mx-1 w-3 h-3 rounded-full bg-gray-300 hover:bg-custom" 
+                className="glide__bullet" 
                 data-glide-dir={`=${index}`}
               ></button>
             ))}
