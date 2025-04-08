@@ -1,71 +1,123 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithPopup
+} from 'firebase/auth';
+import { auth } from '../config/firebase';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
 // Create context
 const AuthContext = createContext();
 
 // Provider component
-export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Check for existing user in localStorage (for demo purposes)
-    const user = localStorage.getItem('user');
-    if (user) {
-      setCurrentUser(JSON.parse(user));
-      setIsAuthenticated(true);
+  async function signup(email, password, userData) {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      // Create user profile in Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        name: userData.name,
+        email: user.email,
+        phone: userData.phone,
+        address: userData.address,
+        photoURL: null,
+        createdAt: new Date(),
+        orders: [],
+        bookings: [],
+        addresses: []
+      });
+      
+      return user;
+    } catch (error) {
+      throw error;
     }
-    setLoading(false);
+  }
+
+  async function login(email, password) {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      return userCredential.user;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  function logout() {
+    return signOut(auth);
+  }
+
+  async function signInWithGoogle() {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      
+      // Check if user exists in Firestore
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (!userDoc.exists()) {
+        // Create new user profile
+        await setDoc(doc(db, 'users', user.uid), {
+          name: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          createdAt: new Date(),
+          orders: [],
+          bookings: [],
+          addresses: []
+        });
+      }
+      
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async function updateUserProfile(userId, data) {
+    try {
+      await updateDoc(doc(db, 'users', userId), data);
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Get user data from Firestore
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+          setCurrentUser({ ...user, ...userDoc.data() });
+        } else {
+          setCurrentUser(user);
+        }
+      } else {
+        setCurrentUser(null);
+      }
+      setLoading(false);
+    });
+
+    return unsubscribe;
   }, []);
-
-  // Sign in function
-  const signIn = (email, password) => {
-    // In a real app, you would validate credentials with an API
-    // This is just a mock implementation
-    const mockUser = {
-      id: '1',
-      name: 'Test User',
-      email: email,
-    };
-    
-    localStorage.setItem('user', JSON.stringify(mockUser));
-    setCurrentUser(mockUser);
-    setIsAuthenticated(true);
-    return Promise.resolve(mockUser);
-  };
-
-  // Sign out function
-  const signOut = () => {
-    localStorage.removeItem('user');
-    setCurrentUser(null);
-    setIsAuthenticated(false);
-    return Promise.resolve();
-  };
-
-  // Sign up function
-  const signUp = (name, email, password) => {
-    // In a real app, you would register the user with an API
-    // This is just a mock implementation
-    const mockUser = {
-      id: '1',
-      name: name,
-      email: email,
-    };
-    
-    localStorage.setItem('user', JSON.stringify(mockUser));
-    setCurrentUser(mockUser);
-    setIsAuthenticated(true);
-    return Promise.resolve(mockUser);
-  };
 
   const value = {
     currentUser,
-    isAuthenticated,
-    loading,
-    signIn,
-    signOut,
-    signUp
+    signup,
+    login,
+    logout,
+    signInWithGoogle,
+    updateUserProfile
   };
 
   return (
@@ -73,11 +125,11 @@ export const AuthProvider = ({ children }) => {
       {!loading && children}
     </AuthContext.Provider>
   );
-};
+}
 
 // Custom hook to use auth context
-export const useAuth = () => {
+export function useAuth() {
   return useContext(AuthContext);
-};
+}
 
 export default AuthContext;

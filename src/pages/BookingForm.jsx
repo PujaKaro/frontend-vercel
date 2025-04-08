@@ -4,11 +4,18 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt, faClock, faUser, faMapMarkerAlt, faPhoneAlt, faEnvelope, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { pujaServices } from '../data/data';
 import { trackPujaBooking, trackPurchase } from '../utils/analytics';
+import { useAuth } from '../contexts/AuthContext';
+import { saveFormData, getCurrentLocation, saveLocationToBooking } from '../utils/formUtils';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { doc, updateDoc, arrayUnion, Timestamp } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
 const BookingForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { currentUser } = useAuth();
   
   // State for form fields
   const [formData, setFormData] = useState({
@@ -20,11 +27,13 @@ const BookingForm = () => {
     state: '',
     pincode: '',
     additionalInfo: '',
+    date: '',
+    time: '',
+    specialInstructions: ''
   });
   
   const [puja, setPuja] = useState(null);
-  const [bookingDate, setBookingDate] = useState('');
-  const [bookingTime, setBookingTime] = useState('');
+  const [userLocation, setUserLocation] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   
@@ -32,8 +41,6 @@ const BookingForm = () => {
     // Get puja info from location state or fetch it based on ID
     if (location.state?.puja) {
       setPuja(location.state.puja);
-      setBookingDate(location.state.date || '');
-      setBookingTime(location.state.timeSlot || '');
     } else {
       const pujaData = pujaServices.find(puja => puja.id === parseInt(id));
       if (pujaData) {
@@ -47,7 +54,33 @@ const BookingForm = () => {
     if (puja) {
       trackPujaBooking(puja);
     }
-  }, [id, location, navigate]);
+
+    // Get user's current location
+    getCurrentLocation()
+      .then(location => {
+        setUserLocation(location);
+      })
+      .catch(error => {
+        console.error('Error getting location:', error);
+        toast.warning('Could not get your location. Please enter your address manually.');
+      });
+
+    if (!currentUser) {
+      navigate('/signin', { state: { from: location.pathname } });
+      return;
+    }
+
+    // Set user data if available
+    if (currentUser) {
+      setFormData(prev => ({
+        ...prev,
+        name: currentUser.displayName || '',
+        email: currentUser.email || '',
+        phone: currentUser.phone || '',
+        address: currentUser.address || ''
+      }));
+    }
+  }, [id, location, navigate, currentUser]);
   
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -97,49 +130,42 @@ const BookingForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    if (!currentUser) {
+      toast.error('Please sign in to book a puja');
+      navigate('/login');
+      return;
+    }
+
     if (validateForm()) {
       setIsSubmitting(true);
       
-      // Simulate API call with setTimeout
-      setTimeout(() => {
-        // In a real app, you would submit data to an API here
-        console.log('Booking submitted successfully', {
-          puja,
-          date: bookingDate,
-          timeSlot: bookingTime,
-          user: formData
+      try {
+        const bookingData = {
+          pujaId: puja.id,
+          pujaName: puja.name,
+          price: puja.price,
+          date: formData.date,
+          time: formData.time,
+          address: formData.address,
+          specialInstructions: formData.specialInstructions,
+          status: 'pending',
+          timestamp: Timestamp.now(),
+          location: userLocation
+        };
+
+        // Save booking to user's document
+        await updateDoc(doc(db, 'users', currentUser.uid), {
+          bookings: arrayUnion(bookingData)
         });
-        
-        // When payment/booking is successful
-        const paymentSuccess = true;
-        
-        if (paymentSuccess) {
-          const transactionId = `PUJA-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-          
-          trackPurchase(
-            transactionId,
-            puja.price,
-            [{
-              id: puja.id,
-              name: puja.name,
-              price: puja.price,
-              type: 'puja',
-              quantity: 1
-            }]
-          );
-          
-          navigate('/booking-confirmation', { 
-            state: { 
-              puja,
-              date: bookingDate,
-              timeSlot: bookingTime,
-              user: formData
-            } 
-          });
-        }
-        
+
+        toast.success('Puja booking successful!');
+        navigate('/profile');
+      } catch (error) {
+        console.error('Error saving booking:', error);
+        toast.error('Failed to book puja. Please try again.');
+      } finally {
         setIsSubmitting(false);
-      }, 1500);
+      }
     }
   };
   
@@ -190,14 +216,14 @@ const BookingForm = () => {
                     <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
                     Date:
                   </div>
-                  <div className="font-medium">{bookingDate}</div>
+                  <div className="font-medium">{formData.date}</div>
                 </div>
                 <div className="flex">
                   <div className="w-32 text-gray-600">
                     <FontAwesomeIcon icon={faClock} className="mr-2" />
                     Time:
                   </div>
-                  <div className="font-medium">{bookingTime}</div>
+                  <div className="font-medium">{formData.time}</div>
                 </div>
               </div>
             </div>

@@ -11,6 +11,9 @@ import {
   faGlobe 
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../contexts/CartContext';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -21,9 +24,12 @@ const Header = () => {
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [cartCount, setCartCount] = useState(0);
+  const [userData, setUserData] = useState(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   
   const navigate = useNavigate();
-  const { currentUser, isAuthenticated } = useAuth();
+  const { currentUser, isAuthenticated, logout } = useAuth();
+  const { cartItems } = useCart();
 
   const locations = [
     'Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata', 
@@ -71,6 +77,23 @@ const Header = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (currentUser) {
+        try {
+          const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+          if (userDoc.exists()) {
+            setUserData(userDoc.data());
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [currentUser]);
+
   const handleSearch = (e) => {
     e.preventDefault();
     navigate(`/shop?search=${searchTerm}`);
@@ -90,6 +113,15 @@ const Header = () => {
   const handleLocationSelect = (location) => {
     setSelectedLocation(location);
     setIsLocationDropdownOpen(false);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Failed to log out:', error);
+    }
   };
 
   return (
@@ -194,26 +226,65 @@ const Header = () => {
               <FontAwesomeIcon icon={faSearch} />
             </button>
 
-            <button 
-              onClick={handleProfileClick}
-              className="text-gray-700 hover:text-[#317bea] p-2 rounded-full hover:bg-gray-100"
-            >
-              <FontAwesomeIcon icon={faUser} />
-              {isAuthenticated && (
-                <span className="ml-2 hidden lg:inline-block">
-                  {currentUser?.name?.split(' ')[0] || 'Profile'}
-                </span>
-              )}
-            </button>
+            {currentUser ? (
+              <div className="relative">
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="flex items-center space-x-2 focus:outline-none"
+                >
+                  {currentUser.photoURL ? (
+                    <img
+                      src={currentUser.photoURL}
+                      alt="Profile"
+                      className="h-8 w-8 rounded-full"
+                    />
+                  ) : (
+                    <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                      <span className="text-gray-600 text-sm">
+                        {currentUser.displayName?.[0] || 'U'}
+                      </span>
+                    </div>
+                  )}
+                  <span className="text-gray-700 font-medium">
+                    {currentUser.displayName?.split(' ')[0] || 'User'}
+                  </span>
+                </button>
+
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      Profile
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                to="/signin"
+                className="text-gray-600 hover:text-gray-900"
+              >
+                Sign in
+              </Link>
+            )}
             
             <Link 
               to="/cart" 
               className="text-gray-700 hover:text-[#317bea] p-2 rounded-full hover:bg-gray-100 relative"
             >
               <FontAwesomeIcon icon={faShoppingCart} />
-              {cartCount > 0 && (
+              {cartItems.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {cartCount}
+                  {cartItems.length}
                 </span>
               )}
             </Link>
