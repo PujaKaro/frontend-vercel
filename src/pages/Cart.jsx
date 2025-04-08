@@ -7,12 +7,15 @@ import { trackPurchase } from '../utils/analytics';
 import { useCart } from '../contexts/CartContext';
 import { doc, updateDoc, arrayUnion, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { createPayment } from '../utils/razorpay';
 
 const Cart = () => {
   const { currentUser } = useAuth();
   const { cartItems, removeFromCart, updateQuantity, clearCart } = useCart();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   useEffect(() => {
     if (!currentUser) {
@@ -20,28 +23,36 @@ const Cart = () => {
     }
   }, [currentUser, navigate]);
 
-  const handlePayment = async () => {
-    if (!currentUser) return;
+  const handleProceedToPayment = async () => {
+    if (!currentUser) {
+      // Redirect to login if user is not authenticated
+      navigate('/signin');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
 
     try {
-      setLoading(true);
-      const orderData = {
-        items: cartItems,
-        total: cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-        status: 'pending',
-        timestamp: Timestamp.now()
-      };
+      // Calculate total amount
+      const totalAmount = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-      // Save order to user's document
-      await updateDoc(doc(db, 'users', currentUser.uid), {
-        orders: arrayUnion(orderData)
-      });
+      // Create payment
+      await createPayment(
+        totalAmount,
+        'Payment for Puja Services',
+        {
+          name: currentUser.displayName || '',
+          email: currentUser.email || '',
+          contact: currentUser.phoneNumber || ''
+        }
+      );
 
-      // Clear cart after successful order
+      // Payment successful - clear cart and show success message
       clearCart();
-      navigate('/profile');
-    } catch (error) {
-      console.error('Error saving order:', error);
+      setSuccess('Payment successful! Your order has been placed.');
+    } catch (err) {
+      setError(err.message || 'Payment failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -161,19 +172,11 @@ const Cart = () => {
                   </div>
                   
                   <button
-                    onClick={handlePayment}
-                    disabled={loading}
-                    className={`w-full mt-6 bg-blue-600 text-white py-3 px-4 rounded-lg font-medium flex items-center justify-center
-                      ${loading ? 'bg-blue-400 cursor-not-allowed' : 'hover:bg-blue-700'}`}
+                    onClick={handleProceedToPayment}
+                    disabled={loading || cartItems.length === 0}
+                    className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#FF8C00] hover:bg-[#FF8C00]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF8C00]"
                   >
-                    {loading ? (
-                      'Processing...'
-                    ) : (
-                      <>
-                        <FontAwesomeIcon icon={faShoppingBag} className="mr-2" />
-                        Proceed to Payment
-                      </>
-                    )}
+                    {loading ? 'Processing...' : 'Proceed to Payment'}
                   </button>
                   
                   <p className="text-xs text-gray-500 mt-4 text-center">

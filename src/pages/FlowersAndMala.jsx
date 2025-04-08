@@ -13,6 +13,7 @@ import {
   faHandHoldingHeart,
   faStar
 } from '@fortawesome/free-solid-svg-icons';
+import { loadRazorpay } from '../utils/razorpay';
 
 const FlowersAndMala = () => {
   const [formData, setFormData] = useState({
@@ -22,17 +23,80 @@ const FlowersAndMala = () => {
     sector: '',
     address: ''
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert('Thank you for your interest! We will contact you soon.');
-    setFormData({
-      name: '',
-      phone: '',
-      city: '',
-      sector: '',
-      address: ''
-    });
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Initialize Razorpay
+      await loadRazorpay();
+
+      // Create payment options
+      const options = {
+        key: 'rzp_test_YOUR_KEY_ID', // Replace with your Razorpay test key
+        amount: 999 * 100, // amount in paise
+        currency: 'INR',
+        name: 'Puja Services',
+        description: 'Flowers and Mala Service Activation',
+        handler: function(response) {
+          // Save the form data and payment details
+          const formData = {
+            ...formData,
+            paymentId: response.razorpay_payment_id,
+            activatedOn: new Date().toISOString(),
+            serviceName: 'Flowers and Mala Service'
+          };
+
+          // Save to localStorage
+          const existingServices = JSON.parse(localStorage.getItem('activatedServices') || '[]');
+          localStorage.setItem('activatedServices', JSON.stringify([...existingServices, formData]));
+
+          // Save card details if provided
+          if (response.razorpay_payment_method === 'card') {
+            const cardDetails = {
+              last4: response.razorpay_payment_method_details.card.last4,
+              brand: response.razorpay_payment_method_details.card.brand,
+              expiry: response.razorpay_payment_method_details.card.expiry_month + '/' + 
+                     response.razorpay_payment_method_details.card.expiry_year
+            };
+            
+            const existingCards = JSON.parse(localStorage.getItem('savedCards') || '[]');
+            localStorage.setItem('savedCards', JSON.stringify([...existingCards, cardDetails]));
+          }
+
+          // Show success message
+          setSuccess('Service activated successfully!');
+          setFormData({
+            name: '',
+            phone: '',
+            city: '',
+            sector: '',
+            address: ''
+          });
+        },
+        prefill: {
+          name: formData.name,
+          email: '',
+          contact: formData.phone
+        },
+        theme: {
+          color: '#fb9548'
+        }
+      };
+
+      // Open Razorpay payment modal
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -201,10 +265,28 @@ const FlowersAndMala = () => {
               <button
                 type="submit"
                 className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#FF8C00] hover:bg-[#FF8C00]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF8C00]"
+                disabled={loading}
               >
-                Submit Registration
+                {loading ? 'Processing...' : 'Submit Registration'}
               </button>
             </div>
+
+            {/* Status Messages */}
+            {loading && (
+              <div className="mt-4 p-4 bg-blue-50 rounded-md">
+                <p className="text-blue-700 text-center">Processing your request...</p>
+              </div>
+            )}
+            {error && (
+              <div className="mt-4 p-4 bg-red-50 rounded-md">
+                <p className="text-red-700 text-center">{error}</p>
+              </div>
+            )}
+            {success && (
+              <div className="mt-4 p-4 bg-green-50 rounded-md">
+                <p className="text-green-700 text-center">{success}</p>
+              </div>
+            )}
           </form>
         </div>
 

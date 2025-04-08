@@ -6,7 +6,7 @@ import {
   faShoppingBag, faPray, faHistory, faAddressBook, 
   faSignOut, faCalendar, faClock, faRupeeSign,
   faBell, faHeart, faTicket, faGift, faCog,
-  faStar, faQuestionCircle, faShare
+  faStar, faQuestionCircle, faShare, faCheckCircle, faCreditCard
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { doc, getDoc } from 'firebase/firestore';
@@ -20,6 +20,8 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [profileProgress, setProfileProgress] = useState(0);
+  const [activatedServices, setActivatedServices] = useState([]);
+  const [savedCards, setSavedCards] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,6 +33,14 @@ const Profile = () => {
             const data = userDoc.data();
             setUserData(data);
             calculateProfileProgress(data);
+            
+            // Load activated services from localStorage
+            const savedServices = JSON.parse(localStorage.getItem('activatedServices') || '[]');
+            setActivatedServices(savedServices);
+
+            // Load saved cards from localStorage
+            const savedCards = JSON.parse(localStorage.getItem('savedCards') || '[]');
+            setSavedCards(savedCards);
           }
         } catch (error) {
           console.error('Error fetching user data:', error);
@@ -89,6 +99,54 @@ const Profile = () => {
   const handleLogout = () => {
     logout();
     navigate('/signin');
+  };
+
+  const handleRazorpayPayment = async (serviceName, amount) => {
+    const options = {
+      key: 'rzp_test_YOUR_KEY_ID', // Replace with your Razorpay test key
+      amount: amount * 100, // amount in paise
+      currency: 'INR',
+      name: 'Puja Services',
+      description: `Payment for ${serviceName}`,
+      handler: function(response) {
+        // Save the payment details and activate the service
+        const newService = {
+          name: serviceName,
+          activatedOn: new Date().toISOString(),
+          paymentId: response.razorpay_payment_id,
+          amount: amount
+        };
+        
+        const updatedServices = [...activatedServices, newService];
+        setActivatedServices(updatedServices);
+        localStorage.setItem('activatedServices', JSON.stringify(updatedServices));
+        
+        // Save card details if provided
+        if (response.razorpay_payment_method === 'card') {
+          const newCard = {
+            last4: response.razorpay_payment_method_details.card.last4,
+            brand: response.razorpay_payment_method_details.card.brand,
+            expiry: response.razorpay_payment_method_details.card.expiry_month + '/' + 
+                   response.razorpay_payment_method_details.card.expiry_year
+          };
+          
+          const updatedCards = [...savedCards, newCard];
+          setSavedCards(updatedCards);
+          localStorage.setItem('savedCards', JSON.stringify(updatedCards));
+        }
+      },
+      prefill: {
+        name: userData?.name || '',
+        email: userData?.email || '',
+        contact: userData?.phone || ''
+      },
+      theme: {
+        color: '#fb9548'
+      }
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
   };
 
   if (loading) {
@@ -269,6 +327,17 @@ const Profile = () => {
                 >
                   <FontAwesomeIcon icon={faCog} className="mr-2" />
                   Settings
+                </button>
+                <button
+                  onClick={() => setActiveTab('services')}
+                  className={`w-full text-left px-4 py-2 rounded-lg ${
+                    activeTab === 'services'
+                      ? 'bg-orange-50 text-orange-500'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faCheckCircle} className="mr-2" />
+                  Activated Services
                 </button>
               </nav>
             </div>
@@ -594,6 +663,90 @@ const Profile = () => {
                       Save Changes
                     </button>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'services' && (
+              <div className="space-y-6">
+                {/* Activated Services Section */}
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h2 className="text-xl font-semibold mb-4">Activated Services</h2>
+                  {activatedServices.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {activatedServices.map((service, index) => (
+                        <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-medium text-gray-900">{service.name}</h3>
+                              <p className="text-gray-600">
+                                Activated on: {new Date(service.activatedOn).toLocaleDateString()}
+                              </p>
+                              <p className="text-gray-600">Amount: ₹{service.amount}</p>
+                              <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Active
+                              </span>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm text-gray-500">Payment ID: {service.paymentId}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <FontAwesomeIcon icon={faCheckCircle} className="text-gray-400 text-4xl mb-4" />
+                      <p className="text-gray-600">No activated services found</p>
+                      <div className="mt-4 space-x-4">
+                        <button 
+                          onClick={() => handleRazorpayPayment('Flowers and Mala Service', 999)}
+                          className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
+                        >
+                          Activate Flowers & Mala
+                        </button>
+                        <button 
+                          onClick={() => handleRazorpayPayment('Prashad Service', 1499)}
+                          className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
+                        >
+                          Activate Prashad Service
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Saved Cards Section */}
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h2 className="text-xl font-semibold mb-4">Saved Cards</h2>
+                  {savedCards.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {savedCards.map((card, index) => (
+                        <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-medium text-gray-900">{card.brand} Card</h3>
+                              <p className="text-gray-600">•••• •••• •••• {card.last4}</p>
+                              <p className="text-gray-600">Expires: {card.expiry}</p>
+                            </div>
+                            <div className="text-right">
+                              <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Active
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <FontAwesomeIcon icon={faCreditCard} className="text-gray-400 text-4xl mb-4" />
+                      <p className="text-gray-600">No saved cards found</p>
+                      <p className="text-sm text-gray-500 mt-2">
+                        Cards will be saved automatically after successful payments
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
