@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -20,18 +20,151 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { pujaServices } from '../data/data';
-import SEO from '../components/SEO';
 
 const PujaBooking = () => {
-  const [pujas, setPujas] = useState([]);
-  const [filteredPujas, setFilteredPujas] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedOccasion, setSelectedOccasion] = useState('all');
-  const [selectedDuration, setSelectedDuration] = useState('all');
-  const [priceRange, setPriceRange] = useState({ min: 0, max: 10000 });
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [pujas, setPujas] = useState([
+    {
+      id: 1,
+      name: 'Satyanarayan Puja',
+      image: '/images/featuredPuja.jpg',
+      duration: '3 hours',
+      price: 5100,
+      rating: 4.8,
+      reviews: 126,
+      occasions: ['house-warming', 'new-venture'],
+      description: 'Dedicated to Lord Vishnu, Satyanarayan Puja is performed to seek blessings for prosperity, well-being, and success in new ventures. This auspicious ceremony is conducted by our experienced pandits following all Vedic rituals.'
+    },
+    {
+      id: 2,
+      name: 'Ganesh Puja',
+      image: '/images/ganesh.jpg',
+      duration: '2 hours',
+      price: 5100,
+      rating: 4.7,
+      reviews: 98,
+      occasions: ['new-venture', 'festival'],
+      description: 'Invoke the blessings of Lord Ganesha, the remover of obstacles, with this traditional puja. Perfect for beginning new ventures, celebrating Ganesh Chaturthi, or seeking divine intervention for success in your endeavors.'
+    },
+    {
+      id: 3,
+      name: 'Lakshmi Puja',
+      image: '/images/featuredPuja.jpg',
+      duration: '2 hours',
+      price: 5100,
+      rating: 4.9,
+      reviews: 155,
+      occasions: ['diwali', 'financial-success'],
+      description: 'Attract wealth, prosperity and abundance with this sacred puja dedicated to Goddess Lakshmi. Especially auspicious during Diwali, but beneficial throughout the year for financial growth and stability.'
+    },
+    {
+      id: 4,
+      name: 'Griha Pravesh Puja',
+      image: '/images/ganesh.jpg',
+      duration: '3.5 hours',
+      price: 5100,
+      rating: 4.8,
+      reviews: 87,
+      occasions: ['house-warming'],
+      description: 'Begin your journey in your new home with this sacred housewarming ceremony. This comprehensive puja purifies the new space, invites positive energies, and seeks blessings from household deities for peace and harmony.'
+    },
+    {
+      id: 5,
+      name: 'Navgraha Shanti Puja',
+      image: '/images/featuredPuja.jpg',
+      duration: '2.5 hours',
+      price: 5100,
+      rating: 4.6,
+      reviews: 72,
+      occasions: ['astrological-remedy', 'peace'],
+      description: 'Balance the influences of the nine celestial planets in your life with this powerful ritual. Recommended for those facing astrological challenges or seeking to enhance positive planetary influences.'
+    },
+    {
+      id: 6,
+      name: 'Rudrabhishek',
+      image: '/images/ganesh.jpg',
+      duration: '2.5 hours',
+      price: 5100,
+      rating: 4.7,
+      reviews: 105,
+      occasions: ['shiva-worship', 'peace'],
+      description: 'Honor Lord Shiva with this divine abhishekam ritual. Performed with milk, honey, yogurt, and other sacred offerings, Rudrabhishek brings spiritual growth, removes negativity, and bestows peace and prosperity.'
+    },
+    {
+      id: 7,
+      name: 'Kanya Puja',
+      image: '/images/featuredPuja.jpg',
+      duration: '2 hours',
+      price: 5100,
+      rating: 4.5,
+      reviews: 63,
+      occasions: ['navratri', 'festival'],
+      description: 'A significant ritual during Navratri where young girls are worshipped as manifestations of the goddess. This puja honors the divine feminine energy and is believed to bring blessings from Goddess Durga.'
+    },
+    {
+      id: 8,
+      name: 'Sundarkand Path',
+      image: '/images/ganesh.jpg',
+      duration: '3 hours',
+      price: 5100,
+      rating: 4.8,
+      reviews: 92,
+      occasions: ['peace', 'obstacle-removal'],
+      description: 'A sacred recitation of Sundarkand from the Ramcharitmanas, describing Hanuman\'s journey to Lanka. This powerful path removes obstacles, fulfills wishes, and brings peace and prosperity to the household.'
+    },
+    {
+      id: 9,
+      name: 'Vastu Shanti Puja',
+      image: '/images/featuredPuja.jpg',
+      duration: '2.5 hours',
+      price: 5100,
+      rating: 4.6,
+      reviews: 78,
+      occasions: ['house-warming', 'peace'],
+      description: 'Harmonize the energies of your home or office according to Vastu Shastra principles. This puja corrects Vastu defects, removes negative energies, and enhances positive vibrations in your living or working space.'
+    },
+    {
+      id: 10,
+      name: 'Maha Mrityunjaya Japa',
+      image: '/images/ganesh.jpg',
+      duration: '2 hours',
+      price: 5100,
+      rating: 4.9,
+      reviews: 111,
+      occasions: ['health', 'protection'],
+      description: 'A powerful ritual centered around the Maha Mrityunjaya mantra, dedicated to Lord Shiva. This puja promotes healing, longevity, removes fear of death, and protects from accidents and illnesses.'
+    },
+    {
+      id: 11,
+      name: 'Durga Puja',
+      image: '/images/featuredPuja.jpg',
+      duration: '3 hours',
+      price: 5100,
+      rating: 4.9,
+      reviews: 143,
+      occasions: ['navratri', 'festival'],
+      description: 'Invoke the divine power of Goddess Durga to defeat negative forces in your life. This ceremonial worship includes mantras, offerings, and rituals that channel the protective and nurturing energy of the goddess.'
+    },
+    {
+      id: 12,
+      name: 'Kaal Sarp Dosh Nivaran',
+      image: '/images/ganesh.jpg',
+      duration: '3 hours',
+      price: 5100,
+      rating: 4.7,
+      reviews: 89,
+      occasions: ['astrological-remedy', 'obstacle-removal'],
+      description: 'A specialized puja to mitigate the effects of Kaal Sarp Yoga in the horoscope. This comprehensive ritual helps overcome obstacles, delays, and challenges caused by this astrological alignment.'
+    }
+  ]);
+  
+  const [filters, setFilters] = useState({
+    searchTerm: '',
+    priceRange: 'all',
+    duration: 'all',
+    occasion: 'all',
+    sortBy: 'popularity'
+  });
+  
   const [selectedDate, setSelectedDate] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState(null);
@@ -40,192 +173,51 @@ const PujaBooking = () => {
   const [selectedPandit, setSelectedPandit] = useState(null);
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-
-  // FAQ data
-  const faqs = [
-    {
-      question: "What items do I need to arrange for the puja?",
-      answer: "Most pujas require standard items like flowers, fruits, incense sticks, and lamps. Our pandits will provide you with a detailed list of required items after booking. Additionally, you can opt for our puja samagri kit that includes all necessary items for an additional cost."
-    },
-    {
-      question: "How far in advance should I book a puja?",
-      answer: "We recommend booking at least 3-7 days in advance to ensure availability of our experienced pandits. For auspicious dates or festivals, booking 2-3 weeks ahead is advisable as these are high-demand periods."
-    },
-    {
-      question: "Can I reschedule a booked puja?",
-      answer: "Yes, you can reschedule a booked puja up to 24 hours before the scheduled time without any extra charges. Rescheduling requests made within 24 hours may incur a nominal fee."
-    },
-    {
-      question: "Do you perform pujas outside the listed cities?",
-      answer: "Currently, our services are available in the major cities listed. However, for locations within 50km of these cities, we can arrange services with an additional travel charge. Please contact our customer support for more details."
-    },
-    {
-      question: "How experienced are your pandits?",
-      answer: "All our pandits have a minimum of 10 years of experience performing various Vedic rituals and are well-versed in Sanskrit mantras and traditional procedures. They are carefully vetted for their knowledge, authenticity, and ability to explain the significance of each ritual."
-    }
-  ];
-
-  // Define JSON-LD schemas
-  const createStructuredData = () => {
-    // Service schema
-    const serviceSchema = {
-      "@context": "https://schema.org",
-      "@type": "Service",
-      "@id": "https://pujakaro.com/#pujaservice",
-      "name": "PujaKaro Puja Booking Services",
-      "serviceType": "Religious Services",
-      "provider": {
-        "@type": "Organization",
-        "@id": "https://pujakaro.com/#organization",
-        "name": "PujaKaro",
-        "url": "https://pujakaro.com"
-      },
-      "description": "Book authentic puja services performed by experienced pandits for various occasions and needs.",
-      "areaServed": [
-        {
-          "@type": "City",
-          "name": "Mumbai",
-          "address": {
-            "@type": "PostalAddress",
-            "addressCountry": "IN"
-          }
-        },
-        {
-          "@type": "City",
-          "name": "Delhi",
-          "address": {
-            "@type": "PostalAddress",
-            "addressCountry": "IN"
-          }
-        },
-        {
-          "@type": "City",
-          "name": "Bangalore",
-          "address": {
-            "@type": "PostalAddress",
-            "addressCountry": "IN"
-          }
-        }
-      ],
-      "hasOfferCatalog": {
-        "@type": "OfferCatalog",
-        "name": "Puja Services Catalog",
-        "itemListElement": pujaServices.slice(0, 3).map((puja, index) => ({
-          "@type": "Offer",
-          "itemOffered": {
-            "@type": "Service",
-            "name": puja.name,
-            "url": `https://pujakaro.com/puja-booking/${puja.id}`,
-            "description": puja.description.substring(0, 150)
-          },
-          "price": puja.price,
-          "priceCurrency": "INR"
-        }))
-      },
-      "offers": {
-        "@type": "AggregateOffer",
-        "priceCurrency": "INR",
-        "lowPrice": "500",
-        "highPrice": "5000",
-        "offerCount": pujaServices.length.toString()
-      }
-    };
-
-    // FAQ schema
-    const faqSchema = {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": faqs.map(faq => ({
-        "@type": "Question",
-        "name": faq.question,
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": faq.answer
-        }
-      }))
-    };
-
-    // BreadcrumbList schema
-    const breadcrumbSchema = {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "https://pujakaro.com"
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "Puja Services",
-          "item": "https://pujakaro.com/puja-booking"
-        }
-      ]
-    };
-
-    return [serviceSchema, faqSchema, breadcrumbSchema];
+  
+  const handleFilterChange = (filterType, value) => {
+    setFilters(prev => ({ ...prev, [filterType]: value }));
   };
   
-  useEffect(() => {
-    // Fetch pujas from data
-    setPujas(pujaServices);
-    setFilteredPujas(pujaServices);
-  }, []);
-  
-  // Filter pujas based on selected criteria
-  useEffect(() => {
-    let result = pujas;
+  const filterPujas = () => {
+    let filtered = [...pujas];
     
-    // Filter by search query
-    if (searchQuery) {
-      result = result.filter(puja => 
-        puja.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        puja.description.toLowerCase().includes(searchQuery.toLowerCase())
+    if (filters.searchTerm) {
+      filtered = filtered.filter(p => 
+        p.name.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        p.description.toLowerCase().includes(filters.searchTerm.toLowerCase())
       );
     }
-    
-    // Filter by category
-    if (selectedCategory !== 'all') {
-      result = result.filter(puja => puja.category === selectedCategory);
+
+    if (filters.priceRange !== 'all') {
+      const [min, max] = filters.priceRange.split('-').map(Number);
+      filtered = filtered.filter(p => 
+        max ? p.price >= min && p.price <= max : p.price >= min
+      );
     }
-    
-    // Filter by occasion
-    if (selectedOccasion !== 'all') {
-      result = result.filter(puja => puja.occasion === selectedOccasion);
+
+    if (filters.duration !== 'all') {
+      filtered = filtered.filter(p => {
+        const hours = parseFloat(p.duration);
+        return filters.duration === 'short' ? hours <= 2 :
+               filters.duration === 'medium' ? hours > 2 && hours <= 3 :
+               hours > 3;
+      });
     }
-    
-    // Filter by duration
-    if (selectedDuration !== 'all') {
-      result = result.filter(puja => puja.duration === selectedDuration);
+
+    if (filters.occasion !== 'all') {
+      filtered = filtered.filter(p => 
+        p.occasions.includes(filters.occasion)
+      );
     }
-    
-    // Filter by price range
-    result = result.filter(puja => 
-      puja.price >= priceRange.min && puja.price <= priceRange.max
-    );
-    
-    setFilteredPujas(result);
-  }, [selectedCategory, selectedOccasion, selectedDuration, priceRange, searchQuery, pujas]);
-  
-  // Extract unique categories, occasions, and durations for filters
-  const categories = ['all', ...new Set(pujas.map(puja => puja.category))];
-  const occasions = ['all', ...new Set(pujas.map(puja => puja.occasion))];
-  const durations = ['all', ...new Set(pujas.map(puja => puja.duration))];
-  
-  // Handler for price range change
-  const handlePriceChange = (e, type) => {
-    const value = parseInt(e.target.value);
-    setPriceRange(prev => ({
-      ...prev,
-      [type]: value
-    }));
-  };
-  
-  // Toggle filters on mobile
-  const toggleFilters = () => {
-    setIsFilterOpen(!isFilterOpen);
+
+    switch (filters.sortBy) {
+      case 'price-low-high': filtered.sort((a, b) => a.price - b.price); break;
+      case 'price-high-low': filtered.sort((a, b) => b.price - a.price); break;
+      case 'rating': filtered.sort((a, b) => b.rating - a.rating); break;
+      default: filtered.sort((a, b) => b.reviews - a.reviews);
+    }
+
+    return filtered;
   };
   
   const handleBookPuja = (puja) => {
@@ -257,6 +249,32 @@ const PujaBooking = () => {
       setExpandedFaq(index);
     }
   };
+  
+  const filteredPujas = filterPujas();
+  
+  // FAQ data
+  const faqs = [
+    {
+      question: "What items do I need to arrange for the puja?",
+      answer: "Most pujas require standard items like flowers, fruits, incense sticks, and lamps. Our pandits will provide you with a detailed list of required items after booking. Additionally, you can opt for our puja samagri kit that includes all necessary items for an additional cost."
+    },
+    {
+      question: "How far in advance should I book a puja?",
+      answer: "We recommend booking at least 3-7 days in advance to ensure availability of our experienced pandits. For auspicious dates or festivals, booking 2-3 weeks ahead is advisable as these are high-demand periods."
+    },
+    {
+      question: "Can I reschedule a booked puja?",
+      answer: "Yes, you can reschedule a booked puja up to 24 hours before the scheduled time without any extra charges. Rescheduling requests made within 24 hours may incur a nominal fee."
+    },
+    {
+      question: "Do you perform pujas outside the listed cities?",
+      answer: "Currently, our services are available in the major cities listed. However, for locations within 50km of these cities, we can arrange services with an additional travel charge. Please contact our customer support for more details."
+    },
+    {
+      question: "How experienced are your pandits?",
+      answer: "All our pandits have a minimum of 10 years of experience performing various Vedic rituals and are well-versed in Sanskrit mantras and traditional procedures. They are carefully vetted for their knowledge, authenticity, and ability to explain the significance of each ritual."
+    }
+  ];
   
   // Sample pandit data
   const pandits = [
@@ -308,44 +326,9 @@ const PujaBooking = () => {
   
   return (
     <div className="min-h-screen bg-gray-50 py-6">
-      <SEO
-        title="Book Authentic Puja Services Online - PujaKaro"
-        description="Book authentic puja services performed by experienced pandits. Choose from a wide range of pujas for various occasions, including Satyanarayan Puja, Griha Pravesh, and more."
-        canonicalUrl="https://pujakaro.com/puja-booking"
-        imageUrl="https://pujakaro.com/images/puja-booking-banner.jpg"
-        type="service"
-        schema={createStructuredData()}
-        keywords={[
-          "puja booking online", 
-          "hindu puja services", 
-          "book pandit online", 
-          "satyanarayan puja", 
-          "griha pravesh puja", 
-          "ganesh puja", 
-          "lakshmi puja", 
-          "navgraha shanti puja", 
-          "rudrabhishek", 
-          "religious ceremonies"
-        ]}
-      />
       <ToastContainer position="top-right" autoClose={3000} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold text-center text-gray-900 mb-6">Book a Puja</h1>
-        
-        {/* Breadcrumbs */}
-        <nav className="flex mb-6" aria-label="Breadcrumb">
-          <ol className="inline-flex items-center space-x-1 md:space-x-3">
-            <li className="inline-flex items-center">
-              <Link to="/" className="text-sm text-gray-600 hover:text-gray-900">Home</Link>
-            </li>
-            <li>
-              <div className="flex items-center">
-                <span className="mx-2 text-gray-400">/</span>
-                <span className="text-sm text-gray-500" aria-current="page">Puja Services</span>
-              </div>
-            </li>
-          </ol>
-        </nav>
         
         {/* Search and Filter Bar */}
         <div className="bg-white rounded-xl shadow-sm mb-6">
@@ -357,8 +340,8 @@ const PujaBooking = () => {
                     type="text"
                     placeholder="Search for pujas..."
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    value={filters.searchTerm}
+                    onChange={(e) => handleFilterChange('searchTerm', e.target.value)}
                   />
                   <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-3 text-gray-400" />
                 </div>
@@ -387,42 +370,32 @@ const PujaBooking = () => {
                 <div>
                   <select
                     className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    value={filters.occasion}
+                    onChange={(e) => handleFilterChange('occasion', e.target.value)}
                   >
-                    {categories.map((category, index) => (
-                      <option key={`category-${index}`} value={category}>
-                        {category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <select
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                    value={selectedOccasion}
-                    onChange={(e) => setSelectedOccasion(e.target.value)}
-                  >
-                    {occasions.map(occasion => (
-                      <option key={occasion} value={occasion}>
-                        {occasion === 'all' ? 'All Occasions' : occasion}
-                      </option>
-                    ))}
+                    <option value="all">All Occasions</option>
+                    <option value="house-warming">House Warming</option>
+                    <option value="new-venture">New Venture</option>
+                    <option value="festival">Festival</option>
+                    <option value="diwali">Diwali</option>
+                    <option value="navratri">Navratri</option>
+                    <option value="peace">Peace & Harmony</option>
+                    <option value="financial-success">Financial Success</option>
+                    <option value="health">Health & Wellbeing</option>
+                    <option value="astrological-remedy">Astrological Remedy</option>
                   </select>
                 </div>
 
                 <div>
                   <select
                     className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                    value={selectedDuration}
-                    onChange={(e) => setSelectedDuration(e.target.value)}
+                    value={filters.sortBy}
+                    onChange={(e) => handleFilterChange('sortBy', e.target.value)}
                   >
-                    {durations.map(duration => (
-                      <option key={duration} value={duration}>
-                        {duration === 'all' ? 'All Durations' : duration}
-                      </option>
-                    ))}
+                    <option value="popularity">Sort by: Popularity</option>
+                    <option value="price-low-high">Price: Low to High</option>
+                    <option value="price-high-low">Price: High to Low</option>
+                    <option value="rating">Highest Rated</option>
                   </select>
                 </div>
               </div>
@@ -432,32 +405,22 @@ const PujaBooking = () => {
             {showFilters && (
               <div className="mt-4 md:hidden space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                  <select
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                  >
-                    {categories.map((category, index) => (
-                      <option key={`category-${index}`} value={category}>
-                        {category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Occasion</label>
                   <select
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                    value={selectedOccasion}
-                    onChange={(e) => setSelectedOccasion(e.target.value)}
+                    value={filters.occasion}
+                    onChange={(e) => handleFilterChange('occasion', e.target.value)}
                   >
-                    {occasions.map(occasion => (
-                      <option key={occasion} value={occasion}>
-                        {occasion === 'all' ? 'All Occasions' : occasion}
-                      </option>
-                    ))}
+                    <option value="all">All Occasions</option>
+                    <option value="house-warming">House Warming</option>
+                    <option value="new-venture">New Venture</option>
+                    <option value="festival">Festival</option>
+                    <option value="diwali">Diwali</option>
+                    <option value="navratri">Navratri</option>
+                    <option value="peace">Peace & Harmony</option>
+                    <option value="financial-success">Financial Success</option>
+                    <option value="health">Health & Wellbeing</option>
+                    <option value="astrological-remedy">Astrological Remedy</option>
                   </select>
                 </div>
 
@@ -465,14 +428,13 @@ const PujaBooking = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
                   <select
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                    value={selectedDuration}
-                    onChange={(e) => setSelectedDuration(e.target.value)}
+                    value={filters.duration}
+                    onChange={(e) => handleFilterChange('duration', e.target.value)}
                   >
-                    {durations.map(duration => (
-                      <option key={duration} value={duration}>
-                        {duration === 'all' ? 'All Durations' : duration}
-                      </option>
-                    ))}
+                    <option value="all">Any Duration</option>
+                    <option value="short">Short (Up to 2 hours)</option>
+                    <option value="medium">Medium (2-3 hours)</option>
+                    <option value="long">Long (3+ hours)</option>
                   </select>
                 </div>
 
@@ -480,17 +442,27 @@ const PujaBooking = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Price Range</label>
                   <select
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                    value={priceRange.min.toString() + '-' + priceRange.max.toString()}
-                    onChange={(e) => {
-                      const [min, max] = e.target.value.split('-').map(Number);
-                      setPriceRange({ min, max });
-                    }}
+                    value={filters.priceRange}
+                    onChange={(e) => handleFilterChange('priceRange', e.target.value)}
                   >
-                    <option value="0-10000">Any Price</option>
+                    <option value="all">Any Price</option>
                     <option value="0-2000">Under ₹2,000</option>
                     <option value="2000-3000">₹2,000 - ₹3,000</option>
-                    <option value="3000-5000">₹3,000 - ₹5,000</option>
-                    <option value="5000-10000">₹5,000+</option>
+                    <option value="3000">₹3,000+</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+                  <select
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    value={filters.sortBy}
+                    onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+                  >
+                    <option value="popularity">Popularity</option>
+                    <option value="price-low-high">Price: Low to High</option>
+                    <option value="price-high-low">Price: High to Low</option>
+                    <option value="rating">Highest Rated</option>
                   </select>
                 </div>
               </div>
@@ -500,7 +472,7 @@ const PujaBooking = () => {
         
         {/* Puja Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredPujas.map((puja) => (
+          {filterPujas().map((puja) => (
             <div 
               key={puja.id} 
               className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300 cursor-pointer"
