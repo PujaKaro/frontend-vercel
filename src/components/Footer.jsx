@@ -1,7 +1,7 @@
 import { useState } from 'react'; // Import useState
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPhone, faEnvelope, faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { faPhone, faEnvelope, faArrowRight, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp, faFacebook, faInstagram, faTwitter } from '@fortawesome/free-brands-svg-icons';
 
 const Footer = () => {
@@ -26,85 +26,114 @@ const Footer = () => {
   };
 
   return (
-    <>
-      <footer className="bg-gray-900 text-white pt-16 pb-8">
-        <div className="max-w-8xl mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8 mb-6">
-            <div>
-              <Link to="/" className="text-2xl font-bold text-custom mb-6 block">PujaKaro</Link>
-              <p className="text-gray-400">Your trusted platform for authentic puja services and religious products.</p>
-              <div className="flex space-x-4 mt-6">
-              <a href="https://www.facebook.com/your-facebook-profile" className="text-gray-400 hover:text-white" target="_blank" rel="noopener noreferrer">
-                  <FontAwesomeIcon icon={faFacebook} className="text-xl" />
-                </a>
-                <a href="https://www.instagram.com/pujakaro.in" className="text-gray-400 hover:text-white" target="_blank" rel="noopener noreferrer">
-                  <FontAwesomeIcon icon={faInstagram} className="text-xl" />
-                </a>
-                <a href="https://twitter.com/your-twitter-profile" className="text-gray-400 hover:text-white" target="_blank" rel="noopener noreferrer">
-                  <FontAwesomeIcon icon={faTwitter} className="text-xl" />
-                </a>
-              </div>
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
-              <ul className="space-y-2">
-                <li><Link to="/" className="text-gray-400 hover:text-white">Home</Link></li>
-                <li><Link to="/shop" className="text-gray-400 hover:text-white">Shop</Link></li>
-                <li><Link to="/puja-booking" className="text-gray-400 hover:text-white">Book a Puja</Link></li>
-                <li><Link to="/profile" className="text-gray-400 hover:text-white">My Account</Link></li>
-                <li><Link to="/cart" className="text-gray-400 hover:text-white">Cart</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold mb-4">Contact Us</h4>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2 text-gray-400">
-                  <FontAwesomeIcon icon={faPhone} />
-                  <span>+91 79825 45360</span>
-                </li>
-                <li className="flex items-center gap-2 text-gray-400">
-                  <FontAwesomeIcon icon={faEnvelope} />
-                  <span>pujakaro.in@gmail.com</span>
-                </li>
-                <li className="mt-4">
-                  <p className="text-gray-400 mb-1">Office Address:</p>
-                  <p className="text-gray-400">G-275 Molarband Extn,<br />New Delhi-110044</p>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold mb-4">Newsletter</h4>
-              <p className="text-gray-400 mb-4">Subscribe to our newsletter for the latest updates on pujas, offers, and spiritual insights.</p>
-              <div className="relative">
-                <input 
-                  type="email" 
-                  placeholder="Enter your email" 
-                  value={email} // Bind the input value to state
-                  onChange={(e) => setEmail(e.target.value)} // Update state on input change
-                  className="w-full pl-4 pr-12 py-2.5 bg-gray-800 border border-gray-700 text-white rounded-button placeholder-gray-500" 
-                />
-                <button 
-                  onClick={handleNewsletterSubmit} // Handle button click
-                  className="absolute right-2 top-2 p-1 bg-custom text-white rounded-button"
-                >
-                  <FontAwesomeIcon icon={faArrowRight} />
-                </button>
-                </div>
+    <footer className="bg-gray-900 text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Company Info */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Puja Services</h3>
+            <p className="text-gray-400">
+              Your trusted partner for online puja services and religious ceremonies.
+            </p>
+            <div className="mt-4 flex space-x-4">
+              <a href="#" className="text-gray-400 hover:text-white">
+                <FontAwesomeIcon icon={faFacebook} />
+              </a>
+              <a href="#" className="text-gray-400 hover:text-white">
+                <FontAwesomeIcon icon={faTwitter} />
+              </a>
+              <a href="#" className="text-gray-400 hover:text-white">
+                <FontAwesomeIcon icon={faInstagram} />
+              </a>
             </div>
           </div>
-          <div className="border-t border-gray-800 pt-8 text-center">
-            <p className="text-gray-400">© 2024 PujaKaro. All rights reserved.</p>
+
+          {/* Quick Links */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/" className="text-gray-400 hover:text-white">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link to="/about" className="text-gray-400 hover:text-white">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link to="/services" className="text-gray-400 hover:text-white">
+                  Services
+                </Link>
+              </li>
+              <li>
+                <Link to="/blog" className="text-gray-400 hover:text-white">
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="text-gray-400 hover:text-white">
+                  Contact
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Policies */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Policies</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/privacy-policy" className="text-gray-400 hover:text-white">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms-and-conditions" className="text-gray-400 hover:text-white">
+                  Terms & Conditions
+                </Link>
+              </li>
+              <li>
+                <Link to="/shipping-and-delivery" className="text-gray-400 hover:text-white">
+                  Shipping & Delivery
+                </Link>
+              </li>
+              <li>
+                <Link to="/cancellation-and-refund" className="text-gray-400 hover:text-white">
+                  Cancellation & Refund
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Contact Info */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
+            <ul className="space-y-2 text-gray-400">
+              <li className="flex items-start">
+                <FontAwesomeIcon icon={faMapMarkerAlt} className="mt-1 mr-2" />
+                <span>123 Temple Street, City Name, State - PIN</span>
+              </li>
+              <li className="flex items-center">
+                <FontAwesomeIcon icon={faPhone} className="mr-2" />
+                <span>+91 XXXXXXXXXX</span>
+              </li>
+              <li className="flex items-center">
+                <FontAwesomeIcon icon={faEnvelope} className="mr-2" />
+                <span>support@pujaservices.com</span>
+              </li>
+            </ul>
           </div>
         </div>
-      </footer>
-      <a 
-        href="https://wa.me/917982545360"
-        target="_blank" 
-        className="fixed bottom-6 right-6 w-14 h-14 bg-green-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-green-600 transition-colors z-50"
-      >
-        <FontAwesomeIcon icon={faWhatsapp} className="text-2xl" />
-      </a>
-    </>
+
+        <div className="border-t border-gray-800 mt-8 pt-8 text-center">
+          <p className="text-gray-400">
+            © {new Date().getFullYear()} Puja Services. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
   );
 };
 

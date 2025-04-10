@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, collection } from 'firebase/firestore';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -19,5 +19,30 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firebase services
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+// Collection references
+export const blogsCollection = collection(db, 'blogs');
+
+// Blog schema
+/*
+blogs: {
+  id: string,
+  title: string,
+  slug: string,
+  content: string,
+  excerpt: string,
+  coverImage: string,
+  author: {
+    name: string,
+    image: string
+  },
+  categories: string[],
+  tags: string[],
+  publishedAt: timestamp,
+  updatedAt: timestamp,
+  readTime: number,
+  featured: boolean
+}
+*/
 
 export default app;

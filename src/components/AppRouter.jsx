@@ -10,6 +10,12 @@ import FlowersAndMala from '../pages/FlowersAndMala';
 import PrashadServices from '../pages/PrashadServices';
 import OrderConfirmation from '../pages/OrderConfirmation';
 import BookingConfirmation from '../pages/BookingConfirmation';
+import PrivacyPolicy from '../pages/PrivacyPolicy';
+import TermsAndConditions from '../pages/TermsAndConditions';
+import ShippingAndDelivery from '../pages/ShippingAndDelivery';
+import CancellationAndRefund from '../pages/CancellationAndRefund';
+import Blog from '../pages/Blog';
+import BlogPost from '../pages/BlogPost';
 import NotFound from '../pages/NotFound';
   
 // Import authentication pages
@@ -34,6 +40,12 @@ const AppRouter = () => {
       <Route path="/booking-confirmation" element={<BookingConfirmation />} />
       <Route path="/flowers-and-mala" element={<FlowersAndMala />} />
       <Route path="/prashad-services" element={<PrashadServices />} />
+      <Route path="/blog" element={<Blog />} />
+      <Route path="/blog/:slug" element={<BlogPost />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+      <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+      <Route path="/shipping-and-delivery" element={<ShippingAndDelivery />} />
+      <Route path="/cancellation-and-refund" element={<CancellationAndRefund />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

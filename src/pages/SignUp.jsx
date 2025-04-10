@@ -3,8 +3,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock, faUser, faPhone } from '@fortawesome/free-solid-svg-icons';
 import { faFacebook } from '@fortawesome/free-brands-svg-icons';
-import { SiGoogle } from 'react-icons/si'; // New Google icon
+import { SiGoogle } from 'react-icons/si';
 import { useAuth } from '../contexts/AuthContext';
+import { auth, db } from '../config/firebase';
+import { 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  createUserWithEmailAndPassword, 
+  updateProfile 
+} from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -13,91 +21,142 @@ const SignUp = () => {
     phone: '',
     password: '',
     confirmPassword: '',
-    acceptTerms: false
+    acceptTerms: false,
   });
-  
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
+  // Handle input changes
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     });
   };
 
+  // Validate the form before submission
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.fullName) {
       newErrors.fullName = 'Full name is required';
     }
-    
+
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
     }
-    
+
     if (!formData.phone) {
       newErrors.phone = 'Phone number is required';
     } else if (!/^\d{10}$/.test(formData.phone)) {
       newErrors.phone = 'Phone number must be 10 digits';
     }
-    
+
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
-    
+
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
-    
+
     if (!formData.acceptTerms) {
       newErrors.acceptTerms = 'You must accept the terms and conditions';
     }
-    
+
     return newErrors;
   };
 
+  // Save the user details to Firestore
+  const saveUserToFirestore = async (user) => {
+    // Create (or update) a document in the "users" collection using the uid
+    const userRef = doc(db, 'users', user.uid);
+    await setDoc(userRef, {
+      name: user.displayName || formData.fullName,
+      email: user.email,
+      phone: formData.phone, // if available
+      createdAt: new Date(),
+      // Add any additional fields as needed
+    });
+  };
+
+  // Handle email-based registration using Firebase Auth
   const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
-    
+
     if (Object.keys(validationErrors).length === 0) {
       setIsLoading(true);
-      // Mock registration - In a real app, you would call an API here
-      setTimeout(() => {
-        // Mock successful registration
-        login(formData.email, formData.fullName);
-        setIsLoading(false);
+      try {
+        // Create a new user with email and password
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          formData.email,
+          formData.password
+        );
+        const user = userCredential.user;
+
+        // Optionally update the profile with full name
+        await updateProfile(user, { displayName: formData.fullName });
+
+        // Save the user data to Firestore
+        await saveUserToFirestore(user);
+
+        // Use your auth context to log in the user (if needed)
+        login(user.email, user.displayName);
         navigate('/profile');
-      }, 1000);
+      } catch (error) {
+        console.error('Error during email sign-up:', error);
+        // Optionally set error messages here to display to the user
+      } finally {
+        setIsLoading(false);
+      }
     } else {
       setErrors(validationErrors);
     }
   };
 
-  const handleSocialSignup = (provider) => {
-    // Mock social signup - In a real app, you would integrate with OAuth providers
+  // Handle Google sign in using Firebase Auth
+  const handleGoogleSignIn = async () => {
+    const provider = new GoogleAuthProvider();
     setIsLoading(true);
-    setTimeout(() => {
-      login(`user@${provider}.com`, `${provider.charAt(0).toUpperCase() + provider.slice(1)} User`);
-      setIsLoading(false);
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Save the user data to Firestore
+      await saveUserToFirestore(user);
+
+      // Use your auth context to log in the user (if needed)
+      login(user.email, user.displayName);
       navigate('/profile');
-    }, 1000);
+    } catch (error) {
+      console.error('Error during Google sign-in:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Placeholder for Facebook sign in handler
+  const handleFacebookSignIn = () => {
+    // Implement Facebook authentication using Firebase or your preferred method
+    console.log('Facebook sign in not implemented yet.');
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Create your account</h2>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Create your account
+          </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Or{' '}
             <Link to="/signin" className="font-medium text-custom hover:text-custom/80">
@@ -105,11 +164,11 @@ const SignUp = () => {
             </Link>
           </p>
         </div>
-        
+
         <div className="flex flex-col gap-4 mt-8">
-          <button 
+          <button
             type="button"
-            onClick={() => handleSocialSignup('google')}
+            onClick={handleGoogleSignIn}
             className="group relative w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
           >
             <img
@@ -119,10 +178,10 @@ const SignUp = () => {
             />
             Continue with Google
           </button>
-          
-          <button 
+
+          <button
             type="button"
-            onClick={() => handleSocialSignup('facebook')}
+            onClick={handleFacebookSignIn}
             className="group relative w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
           >
             <img
@@ -133,7 +192,7 @@ const SignUp = () => {
             Continue with Facebook
           </button>
         </div>
-        
+
         <div className="mt-6 relative">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-300"></div>
@@ -142,11 +201,13 @@ const SignUp = () => {
             <span className="px-2 bg-white text-gray-500">Or sign up with email</span>
           </div>
         </div>
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-4">
             <div>
-              <label htmlFor="fullName" className="sr-only">Full Name</label>
+              <label htmlFor="fullName" className="sr-only">
+                Full Name
+              </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <FontAwesomeIcon icon={faUser} className="text-gray-400" />
@@ -163,11 +224,15 @@ const SignUp = () => {
                   placeholder="Full Name"
                 />
               </div>
-              {errors.fullName && <p className="mt-1 text-sm text-red-600">{errors.fullName}</p>}
+              {errors.fullName && (
+                <p className="mt-1 text-sm text-red-600">{errors.fullName}</p>
+              )}
             </div>
-            
+
             <div>
-              <label htmlFor="email" className="sr-only">Email address</label>
+              <label htmlFor="email" className="sr-only">
+                Email address
+              </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <FontAwesomeIcon icon={faEnvelope} className="text-gray-400" />
@@ -185,11 +250,15 @@ const SignUp = () => {
                   placeholder="Email address"
                 />
               </div>
-              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+              )}
             </div>
-            
+
             <div>
-              <label htmlFor="phone" className="sr-only">Phone Number</label>
+              <label htmlFor="phone" className="sr-only">
+                Phone Number
+              </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <FontAwesomeIcon icon={faPhone} className="text-gray-400" />
@@ -206,11 +275,15 @@ const SignUp = () => {
                   placeholder="Phone Number"
                 />
               </div>
-              {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+              {errors.phone && (
+                <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+              )}
             </div>
-            
+
             <div>
-              <label htmlFor="password" className="sr-only">Password</label>
+              <label htmlFor="password" className="sr-only">
+                Password
+              </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <FontAwesomeIcon icon={faLock} className="text-gray-400" />
@@ -228,11 +301,15 @@ const SignUp = () => {
                   placeholder="Password"
                 />
               </div>
-              {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
+              {errors.password && (
+                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+              )}
             </div>
-            
+
             <div>
-              <label htmlFor="confirmPassword" className="sr-only">Confirm Password</label>
+              <label htmlFor="confirmPassword" className="sr-only">
+                Confirm Password
+              </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <FontAwesomeIcon icon={faLock} className="text-gray-400" />
@@ -250,7 +327,9 @@ const SignUp = () => {
                   placeholder="Confirm Password"
                 />
               </div>
-              {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
+              {errors.confirmPassword && (
+                <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+              )}
             </div>
           </div>
 
@@ -266,10 +345,15 @@ const SignUp = () => {
               }`}
             />
             <label htmlFor="accept-terms" className="ml-2 block text-sm text-gray-900">
-              I accept the <a href="#" className="text-custom hover:text-custom/80">Terms and Conditions</a>
+              I accept the{' '}
+              <a href="#" className="text-custom hover:text-custom/80">
+                Terms and Conditions
+              </a>
             </label>
           </div>
-          {errors.acceptTerms && <p className="mt-1 text-sm text-red-600">{errors.acceptTerms}</p>}
+          {errors.acceptTerms && (
+            <p className="mt-1 text-sm text-red-600">{errors.acceptTerms}</p>
+          )}
 
           <div>
             <button
@@ -279,9 +363,25 @@ const SignUp = () => {
             >
               {isLoading ? (
                 <span className="flex items-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Creating account...
                 </span>
