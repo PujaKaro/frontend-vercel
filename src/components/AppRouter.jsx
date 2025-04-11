@@ -17,6 +17,9 @@ import CancellationAndRefund from '../pages/CancellationAndRefund';
 import Blog from '../pages/Blog';
 import BlogPost from '../pages/BlogPost';
 import NotFound from '../pages/NotFound';
+import AboutUs from '../pages/AboutUs';
+import Services from '../pages/Services';
+import Contact from '../pages/Contact';
   
 // Import authentication pages
 import SignIn from '../pages/SignIn';
@@ -46,6 +49,9 @@ const AppRouter = () => {
       <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
       <Route path="/shipping-and-delivery" element={<ShippingAndDelivery />} />
       <Route path="/cancellation-and-refund" element={<CancellationAndRefund />} />
+      <Route path="/about" element={<AboutUs />} />
+      <Route path="/services" element={<Services />} />
+      <Route path="/contact" element={<Contact />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

@@ -2,7 +2,7 @@ import { useState } from 'react'; // Import useState
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPhone, faEnvelope, faArrowRight, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
-import { faWhatsapp, faFacebook, faInstagram, faTwitter } from '@fortawesome/free-brands-svg-icons';
+import { faWhatsapp, faFacebook, faInstagram, faTwitter, faLinkedin } from '@fortawesome/free-brands-svg-icons';
 
 const Footer = () => {
   const [email, setEmail] = useState(''); // State to store the email
@@ -25,112 +25,131 @@ const Footer = () => {
     setEmail(''); // Clear the input field after submission
   };
 
+  const currentYear = new Date().getFullYear();
+
+  const footerLinks = {
+    company: [
+      { name: 'About Us', path: '/about' },
+      { name: 'Services', path: '/services' },
+      { name: 'Contact', path: '/contact' },
+      { name: 'Careers', path: '/careers' }
+    ],
+    services: [
+      { name: 'Puja Booking', path: '/puja-booking' },
+      { name: 'Flowers & Mala', path: '/flowers-and-mala' },
+      { name: 'Prashad Services', path: '/prashad-services' },
+      { name: 'Shop', path: '/shop' }
+    ],
+    support: [
+      { name: 'Help Center', path: '/help' },
+      { name: 'Terms of Service', path: '/terms' },
+      { name: 'Privacy Policy', path: '/privacy' },
+      { name: 'FAQs', path: '/faqs' }
+    ]
+  };
+
+  const socialLinks = [
+    { icon: faFacebook, url: 'https://facebook.com' },
+    { icon: faTwitter, url: 'https://twitter.com' },
+    { icon: faInstagram, url: 'https://instagram.com' },
+    { icon: faLinkedin, url: 'https://linkedin.com' }
+  ];
+
   return (
     <footer className="bg-gray-900 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Puja Services</h3>
-            <p className="text-gray-400">
-              Your trusted partner for online puja services and religious ceremonies.
+            <h3 className="text-xl font-bold mb-4">PujaKaro</h3>
+            <p className="text-gray-400 mb-4">
+              Connecting devotees with authentic spiritual experiences through traditional pujas and rituals.
             </p>
-            <div className="mt-4 flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-white">
-                <FontAwesomeIcon icon={faFacebook} />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white">
-                <FontAwesomeIcon icon={faTwitter} />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white">
-                <FontAwesomeIcon icon={faInstagram} />
-              </a>
+            <div className="flex space-x-4">
+              {socialLinks.map((social, index) => (
+                <a
+                  key={index}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  <FontAwesomeIcon icon={social.icon} className="w-5 h-5" />
+                </a>
+              ))}
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Company Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+            <h3 className="text-lg font-semibold mb-4">Company</h3>
             <ul className="space-y-2">
-              <li>
-                <Link to="/" className="text-gray-400 hover:text-white">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link to="/about" className="text-gray-400 hover:text-white">
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link to="/services" className="text-gray-400 hover:text-white">
-                  Services
-                </Link>
-              </li>
-              <li>
-                <Link to="/blog" className="text-gray-400 hover:text-white">
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="text-gray-400 hover:text-white">
-                  Contact
-                </Link>
-              </li>
+              {footerLinks.company.map((link, index) => (
+                <li key={index}>
+                  <Link
+                    to={link.path}
+                    className="text-gray-400 hover:text-white transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Policies */}
+          {/* Services Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Policies</h3>
+            <h3 className="text-lg font-semibold mb-4">Services</h3>
             <ul className="space-y-2">
-              <li>
-                <Link to="/privacy-policy" className="text-gray-400 hover:text-white">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link to="/terms-and-conditions" className="text-gray-400 hover:text-white">
-                  Terms & Conditions
-                </Link>
-              </li>
-              <li>
-                <Link to="/shipping-and-delivery" className="text-gray-400 hover:text-white">
-                  Shipping & Delivery
-                </Link>
-              </li>
-              <li>
-                <Link to="/cancellation-and-refund" className="text-gray-400 hover:text-white">
-                  Cancellation & Refund
-                </Link>
-              </li>
+              {footerLinks.services.map((link, index) => (
+                <li key={index}>
+                  <Link
+                    to={link.path}
+                    className="text-gray-400 hover:text-white transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Contact Info */}
+          {/* Support Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
-            <ul className="space-y-2 text-gray-400">
-              <li className="flex items-start">
-                <FontAwesomeIcon icon={faMapMarkerAlt} className="mt-1 mr-2" />
-                <span>123 Temple Street, City Name, State - PIN</span>
-              </li>
-              <li className="flex items-center">
-                <FontAwesomeIcon icon={faPhone} className="mr-2" />
-                <span>+91 XXXXXXXXXX</span>
-              </li>
-              <li className="flex items-center">
-                <FontAwesomeIcon icon={faEnvelope} className="mr-2" />
-                <span>support@pujaservices.com</span>
-              </li>
+            <h3 className="text-lg font-semibold mb-4">Support</h3>
+            <ul className="space-y-2">
+              {footerLinks.support.map((link, index) => (
+                <li key={index}>
+                  <Link
+                    to={link.path}
+                    className="text-gray-400 hover:text-white transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center">
-          <p className="text-gray-400">
-            © {new Date().getFullYear()} Puja Services. All rights reserved.
-          </p>
+        {/* Bottom Bar */}
+        <div className="border-t border-gray-800 mt-12 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <p className="text-gray-400 text-sm">
+              © {currentYear} PujaKaro. All rights reserved.
+            </p>
+            <div className="flex space-x-6 mt-4 md:mt-0">
+              <Link to="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">
+                Terms
+              </Link>
+              <Link to="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">
+                Privacy
+              </Link>
+              <Link to="/cookies" className="text-gray-400 hover:text-white text-sm transition-colors">
+                Cookies
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </footer>
