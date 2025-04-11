@@ -1,24 +1,25 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
 import { getFirestore, collection } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
+import { getAuth } from 'firebase/auth';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAMcgysXBf8RoGlcqmxcyaaJchrQnIngbs",
-  authDomain: "pujakaro-aaadc.firebaseapp.com",
-  projectId: "pujakaro-aaadc",
-  storageBucket: "pujakaro-aaadc.firebasestorage.app",
-  messagingSenderId: "890234110086",
-  appId: "1:890234110086:web:c99d5438da1b3fc5025107",
-  measurementId: "G-2V4L3RVNZY"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
 // Initialize Firebase services
-export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const storage = getStorage(app);
+export const auth = getAuth(app);
 
 // Collection references
 export const blogsCollection = collection(db, 'blogs');

@@ -1,69 +1,51 @@
-import { useState } from 'react'; // Import useState
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPhone, faEnvelope, faArrowRight, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
-import { faWhatsapp, faFacebook, faInstagram, faTwitter, faLinkedin } from '@fortawesome/free-brands-svg-icons';
+import { 
+  faFacebook, 
+  faTwitter, 
+  faInstagram,
+  faLinkedin
+} from '@fortawesome/free-brands-svg-icons';
 
 const Footer = () => {
-  const [email, setEmail] = useState(''); // State to store the email
-
-  const handleNewsletterSubmit = () => {
-    if (email.trim() === '') {
-      alert('Please enter a valid email address.');
-      return;
-    }
-
-      // Regular expression to validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      alert('Please enter a valid email address.');
-      return;
-    }
-    // Save or process the email (e.g., send it to a server or API)
-    console.log('Email submitted:', email);
-    alert('Thank you for subscribing to our newsletter!');
-    setEmail(''); // Clear the input field after submission
-  };
-
-  const currentYear = new Date().getFullYear();
-
   const footerLinks = {
     company: [
       { name: 'About Us', path: '/about' },
-      { name: 'Services', path: '/services' },
       { name: 'Contact', path: '/contact' },
+      { name: 'Blog', path: '/blog' },
       { name: 'Careers', path: '/careers' }
     ],
     services: [
       { name: 'Puja Booking', path: '/puja-booking' },
       { name: 'Flowers & Mala', path: '/flowers-and-mala' },
       { name: 'Prashad Services', path: '/prashad-services' },
-      { name: 'Shop', path: '/shop' }
+      { name: 'Custom Services', path: '/custom-services' }
     ],
     support: [
       { name: 'Help Center', path: '/help' },
-      { name: 'Terms of Service', path: '/terms' },
-      { name: 'Privacy Policy', path: '/privacy' },
-      { name: 'FAQs', path: '/faqs' }
+      { name: 'Terms of Service', path: '/terms-and-conditions' },
+      { name: 'Privacy Policy', path: '/privacy-policy' },
+      { name: 'Shipping & Delivery', path: '/shipping-and-delivery' }
     ]
   };
 
   const socialLinks = [
-    { icon: faFacebook, url: 'https://facebook.com' },
-    { icon: faTwitter, url: 'https://twitter.com' },
-    { icon: faInstagram, url: 'https://instagram.com' },
-    { icon: faLinkedin, url: 'https://linkedin.com' }
+    { icon: faFacebook, url: 'https://facebook.com/pujakaro' },
+    { icon: faTwitter, url: 'https://twitter.com/pujakaro' },
+    { icon: faInstagram, url: 'https://instagram.com/pujakaro' },
+    { icon: faLinkedin, url: 'https://linkedin.com/company/pujakaro' }
   ];
 
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-gray-900 text-gray-300">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <h3 className="text-xl font-bold mb-4">PujaKaro</h3>
-            <p className="text-gray-400 mb-4">
-              Connecting devotees with authentic spiritual experiences through traditional pujas and rituals.
+            <h3 className="text-white text-lg font-semibold mb-4">PujaKaro</h3>
+            <p className="text-sm mb-4">
+              Your trusted partner in spiritual services. We bring authentic pujas and rituals to your doorstep.
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((social, index) => (
@@ -74,15 +56,15 @@ const Footer = () => {
                   rel="noopener noreferrer"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  <FontAwesomeIcon icon={social.icon} className="w-5 h-5" />
+                  <FontAwesomeIcon icon={social.icon} className="text-xl" />
                 </a>
               ))}
             </div>
           </div>
 
-          {/* Company Links */}
+          {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Company</h3>
+            <h3 className="text-white text-lg font-semibold mb-4">Company</h3>
             <ul className="space-y-2">
               {footerLinks.company.map((link, index) => (
                 <li key={index}>
@@ -97,9 +79,9 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Services Links */}
+          {/* Services */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Services</h3>
+            <h3 className="text-white text-lg font-semibold mb-4">Services</h3>
             <ul className="space-y-2">
               {footerLinks.services.map((link, index) => (
                 <li key={index}>
@@ -114,9 +96,9 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Support Links */}
+          {/* Support */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Support</h3>
+            <h3 className="text-white text-lg font-semibold mb-4">Support</h3>
             <ul className="space-y-2">
               {footerLinks.support.map((link, index) => (
                 <li key={index}>
@@ -135,17 +117,17 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t border-gray-800 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 text-sm">
-              © {currentYear} PujaKaro. All rights reserved.
+            <p className="text-sm text-gray-400">
+              © {new Date().getFullYear()} PujaKaro. All rights reserved.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <Link to="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">
+              <Link to="/terms-and-conditions" className="text-sm text-gray-400 hover:text-white transition-colors">
                 Terms
               </Link>
-              <Link to="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">
+              <Link to="/privacy-policy" className="text-sm text-gray-400 hover:text-white transition-colors">
                 Privacy
               </Link>
-              <Link to="/cookies" className="text-gray-400 hover:text-white text-sm transition-colors">
+              <Link to="/cookies" className="text-sm text-gray-400 hover:text-white transition-colors">
                 Cookies
               </Link>
             </div>

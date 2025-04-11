@@ -16,6 +16,7 @@ import ShippingAndDelivery from '../pages/ShippingAndDelivery';
 import CancellationAndRefund from '../pages/CancellationAndRefund';
 import Blog from '../pages/Blog';
 import BlogPost from '../pages/BlogPost';
+import CreateBlogPost from '../pages/CreateBlogPost';
 import NotFound from '../pages/NotFound';
 import AboutUs from '../pages/AboutUs';
 import Services from '../pages/Services';
@@ -44,7 +45,9 @@ const AppRouter = () => {
       <Route path="/flowers-and-mala" element={<FlowersAndMala />} />
       <Route path="/prashad-services" element={<PrashadServices />} />
       <Route path="/blog" element={<Blog />} />
-      <Route path="/blog/:slug" element={<BlogPost />} />
+      <Route path="/blog/:id" element={<BlogPost />} />
+      <Route path="/blog/create" element={<CreateBlogPost />} />
+      <Route path="/blog/edit/:id" element={<CreateBlogPost />} />
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
       <Route path="/shipping-and-delivery" element={<ShippingAndDelivery />} />
