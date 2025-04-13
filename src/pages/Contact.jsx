@@ -7,6 +7,7 @@ import {
   faClock,
   faPaperPlane
 } from '@fortawesome/free-solid-svg-icons';
+import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -155,6 +156,15 @@ const Contact = () => {
                 <li className="flex items-center gap-2 text-gray-400">
                   <FontAwesomeIcon icon={faPhone} />
                   <span>+91 79825 45360</span>
+                  <a 
+                    href="https://wa.me/917982545360" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="ml-2 text-green-500 hover:text-green-700"
+                    aria-label="Chat on WhatsApp"
+                  >
+                    <FontAwesomeIcon icon={faWhatsapp} />
+                  </a>
                 </li>
                 <li className="flex items-center gap-2 text-gray-400">
                   <FontAwesomeIcon icon={faEnvelope} />
