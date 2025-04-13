@@ -35,7 +35,7 @@ const FeaturedPuja = () => {
                 to="/puja-booking" 
                 className="px-8 py-3 bg-[#317bea] text-white font-semibold rounded-button hover:bg-[#317bea]/90"
               >
-                Book Now at ₹5100
+                Book Now at ₹5,100
               </Link>
             </div>
             <div className="relative h-full min-h-[300px]">
