@@ -10,6 +10,12 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { doc, updateDoc, arrayUnion, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import emailjs from 'emailjs-com';
+
+// EmailJS configuration from environment variables
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_BOOKING_TEMPLATE_ID;
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
 const BookingForm = () => {
   const { id } = useParams();
@@ -38,6 +44,9 @@ const BookingForm = () => {
   const [errors, setErrors] = useState({});
   
   useEffect(() => {
+    // Initialize EmailJS
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+    
     // Get puja info from location state or fetch it based on ID
     if (location.state?.puja) {
       setPuja(location.state.puja);
@@ -158,11 +167,29 @@ const BookingForm = () => {
           bookings: arrayUnion(bookingData)
         });
 
+        // Send email notification about the new booking
+        const emailParams = {
+          to_email: 'pujakaro.in@gmail.com',
+          from_name: formData.name,
+          from_email: formData.email,
+          from_phone: formData.phone,
+          subject: `New Booking: ${puja.name}`,
+          puja_name: puja.name,
+          puja_date: formData.date,
+          puja_time: formData.time,
+          puja_price: puja.price.toLocaleString(),
+          address: `${formData.address}, ${formData.city}, ${formData.state}, ${formData.pincode}`,
+          special_instructions: formData.specialInstructions || 'None',
+          reply_to: 'pujakaro.in@gmail.com'
+        };
+
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, emailParams);
+
         toast.success('Puja booking successful!');
         navigate('/profile');
       } catch (error) {
         console.error('Error saving booking:', error);
-        toast.error('Failed to book puja. Please try again.');
+        toast.error(`Failed to book puja: ${error.text || error.message || 'Please try again'}`);
       } finally {
         setIsSubmitting(false);
       }

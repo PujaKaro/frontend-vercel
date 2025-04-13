@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faPhone, 
@@ -8,6 +8,14 @@ import {
   faPaperPlane
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
+import emailjs from 'emailjs-com';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+// EmailJS configuration from environment variables
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_CONTACT_TEMPLATE_ID;
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -18,28 +26,71 @@ const Contact = () => {
     message: ''
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const form = useRef();
+
+  // Initialize EmailJS
+  useEffect(() => {
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // Map form field names to state property names
+    const fieldMapping = {
+      'from_name': 'name',
+      'from_email': 'email',
+      'from_phone': 'phone',
+      'subject': 'subject',
+      'message': 'message'
+    };
+    
+    const stateProperty = fieldMapping[name] || name;
+    
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [stateProperty]: value
     }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here you would typically send the form data to your backend
-    console.log('Form submitted:', formData);
-    setIsSubmitted(true);
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      subject: '',
-      message: ''
-    });
+    setIsSubmitting(true);
+
+    // Prepare template parameters
+    const templateParams = {
+      from_name: formData.name,
+      from_email: formData.email,
+      from_phone: formData.phone,
+      subject: formData.subject,
+      message: formData.message,
+      to_email: 'pujakaro.in@gmail.com',
+      // reply_to: 'ravindranathjha75@gmail.com'
+    };
+
+    // Send email using EmailJS with explicit parameters
+    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+      .then((result) => {
+        console.log('Email sent successfully:', result.text);
+        toast.success('Your message has been sent successfully!');
+        setIsSubmitted(true);
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          subject: '',
+          message: ''
+        });
+      })
+      .catch((error) => {
+        console.error('Failed to send email:', error.text || error.message);
+        toast.error(`Failed to send message: ${error.text || 'Please try again later'}`);
+      })
+      .finally(() => {
+        setIsSubmitting(false);
+      });
   };
 
   return (
@@ -66,7 +117,7 @@ const Contact = () => {
                 Thank you for your message. We'll get back to you soon!
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form ref={form} onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                     Name
@@ -74,7 +125,7 @@ const Contact = () => {
                   <input
                     type="text"
                     id="name"
-                    name="name"
+                    name="from_name"
                     value={formData.name}
                     onChange={handleChange}
                     required
@@ -88,7 +139,7 @@ const Contact = () => {
                   <input
                     type="email"
                     id="email"
-                    name="email"
+                    name="from_email"
                     value={formData.email}
                     onChange={handleChange}
                     required
@@ -102,7 +153,7 @@ const Contact = () => {
                   <input
                     type="tel"
                     id="phone"
-                    name="phone"
+                    name="from_phone"
                     value={formData.phone}
                     onChange={handleChange}
                     required
@@ -137,12 +188,18 @@ const Contact = () => {
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"
                   ></textarea>
                 </div>
+                
+                {/* Hidden fields for email configuration */}
+                <input type="hidden" name="to_email" value="pujakaro.in@gmail.com" />
+                <input type="hidden" name="reply_to" value="pujakaro.in@gmail.com" />
+                
                 <button
                   type="submit"
-                  className="w-full bg-orange-600 text-white py-3 px-6 rounded-md hover:bg-orange-700 transition-colors flex items-center justify-center gap-2"
+                  disabled={isSubmitting}
+                  className={`w-full bg-orange-600 text-white py-3 px-6 rounded-md hover:bg-orange-700 transition-colors flex items-center justify-center gap-2 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                 >
                   <FontAwesomeIcon icon={faPaperPlane} />
-                  Send Message
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
                 </button>
               </form>
             )}
