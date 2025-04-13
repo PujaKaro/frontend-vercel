@@ -115,14 +115,19 @@ const Header = () => {
     setIsLocationDropdownOpen(false);
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/');
-    } catch (error) {
-      console.error('Failed to log out:', error);
-    }
-  };
+const handleLogout = async () => {
+  const confirmLogout = window.confirm("Are you sure you want to sign out?");
+  if (!confirmLogout) {
+    return; // Cancel logout if the user clicks "Cancel"
+  }
+
+  try {
+    await logout();
+    navigate('/');
+  } catch (error) {
+    console.error('Failed to log out:', error);
+  }
+};
 
   return (
     <header className={`sticky top-0 z-50 bg-white ${isScrolled ? 'shadow-md' : ''} transition-shadow duration-300`}>
