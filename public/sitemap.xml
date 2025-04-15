@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://pujakaro.com/</loc>
+    <loc>https://pujakaro.in/</loc>
     <lastmod>2023-07-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://pujakaro.com/shop</loc>
+    <loc>https://pujakaro.in/shop</loc>
     <lastmod>2023-07-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://pujakaro.com/puja-booking</loc>
+    <loc>https://pujakaro.in/puja-booking</loc>
     <lastmod>2023-07-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://pujakaro.com/sign-in</loc>
+    <loc>https://pujakaro.in/sign-in</loc>
     <lastmod>2023-07-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://pujakaro.com/sign-up</loc>
+    <loc>https://pujakaro.in/sign-up</loc>
     <lastmod>2023-07-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://pujakaro.com/about</loc>
+    <loc>https://pujakaro.in/about</loc>
     <lastmod>2023-07-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://pujakaro.com/contact</loc>
+    <loc>https://pujakaro.in/contact</loc>
     <lastmod>2023-07-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
