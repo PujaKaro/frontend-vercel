@@ -11,6 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { doc, updateDoc, arrayUnion, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import emailjs from 'emailjs-com';
+import { createBooking } from '../utils/firestoreUtils';
 
 // EmailJS configuration from environment variables
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
@@ -150,22 +151,27 @@ const BookingForm = () => {
       
       try {
         const bookingData = {
+          userId: currentUser.uid,
+          userName: currentUser.displayName || formData.name,
+          userEmail: currentUser.email,
           pujaId: puja.id,
           pujaName: puja.name,
           price: puja.price,
           date: formData.date,
           time: formData.time,
           address: formData.address,
-          specialInstructions: formData.specialInstructions,
+          city: formData.city,
+          state: formData.state,
+          pincode: formData.pincode,
+          phone: formData.phone,
+          specialInstructions: formData.specialInstructions || '',
+          additionalInfo: formData.additionalInfo || '',
           status: 'pending',
-          timestamp: Timestamp.now(),
-          location: userLocation
+          location: userLocation || null
         };
 
-        // Save booking to user's document
-        await updateDoc(doc(db, 'users', currentUser.uid), {
-          bookings: arrayUnion(bookingData)
-        });
+        // Save booking to the bookings collection
+        const bookingId = await createBooking(bookingData);
 
         // Send email notification about the new booking
         const emailParams = {
@@ -185,8 +191,29 @@ const BookingForm = () => {
 
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, emailParams);
 
+        // Navigate to booking confirmation page
+        navigate('/booking-confirmation', {
+          state: {
+            bookingDetails: {
+              bookingId,
+              puja,
+              price : puja.price,
+              date: formData.date,
+              timeSlot: formData.time,
+              customerDetails: {
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone,
+                address: formData.address,
+                city: formData.city,
+                state: formData.state,
+                pincode: formData.pincode
+              }
+            }
+          }
+        });
+        
         toast.success('Puja booking successful!');
-        navigate('/profile');
       } catch (error) {
         console.error('Error saving booking:', error);
         toast.error(`Failed to book puja: ${error.text || error.message || 'Please try again'}`);

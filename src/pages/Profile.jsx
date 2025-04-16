@@ -12,12 +12,17 @@ import { useAuth } from '../contexts/AuthContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import SEO from '../components/SEO';
+import { getUserBookings, getUserOrders } from '../utils/firestoreUtils';
 
 const Profile = () => {
   const { currentUser, logout } = useAuth();
   const [userData, setUserData] = useState(null);
+  const [userBookings, setUserBookings] = useState([]);
+  const [userOrders, setUserOrders] = useState([]);
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
+  const [bookingsError, setBookingsError] = useState(null);
+  const [ordersError, setOrdersError] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [profileProgress, setProfileProgress] = useState(0);
   const [activatedServices, setActivatedServices] = useState([]);
@@ -28,6 +33,10 @@ const Profile = () => {
     const fetchUserData = async () => {
       if (currentUser) {
         try {
+          setLoading(true);
+          setBookingsError(null);
+          setOrdersError(null);
+
           const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
           if (userDoc.exists()) {
             const data = userDoc.data();
@@ -41,6 +50,26 @@ const Profile = () => {
             // Load saved cards from localStorage
             const savedCards = JSON.parse(localStorage.getItem('savedCards') || '[]');
             setSavedCards(savedCards);
+
+            try {
+              // Fetch bookings from bookings collection
+              const bookings = await getUserBookings(currentUser.uid);
+              setUserBookings(bookings);
+            } catch (bookingError) {
+              console.error('Error fetching bookings:', bookingError);
+              setBookingsError('Unable to load bookings. Please try again later.');
+              setUserBookings([]);
+            }
+
+            try {
+              // Fetch orders from orders collection
+              const orders = await getUserOrders(currentUser.uid);
+              setUserOrders(orders);
+            } catch (orderError) {
+              console.error('Error fetching orders:', orderError);
+              setOrdersError('Unable to load orders. Please try again later.');
+              setUserOrders([]);
+            }
           }
         } catch (error) {
           console.error('Error fetching user data:', error);
@@ -356,7 +385,7 @@ const Profile = () => {
                       </div>
                       <div className="ml-4">
                         <p className="text-gray-500">Upcoming Bookings</p>
-                        <p className="text-2xl font-bold">{userData.bookings?.length || 0}</p>
+                        <p className="text-2xl font-bold">{userBookings.filter(b => b.status === 'pending').length}</p>
                       </div>
                     </div>
                   </div>
@@ -367,7 +396,7 @@ const Profile = () => {
                       </div>
                       <div className="ml-4">
                         <p className="text-gray-500">Total Orders</p>
-                        <p className="text-2xl font-bold">{userData.orders?.length || 0}</p>
+                        <p className="text-2xl font-bold">{userOrders.length}</p>
                       </div>
                     </div>
                   </div>
@@ -430,10 +459,15 @@ const Profile = () => {
             {activeTab === 'bookings' && (
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h2 className="text-xl font-semibold mb-4">My Bookings</h2>
-                {userData.bookings?.length > 0 ? (
+                {bookingsError && (
+                  <div className="text-center py-8">
+                    <p className="text-red-600">{bookingsError}</p>
+                  </div>
+                )}
+                {userBookings?.length > 0 ? (
                   <div className="space-y-4">
-                    {userData.bookings.map((booking, index) => (
-                      <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                    {userBookings.map((booking) => (
+                      <div key={booking.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                         <div className="flex justify-between items-start">
                           <div>
                             <h3 className="font-medium text-gray-900">{booking.pujaName}</h3>
@@ -448,7 +482,7 @@ const Profile = () => {
                             </span>
                           </div>
                           <div className="text-right">
-                            <p className="font-medium text-gray-900">₹{booking.price}</p>
+                            <p className="font-medium text-gray-900">₹{booking.price.toLocaleString()}</p>
                             <button className="mt-2 text-orange-500 hover:text-orange-600">
                               View Details
                             </button>
@@ -461,7 +495,10 @@ const Profile = () => {
                   <div className="text-center py-8">
                     <FontAwesomeIcon icon={faCalendar} className="text-gray-400 text-4xl mb-4" />
                     <p className="text-gray-600">No bookings found</p>
-                    <button className="mt-4 bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600">
+                    <button 
+                      onClick={() => navigate('/puja-booking')}
+                      className="mt-4 bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
+                    >
                       Book a Puja
                     </button>
                   </div>
@@ -472,15 +509,20 @@ const Profile = () => {
             {activeTab === 'orders' && (
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h2 className="text-xl font-semibold mb-4">My Orders</h2>
-                {userData.orders?.length > 0 ? (
+                {ordersError && (
+                  <div className="text-center py-8">
+                    <p className="text-red-600">{ordersError}</p>
+                  </div>
+                )}
+                {userOrders?.length > 0 ? (
                   <div className="space-y-4">
-                    {userData.orders.map((order, index) => (
-                      <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                    {userOrders.map((order) => (
+                      <div key={order.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                         <div className="flex justify-between items-start">
                           <div>
-                            <h3 className="font-medium text-gray-900">Order #{order.orderId}</h3>
+                            <h3 className="font-medium text-gray-900">Order #{order.id}</h3>
                             <p className="text-gray-600">
-                              Date: {new Date(order.timestamp.toDate()).toLocaleDateString()}
+                              Date: {new Date(order.createdAt.toDate()).toLocaleDateString()}
                             </p>
                             <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
                               order.status === 'delivered' ? 'bg-green-100 text-green-800' :
@@ -499,7 +541,7 @@ const Profile = () => {
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="font-medium text-gray-900">₹{order.total}</p>
+                            <p className="font-medium text-gray-900">₹{order.total.toLocaleString()}</p>
                             <button className="mt-2 text-orange-500 hover:text-orange-600">
                               Track Order
                             </button>
@@ -512,7 +554,10 @@ const Profile = () => {
                   <div className="text-center py-8">
                     <FontAwesomeIcon icon={faShoppingBag} className="text-gray-400 text-4xl mb-4" />
                     <p className="text-gray-600">No orders found</p>
-                    <button className="mt-4 bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600">
+                    <button 
+                      onClick={() => navigate('/shop')}
+                      className="mt-4 bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600"
+                    >
                       Start Shopping
                     </button>
                   </div>

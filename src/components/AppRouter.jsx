@@ -21,11 +21,13 @@ import NotFound from '../pages/NotFound';
 import AboutUs from '../pages/AboutUs';
 import Services from '../pages/Services';
 import Contact from '../pages/Contact';
+import AdminDashboard from '../pages/AdminDashboard';
   
 // Import authentication pages
 import SignIn from '../pages/SignIn';
 import SignUp from '../pages/SignUp';
 import Profile from '../pages/Profile';
+import ProtectedRoute from './ProtectedRoute';
 
 const AppRouter = () => {
   return (
@@ -55,9 +57,17 @@ const AppRouter = () => {
       <Route path="/about" element={<AboutUs />} />
       <Route path="/services" element={<Services />} />
       <Route path="/contact" element={<Contact />} />
+      <Route 
+        path="/admin" 
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } 
+      />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };
 
-export default AppRouter; 
+export default AppRouter;

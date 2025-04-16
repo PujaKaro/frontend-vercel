@@ -81,9 +81,14 @@ const SignUp = () => {
     await setDoc(userRef, {
       name: user.displayName || formData.fullName,
       email: user.email,
-      phone: formData.phone, // if available
+      phone: formData.phone,
+      photoURL: user.photoURL || null,
+      role: 'user',
+      status: 'active',
       createdAt: new Date(),
-      // Add any additional fields as needed
+      orders: [],
+      bookings: [],
+      addresses: []
     });
   };
 
@@ -109,8 +114,8 @@ const SignUp = () => {
         // Save the user data to Firestore
         await saveUserToFirestore(user);
 
-        // Use your auth context to log in the user (if needed)
-        login(user.email, user.displayName);
+        // Log in with the same credentials used for signup
+        await login(formData.email, formData.password);
         navigate('/profile');
       } catch (error) {
         console.error('Error during email sign-up:', error);
@@ -133,9 +138,8 @@ const SignUp = () => {
 
       // Save the user data to Firestore
       await saveUserToFirestore(user);
-
-      // Use your auth context to log in the user (if needed)
-      login(user.email, user.displayName);
+      
+      // No need to manually login as signInWithPopup already authenticates the user
       navigate('/profile');
     } catch (error) {
       console.error('Error during Google sign-in:', error);

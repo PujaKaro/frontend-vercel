@@ -11,15 +11,17 @@ const SignIn = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { signIn, signInWithGoogle, signInWithFacebook } = useAuth();
+  const { login, signInWithGoogle, signInWithFacebook } = useAuth();
 
+  console.log('SignIn component rendered'); // Debugging line
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setError('');
       setLoading(true);
-      await signIn(email, password);
-      navigate('/');
+      console.log('Logging in with email:', email , password); // Debugging line
+      await login(email, password);
+      navigate('/profile');
     } catch (error) {
       setError('Failed to sign in. Please check your credentials.');
     } finally {
@@ -32,7 +34,7 @@ const SignIn = () => {
       setError('');
       setLoading(true);
       await signInWithGoogle();
-      navigate('/');
+      navigate('/profile');
     } catch (error) {
       setError('Failed to sign in with Google.');
     } finally {

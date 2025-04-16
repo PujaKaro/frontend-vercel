@@ -51,7 +51,7 @@ const BookingConfirmation = () => {
     );
   }
   
-  const { bookingId, puja, date, timeSlot, customerDetails, paymentId, totalAmount, pandit } = bookingDetails;
+  const { bookingId, puja, date, timeSlot, customerDetails, paymentId, price, pandit } = bookingDetails;
   
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
@@ -82,7 +82,7 @@ const BookingConfirmation = () => {
             )}
             <div>
               <h2 className="text-sm text-gray-600 font-medium">BOOKING AMOUNT</h2>
-              <p className="text-lg font-bold text-gray-800">₹{totalAmount.toLocaleString('en-IN')}</p>
+              <p className="text-lg font-bold text-gray-800">₹{price}</p>
             </div>
           </div>
           

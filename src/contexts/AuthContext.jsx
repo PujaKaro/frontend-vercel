@@ -31,6 +31,8 @@ export function AuthProvider({ children }) {
         phone: userData.phone,
         address: userData.address,
         photoURL: null,
+        role: 'admin',
+        status: 'active',
         createdAt: new Date(),
         orders: [],
         bookings: [],
@@ -46,7 +48,18 @@ export function AuthProvider({ children }) {
   async function login(email, password) {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      return userCredential.user;
+      const user = userCredential.user;
+      
+      // Get user data from Firestore
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        setCurrentUser({ ...user, ...userData });
+      } else {
+        setCurrentUser(user);
+      }
+      
+      return user;
     } catch (error) {
       throw error;
     }
@@ -70,6 +83,8 @@ export function AuthProvider({ children }) {
           name: user.displayName,
           email: user.email,
           photoURL: user.photoURL,
+          role: 'admin',
+          status: 'active',
           createdAt: new Date(),
           orders: [],
           bookings: [],
@@ -85,7 +100,46 @@ export function AuthProvider({ children }) {
 
   async function updateUserProfile(userId, data) {
     try {
-      await updateDoc(doc(db, 'users', userId), data);
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, {
+        ...data,
+        updatedAt: new Date()
+      });
+      
+      // Update current user state if it's the same user
+      if (currentUser && currentUser.uid === userId) {
+        setCurrentUser(prevUser => ({
+          ...prevUser,
+          ...data
+        }));
+      }
+      
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async function promoteToAdmin(userId) {
+    if (!currentUser?.role === 'admin') {
+      throw new Error('Unauthorized');
+    }
+    
+    try {
+      await updateUserProfile(userId, { role: 'admin' });
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async function demoteFromAdmin(userId) {
+    if (!currentUser?.role === 'admin') {
+      throw new Error('Unauthorized');
+    }
+    
+    try {
+      await updateUserProfile(userId, { role: 'user' });
       return true;
     } catch (error) {
       throw error;
@@ -117,7 +171,9 @@ export function AuthProvider({ children }) {
     login,
     logout,
     signInWithGoogle,
-    updateUserProfile
+    updateUserProfile,
+    promoteToAdmin,
+    demoteFromAdmin
   };
 
   return (

@@ -8,6 +8,7 @@ import { useCart } from '../contexts/CartContext';
 import { doc, updateDoc, arrayUnion, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { createPayment } from '../utils/razorpay';
+import { createOrder } from '../utils/firestoreUtils';
 
 const Cart = () => {
   const { currentUser } = useAuth();
@@ -25,7 +26,6 @@ const Cart = () => {
 
   const handleProceedToPayment = async () => {
     if (!currentUser) {
-      // Redirect to login if user is not authenticated
       navigate('/signin');
       return;
     }
@@ -36,11 +36,38 @@ const Cart = () => {
     try {
       // Calculate total amount
       const totalAmount = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const tax = totalAmount * 0.18;
+      const shippingCost = 99;
+      const finalAmount = totalAmount + tax + shippingCost;
+
+      // Create order data
+      const orderData = {
+        userId: currentUser.uid,
+        userName: currentUser.displayName || '',
+        userEmail: currentUser.email || '',
+        items: cartItems.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          type: item.type,
+          image: item.image
+        })),
+        subtotal: totalAmount,
+        tax: tax,
+        shippingCost: shippingCost,
+        total: finalAmount,
+        status: 'pending',
+        createdAt: new Date()
+      };
+
+      // Create order in Firestore
+      const orderId = await createOrder(orderData);
 
       // Create payment
       await createPayment(
-        totalAmount,
-        'Payment for Puja Services',
+        finalAmount,
+        `Order #${orderId}`,
         {
           name: currentUser.displayName || '',
           email: currentUser.email || '',
@@ -48,9 +75,25 @@ const Cart = () => {
         }
       );
 
-      // Payment successful - clear cart and show success message
+      // Navigate to confirmation page
+      navigate('/order-confirmation', {
+        state: {
+          orderDetails: {
+            orderId,
+            items: cartItems,
+            totalAmount: finalAmount,
+            shippingAddress: {
+              name: currentUser.displayName,
+              email: currentUser.email,
+              phone: currentUser.phoneNumber
+            }
+          }
+        }
+      });
+
+      // Clear cart
       clearCart();
-      setSuccess('Payment successful! Your order has been placed.');
+      trackPurchase(orderId, finalAmount, cartItems);
     } catch (err) {
       setError(err.message || 'Payment failed. Please try again.');
     } finally {
