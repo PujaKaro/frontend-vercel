@@ -309,10 +309,11 @@ import {
       const referralsRef = collection(db, 'referralCodes');
       const newReferral = {
         ...data,
-        totalUsed: 0,  // Track usage count
-        totalDiscountGiven: 0,  // Track total discount amount
-        totalRevenueGenerated: 0,  // Track revenue from referral bookings
-        createdAt: serverTimestamp()
+        totalUsed: 0,
+        totalDiscountGiven: 0,
+        totalRevenueGenerated: 0,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
       };
       const docRef = await addDoc(referralsRef, newReferral);
       return docRef.id;
@@ -325,7 +326,7 @@ import {
   export const validateReferralCode = async (code) => {
     try {
       const referralsRef = collection(db, 'referralCodes');
-      const q = query(referralsRef, where('code', '==', code));
+      const q = query(referralsRef, where('code', '==', code), where('isActive', '==', true));
       const snapshot = await getDocs(q);
 
       if (snapshot.empty) {
@@ -333,12 +334,6 @@ import {
       }
 
       const referral = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
-      
-      // Check if code is active and valid
-      if (!referral.isActive) {
-        return { valid: false };
-      }
-
       return {
         valid: true,
         discountPercentage: referral.discountPercentage,
@@ -363,18 +358,43 @@ import {
     }
   };
 
-  export const updateReferralStats = async (referralId, bookingAmount, discountAmount) => {
+  export const updateReferralStats = async (referralCode, bookingAmount, discountAmount) => {
     try {
-      const referralRef = doc(db, 'referralCodes', referralId);
-      await updateDoc(referralRef, {
-        totalUsed: increment(1),
-        totalDiscountGiven: increment(discountAmount),
-        totalRevenueGenerated: increment(bookingAmount),
-        lastUsedAt: serverTimestamp()
-      });
+      const referralsRef = collection(db, 'referralCodes');
+      const q = query(referralsRef, where('code', '==', referralCode));
+      const snapshot = await getDocs(q);
+      
+      if (!snapshot.empty) {
+        const referralRef = doc(db, 'referralCodes', snapshot.docs[0].id);
+        await updateDoc(referralRef, {
+          totalUsed: increment(1),
+          totalDiscountGiven: increment(discountAmount),
+          totalRevenueGenerated: increment(bookingAmount),
+          updatedAt: serverTimestamp()
+        });
+      }
       return true;
     } catch (error) {
       console.error('Error updating referral stats:', error);
+      throw error;
+    }
+  };
+
+  export const getUserReferralCode = async (userId) => {
+    try {
+      const referralsRef = collection(db, 'referralCodes');
+      const q = query(referralsRef, where('userId', '==', userId));
+      const snapshot = await getDocs(q);
+      
+      if (!snapshot.empty) {
+        return {
+          id: snapshot.docs[0].id,
+          ...snapshot.docs[0].data()
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting user referral code:', error);
       throw error;
     }
   };

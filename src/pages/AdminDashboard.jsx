@@ -47,6 +47,12 @@ const AdminDashboard = () => {
     recentOrders: [],
     recentBlogs: [],
     referrals: [],
+    totalRevenue: 0,
+    monthlyRevenue: 0,
+    averageOrderValue: 0,
+    newUsers: 0,
+    userGrowth: 0,
+    popularServices: [],
     totalReferralRevenue: 0,
     totalDiscountsGiven: 0
   });
@@ -103,10 +109,81 @@ const AdminDashboard = () => {
         getDocs(recentBlogsQuery)
       ]);
 
+      // Calculate total revenue from bookings and orders
+      const bookingDocs = bookings.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const orderDocs = orders.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      
+      const totalBookingRevenue = bookingDocs.reduce((sum, booking) => 
+        sum + (booking.finalPrice || booking.price || 0), 0);
+      const totalOrderRevenue = orderDocs.reduce((sum, order) => 
+        sum + (order.total || 0), 0);
+      const totalRevenue = totalBookingRevenue + totalOrderRevenue;
+
+      // Calculate this month's revenue
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const monthlyBookingRevenue = bookingDocs
+        .filter(booking => {
+          const bookingDate = booking.createdAt?.toDate?.() || new Date(booking.createdAt);
+          return bookingDate >= startOfMonth;
+        })
+        .reduce((sum, booking) => sum + (booking.finalPrice || booking.price || 0), 0);
+      
+      const monthlyOrderRevenue = orderDocs
+        .filter(order => {
+          const orderDate = order.createdAt?.toDate?.() || new Date(order.createdAt);
+          return orderDate >= startOfMonth;
+        })
+        .reduce((sum, order) => sum + (order.total || 0), 0);
+      
+      const monthlyRevenue = monthlyBookingRevenue + monthlyOrderRevenue;
+
+      // Calculate average order value
+      const totalTransactions = bookingDocs.length + orderDocs.length;
+      const averageOrderValue = totalTransactions > 0 ? Math.round(totalRevenue / totalTransactions) : 0;
+
+      // Calculate user growth
+      const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const thisMonthUsers = users.docs.filter(doc => {
+        const createdAt = doc.data().createdAt?.toDate?.() || new Date(doc.data().createdAt);
+        return createdAt >= startOfMonth;
+      }).length;
+      
+      const lastMonthUsers = users.docs.filter(doc => {
+        const createdAt = doc.data().createdAt?.toDate?.() || new Date(doc.data().createdAt);
+        return createdAt >= lastMonthStart && createdAt < startOfMonth;
+      }).length;
+
+      const userGrowth = lastMonthUsers > 0 
+        ? Math.round(((thisMonthUsers - lastMonthUsers) / lastMonthUsers) * 100) 
+        : thisMonthUsers > 0 ? 100 : 0;
+
+      // Calculate referral stats
       const referralStats = referrals.reduce((acc, ref) => ({
         totalRevenue: acc.totalRevenue + (ref.totalRevenueGenerated || 0),
         totalDiscounts: acc.totalDiscounts + (ref.totalDiscountGiven || 0)
       }), { totalRevenue: 0, totalDiscounts: 0 });
+
+      // Calculate popular services
+      const serviceStats = bookingDocs.reduce((acc, booking) => {
+        const service = acc[booking.pujaName] || { 
+          name: booking.pujaName,
+          bookings: 0,
+          revenue: 0
+        };
+        service.bookings++;
+        service.revenue += booking.finalPrice || booking.price || 0;
+        acc[booking.pujaName] = service;
+        return acc;
+      }, {});
+
+      const popularServices = Object.values(serviceStats)
+        .sort((a, b) => b.revenue - a.revenue)
+        .slice(0, 5)
+        .map(service => ({
+          ...service,
+          percentage: Math.round((service.revenue / totalBookingRevenue) * 100)
+        }));
 
       setStats({
         totalUsers: users.size,
@@ -118,6 +195,12 @@ const AdminDashboard = () => {
         recentOrders: recentOrders.docs.map(doc => ({ id: doc.id, ...doc.data() })),
         recentBlogs: recentBlogs.docs.map(doc => ({ id: doc.id, ...doc.data() })),
         referrals,
+        totalRevenue,
+        monthlyRevenue,
+        averageOrderValue,
+        newUsers: thisMonthUsers,
+        userGrowth,
+        popularServices,
         totalReferralRevenue: referralStats.totalRevenue,
         totalDiscountsGiven: referralStats.totalDiscounts
       });
@@ -544,13 +627,16 @@ const AdminDashboard = () => {
                                 Date: {new Date(booking.createdAt.toDate()).toLocaleDateString()}
                               </div>
                               <div className="text-sm text-gray-500">
-                                Price: ₹{booking.price}
+                                Price: ₹{booking.finalPrice || booking.price}
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <div className="text-sm text-gray-900">{booking.name}</div>
-                            <div className="text-sm text-gray-500">{booking.address}</div>
+                            <div>
+                              <div className="text-sm text-gray-900">{booking.userName}</div>
+                              <div className="text-sm text-gray-500">{booking.phone}</div>
+                              <div className="text-sm text-gray-500">{booking.address}</div>
+                            </div>
                           </td>
                           <td className="px-6 py-4">
                             <span
@@ -567,6 +653,12 @@ const AdminDashboard = () => {
                           </td>
                           <td className="px-6 py-4">
                             <button
+                              onClick={() => handleBookingAction(booking.id, 'edit')}
+                              className="text-indigo-600 hover:text-indigo-900 mr-3"
+                            >
+                              <FontAwesomeIcon icon={faEdit} />
+                            </button>
+                            <button
                               onClick={() => handleBookingAction(booking.id, 'approve')}
                               className="text-green-600 hover:text-green-900 mr-3"
                             >
@@ -574,15 +666,9 @@ const AdminDashboard = () => {
                             </button>
                             <button
                               onClick={() => handleBookingAction(booking.id, 'reject')}
-                              className="text-red-600 hover:text-red-900 mr-3"
-                            >
-                              <FontAwesomeIcon icon={faBan} />
-                            </button>
-                            <button
-                              onClick={() => handleBookingAction(booking.id, 'delete')}
                               className="text-red-600 hover:text-red-900"
                             >
-                              <FontAwesomeIcon icon={faTrash} />
+                              <FontAwesomeIcon icon={faBan} />
                             </button>
                           </td>
                         </tr>

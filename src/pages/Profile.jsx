@@ -13,7 +13,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import SEO from '../components/SEO';
-import { getUserBookings, getUserOrders } from '../utils/firestoreUtils';
+import { getUserBookings, getUserOrders, getUserReferralCode, createReferralCode } from '../utils/firestoreUtils';
 import toast from 'react-hot-toast';
 
 const Profile = () => {
@@ -38,6 +38,49 @@ const Profile = () => {
   });
   const [referralCode, setReferralCode] = useState(null);
   const navigate = useNavigate();
+
+  const getReferralCode = async () => {
+    try {
+      // First check completed bookings to determine if user is eligible for referral code
+      const bookings = await getUserBookings(currentUser.uid);
+      const hasCompletedBooking = bookings.some(booking => booking.status === 'completed');
+      
+      if (!hasCompletedBooking) {
+        return;
+      }
+      
+      // Check if user already has a referral code
+      let userReferral = await getUserReferralCode(currentUser.uid);
+      
+      // If no referral code exists and user has completed bookings, create one
+      if (!userReferral && hasCompletedBooking) {
+        const referralCode = currentUser.displayName?.toLowerCase().replace(/[^a-z0-9]/g, '') || 
+                            currentUser.uid.slice(0, 6);
+        
+        await createReferralCode({
+          code: referralCode,
+          userId: currentUser.uid,
+          userName: currentUser.displayName || '',
+          discountPercentage: 10,
+          description: 'Friend referral',
+          isActive: true
+        });
+        
+        userReferral = await getUserReferralCode(currentUser.uid);
+      }
+      
+      if (userReferral) {
+        setReferralCode(userReferral);
+        setReferralStats({
+          totalUsed: userReferral.totalUsed || 0,
+          totalDiscountGiven: userReferral.totalDiscountGiven || 0,
+          totalRevenueGenerated: userReferral.totalRevenueGenerated || 0
+        });
+      }
+    } catch (error) {
+      console.error('Error handling referral code:', error);
+    }
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -81,20 +124,8 @@ const Profile = () => {
               setUserOrders([]);
             }
 
-            // Get user's referral code if exists
-            const referralsRef = collection(db, 'referralCodes');
-            const q = query(referralsRef, where('userId', '==', currentUser.uid));
-            const referralSnapshot = await getDocs(q);
-            
-            if (!referralSnapshot.empty) {
-              const referralData = referralSnapshot.docs[0].data();
-              setReferralCode(referralData);
-              setReferralStats({
-                totalUsed: referralData.totalUsed || 0,
-                totalDiscountGiven: referralData.totalDiscountGiven || 0,
-                totalRevenueGenerated: referralData.totalRevenueGenerated || 0
-              });
-            }
+            // Get user's referral code
+            await getReferralCode();
           }
         } catch (error) {
           console.error('Error fetching user data:', error);

@@ -8,10 +8,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { saveFormData, getCurrentLocation, saveLocationToBooking } from '../utils/formUtils';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { doc, updateDoc, arrayUnion, Timestamp } from 'firebase/firestore';
+import { doc, updateDoc, arrayUnion, Timestamp, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import emailjs from 'emailjs-com';
-import { createBooking, validateReferralCode } from '../utils/firestoreUtils';
+import { createBooking, validateReferralCode, updateReferralStats } from '../utils/firestoreUtils';
 
 // EmailJS configuration from environment variables
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
@@ -178,14 +178,14 @@ const BookingForm = () => {
         
         const bookingData = {
           userId: currentUser.uid,
-          userName: currentUser.displayName || formData.name,
           userEmail: currentUser.email,
+          userName: formData.name || currentUser.displayName,
           pujaId: puja.id,
           pujaName: puja.name,
           price: puja.price,
           finalPrice: finalPrice,
-          referralCode: formData.referralCode || null,
           discountApplied: discountApplied,
+          referralCode: formData.referralCode || null,
           date: formData.date,
           time: formData.time,
           address: formData.address,
@@ -199,8 +199,18 @@ const BookingForm = () => {
           location: userLocation || null
         };
 
-        // Save booking to the bookings collection
-        const bookingId = await createBooking(bookingData);
+        const bookingRef = await addDoc(collection(db, 'bookings'), {
+          ...bookingData,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          status: 'pending'
+        });
+
+        // Update referral stats if referral code was used
+        if (formData.referralCode) {
+          const discountAmount = puja.price - finalPrice;
+          await updateReferralStats(formData.referralCode, finalPrice, discountAmount);
+        }
 
         // Send email notification about the new booking
         const emailParams = {
@@ -224,7 +234,7 @@ const BookingForm = () => {
         navigate('/booking-confirmation', {
           state: {
             bookingDetails: {
-              bookingId,
+              bookingId: bookingRef.id,
               puja,
               price: puja.price,
               finalPrice: finalPrice,
