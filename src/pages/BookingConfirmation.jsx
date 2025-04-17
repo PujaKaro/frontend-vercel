@@ -80,9 +80,20 @@ const BookingConfirmation = () => {
                 <p className="text-lg font-bold text-gray-800">{paymentId}</p>
               </div>
             )}
-            <div>
+            <div className="text-right">
               <h2 className="text-sm text-gray-600 font-medium">BOOKING AMOUNT</h2>
-              <p className="text-lg font-bold text-gray-800">₹{price}</p>
+              {bookingDetails.referralCode ? (
+                <div>
+                  <p className="text-lg font-bold text-gray-800">
+                    ₹{bookingDetails.finalPrice.toLocaleString()}
+                  </p>
+                  <p className="text-sm text-green-600">
+                    Saved ₹{(bookingDetails.price - bookingDetails.finalPrice).toLocaleString()}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-lg font-bold text-gray-800">₹{price.toLocaleString()}</p>
+              )}
             </div>
           </div>
           
@@ -122,13 +133,33 @@ const BookingConfirmation = () => {
               </div>
             </div>
           )}
+
+          {bookingDetails.referralCode && (
+            <div className="border-t border-gray-200 pt-6 mb-6">
+              <h2 className="text-xl font-bold text-gray-800 mb-4">Referral Details</h2>
+              <div className="bg-green-50 p-4 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">Applied Referral Code</p>
+                    <p className="text-lg font-bold text-green-600">{bookingDetails.referralCode}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-gray-600">Discount Applied</p>
+                    <p className="text-lg font-bold text-green-600">
+                      ₹{(bookingDetails.price - bookingDetails.finalPrice).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           
           <div className="border-t border-gray-200 pt-6 mb-6">
             <h2 className="text-xl font-bold text-gray-800 mb-4">Booking Address</h2>
             <p className="text-gray-700">
               {customerDetails.name}<br />
               {customerDetails.address}<br />
-              {customerDetails.city}, {customerDetails.state} {customerDetails.zip}<br />
+              {customerDetails.city}, {customerDetails.state} {customerDetails.pincode}<br />
               Phone: {customerDetails.phone}
             </p>
           </div>
@@ -154,4 +185,4 @@ const BookingConfirmation = () => {
   );
 };
 
-export default BookingConfirmation; 
+export default BookingConfirmation;

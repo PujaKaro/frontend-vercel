@@ -11,7 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { doc, updateDoc, arrayUnion, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import emailjs from 'emailjs-com';
-import { createBooking } from '../utils/firestoreUtils';
+import { createBooking, validateReferralCode } from '../utils/firestoreUtils';
 
 // EmailJS configuration from environment variables
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
@@ -36,13 +36,16 @@ const BookingForm = () => {
     additionalInfo: '',
     date: '',
     time: '',
-    specialInstructions: ''
+    specialInstructions: '',
+    referralCode: ''  // Add referral code field
   });
   
   const [puja, setPuja] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const [discountApplied, setDiscountApplied] = useState(0);
+  const [isValidatingCode, setIsValidatingCode] = useState(false);
   
   useEffect(() => {
     // Initialize EmailJS
@@ -136,6 +139,27 @@ const BookingForm = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  const handleReferralCodeValidation = async () => {
+    if (!formData.referralCode) return;
+    
+    setIsValidatingCode(true);
+    try {
+      const result = await validateReferralCode(formData.referralCode);
+      if (result.valid) {
+        setDiscountApplied(result.discountPercentage);
+        toast.success(`${result.discountPercentage}% discount applied!`);
+      } else {
+        setDiscountApplied(0);
+        toast.error('Invalid referral code');
+      }
+    } catch (error) {
+      console.error('Error validating referral code:', error);
+      toast.error('Error validating referral code');
+    } finally {
+      setIsValidatingCode(false);
+    }
+  };
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -150,6 +174,8 @@ const BookingForm = () => {
       setIsSubmitting(true);
       
       try {
+        const finalPrice = puja.price * (1 - discountApplied / 100);
+        
         const bookingData = {
           userId: currentUser.uid,
           userName: currentUser.displayName || formData.name,
@@ -157,6 +183,9 @@ const BookingForm = () => {
           pujaId: puja.id,
           pujaName: puja.name,
           price: puja.price,
+          finalPrice: finalPrice,
+          referralCode: formData.referralCode || null,
+          discountApplied: discountApplied,
           date: formData.date,
           time: formData.time,
           address: formData.address,
@@ -197,7 +226,8 @@ const BookingForm = () => {
             bookingDetails: {
               bookingId,
               puja,
-              price : puja.price,
+              price: puja.price,
+              finalPrice: finalPrice,
               date: formData.date,
               timeSlot: formData.time,
               customerDetails: {
@@ -438,6 +468,60 @@ const BookingForm = () => {
                   onChange={handleInputChange}
                 ></textarea>
               </div>
+
+              <div className="mb-6">
+                <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="referralCode">
+                  Referral Code (Optional)
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    id="referralCode"
+                    name="referralCode"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Enter referral code"
+                    value={formData.referralCode}
+                    onChange={handleInputChange}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleReferralCodeValidation}
+                    disabled={!formData.referralCode || isValidatingCode}
+                    className={`px-4 py-2 rounded-md ${
+                      isValidatingCode 
+                        ? 'bg-gray-300 cursor-not-allowed' 
+                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    }`}
+                  >
+                    {isValidatingCode ? 'Validating...' : 'Apply'}
+                  </button>
+                </div>
+                {discountApplied > 0 && (
+                  <p className="mt-2 text-sm text-green-600">
+                    {discountApplied}% discount will be applied to your booking
+                  </p>
+                )}
+              </div>
+
+              {discountApplied > 0 && (
+                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                  <h3 className="text-lg font-medium mb-2">Price Breakdown</h3>
+                  <div className="space-y-1">
+                    <div className="flex justify-between">
+                      <span>Original Price:</span>
+                      <span>₹{puja.price.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-green-600">
+                      <span>Discount ({discountApplied}%):</span>
+                      <span>-₹{((puja.price * discountApplied) / 100).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between font-bold pt-1 border-t">
+                      <span>Final Price:</span>
+                      <span>₹{(puja.price * (1 - discountApplied / 100)).toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
               
               <div className="mt-8">
                 <button

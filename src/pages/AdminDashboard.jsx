@@ -11,7 +11,8 @@ import {
   faTrash,
   faBan,
   faCheck,
-  faPlus
+  faPlus,
+  faGift
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../config/firebase';
@@ -27,6 +28,9 @@ import {
   limit
 } from 'firebase/firestore';
 import SEO from '../components/SEO';
+import { createReferralCode, getAllReferralCodes, updateDocument } from '../utils/firestoreUtils';
+import { toast } from 'react-hot-toast';
+
 
 const AdminDashboard = () => {
   const { currentUser } = useAuth();
@@ -41,8 +45,18 @@ const AdminDashboard = () => {
     recentUsers: [],
     recentBookings: [],
     recentOrders: [],
-    recentBlogs: []
+    recentBlogs: [],
+    referrals: [],
+    totalReferralRevenue: 0,
+    totalDiscountsGiven: 0
   });
+  const [newReferralCode, setNewReferralCode] = useState({
+    code: '',
+    discountPercentage: '',
+    description: '',
+    isActive: true
+  });
+  const [isCreatingCode, setIsCreatingCode] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -50,11 +64,12 @@ const AdminDashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const [users, bookings, orders, blogs] = await Promise.all([
+      const [users, bookings, orders, blogs, referrals] = await Promise.all([
         getDocs(collection(db, 'users')),
         getDocs(collection(db, 'bookings')),
         getDocs(collection(db, 'orders')),
-        getDocs(collection(db, 'blogs'))
+        getDocs(collection(db, 'blogs')),
+        getAllReferralCodes()
       ]);
 
       const recentUsersQuery = query(
@@ -88,8 +103,10 @@ const AdminDashboard = () => {
         getDocs(recentBlogsQuery)
       ]);
 
-      console.log('Recent Users:', recentUsers.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-        console.log('Recent Bookings:', recentBookings.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      const referralStats = referrals.reduce((acc, ref) => ({
+        totalRevenue: acc.totalRevenue + (ref.totalRevenueGenerated || 0),
+        totalDiscounts: acc.totalDiscounts + (ref.totalDiscountGiven || 0)
+      }), { totalRevenue: 0, totalDiscounts: 0 });
 
       setStats({
         totalUsers: users.size,
@@ -99,7 +116,10 @@ const AdminDashboard = () => {
         recentUsers: recentUsers.docs.map(doc => ({ id: doc.id, ...doc.data() })),
         recentBookings: recentBookings.docs.map(doc => ({ id: doc.id, ...doc.data() })),
         recentOrders: recentOrders.docs.map(doc => ({ id: doc.id, ...doc.data() })),
-        recentBlogs: recentBlogs.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+        recentBlogs: recentBlogs.docs.map(doc => ({ id: doc.id, ...doc.data() })),
+        referrals,
+        totalReferralRevenue: referralStats.totalRevenue,
+        totalDiscountsGiven: referralStats.totalDiscounts
       });
 
       setLoading(false);
@@ -203,6 +223,47 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleCreateReferralCode = async (e) => {
+    e.preventDefault();
+    setIsCreatingCode(true);
+
+    try {
+      await createReferralCode({
+        ...newReferralCode,
+        discountPercentage: parseFloat(newReferralCode.discountPercentage)
+      });
+
+      setNewReferralCode({
+        code: '',
+        discountPercentage: '',
+        description: '',
+        isActive: true
+      });
+
+      toast.success('Referral code created successfully');
+      fetchDashboardData();
+    } catch (error) {
+      console.error('Error creating referral code:', error);
+      toast.error('Failed to create referral code');
+    } finally {
+      setIsCreatingCode(false);
+    }
+  };
+
+  const handleToggleReferralStatus = async (referralId, currentStatus) => {
+    try {
+      await updateDocument('referralCodes', referralId, {
+        isActive: !currentStatus,
+        updatedAt: new Date()
+      });
+      fetchDashboardData();
+      toast.success('Referral code status updated');
+    } catch (error) {
+      console.error('Error updating referral status:', error);
+      toast.error('Failed to update referral code status');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -287,6 +348,17 @@ const AdminDashboard = () => {
                 >
                   <FontAwesomeIcon icon={faChartLine} className="mr-2" />
                   Analytics
+                </button>
+                <button
+                  onClick={() => setActiveTab('referrals')}
+                  className={`w-full text-left px-4 py-2 rounded-lg ${
+                    activeTab === 'referrals'
+                      ? 'bg-orange-50 text-orange-500'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faGift} className="mr-2" />
+                  Referrals
                 </button>
               </nav>
             </div>
@@ -753,6 +825,172 @@ const AdminDashboard = () => {
                         </p>
                       </div>
                     </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'referrals' && (
+              <div className="space-y-6">
+                {/* Referral Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-white rounded-lg shadow-sm p-6">
+                    <h3 className="text-sm text-gray-500">Total Referral Revenue</h3>
+                    <p className="text-2xl font-bold text-green-600">
+                      ₹{stats.totalReferralRevenue.toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="bg-white rounded-lg shadow-sm p-6">
+                    <h3 className="text-sm text-gray-500">Total Discounts Given</h3>
+                    <p className="text-2xl font-bold text-orange-600">
+                      ₹{stats.totalDiscountsGiven.toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="bg-white rounded-lg shadow-sm p-6">
+                    <h3 className="text-sm text-gray-500">Active Referral Codes</h3>
+                    <p className="text-2xl font-bold text-blue-600">
+                      {stats.referrals.filter(r => r.isActive).length}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Create New Referral Code */}
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h2 className="text-xl font-semibold mb-4">Create Referral Code</h2>
+                  <form onSubmit={handleCreateReferralCode} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Code</label>
+                        <input
+                          type="text"
+                          required
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                          value={newReferralCode.code}
+                          onChange={(e) => setNewReferralCode(prev => ({ ...prev, code: e.target.value }))}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Discount Percentage</label>
+                        <input
+                          type="number"
+                          required
+                          min="0"
+                          max="100"
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                          value={newReferralCode.discountPercentage}
+                          onChange={(e) => setNewReferralCode(prev => ({ ...prev, discountPercentage: e.target.value }))}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Description</label>
+                      <input
+                        type="text"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                        value={newReferralCode.description}
+                        onChange={(e) => setNewReferralCode(prev => ({ ...prev, description: e.target.value }))}
+                      />
+                    </div>
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="isActive"
+                        className="rounded border-gray-300 text-orange-500 focus:ring-orange-500"
+                        checked={newReferralCode.isActive}
+                        onChange={(e) => setNewReferralCode(prev => ({ ...prev, isActive: e.target.checked }))}
+                      />
+                      <label htmlFor="isActive" className="ml-2 text-sm text-gray-700">
+                        Active
+                      </label>
+                    </div>
+                    <div>
+                      <button
+                        type="submit"
+                        disabled={isCreatingCode}
+                        className={`w-full bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 
+                          ${isCreatingCode ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                        {isCreatingCode ? 'Creating...' : 'Create Referral Code'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+
+                {/* Referral Codes List */}
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h2 className="text-xl font-semibold mb-4">Referral Codes</h2>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead>
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Code
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Discount
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Usage
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Revenue
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {stats.referrals.map((referral) => (
+                          <tr key={referral.id}>
+                            <td className="px-6 py-4">
+                              <div>
+                                <div className="font-medium text-gray-900">{referral.code}</div>
+                                <div className="text-sm text-gray-500">{referral.description}</div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="text-green-600 font-medium">
+                                {referral.discountPercentage}%
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div>
+                                <div className="text-gray-900">{referral.totalUsed || 0}</div>
+                                <div className="text-sm text-gray-500">
+                                  ₹{(referral.totalDiscountGiven || 0).toLocaleString()} saved
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="font-medium text-gray-900">
+                                ₹{(referral.totalRevenueGenerated || 0).toLocaleString()}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                ${referral.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
+                              >
+                                {referral.isActive ? 'Active' : 'Inactive'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <button
+                                onClick={() => handleToggleReferralStatus(referral.id, referral.isActive)}
+                                className={`text-sm font-medium ${
+                                  referral.isActive ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'
+                                }`}
+                              >
+                                {referral.isActive ? 'Deactivate' : 'Activate'}
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>

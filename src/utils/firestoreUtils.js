@@ -12,7 +12,9 @@ import {
     limit,
     Timestamp,
     addDoc,
-    serverTimestamp
+    serverTimestamp,
+    startAfter,
+    increment
   } from 'firebase/firestore';
   import { db } from '../config/firebase';
   
@@ -301,6 +303,105 @@ import {
     }
   };
   
+  // Referral Management
+  export const createReferralCode = async (data) => {
+    try {
+      const referralsRef = collection(db, 'referralCodes');
+      const newReferral = {
+        ...data,
+        totalUsed: 0,  // Track usage count
+        totalDiscountGiven: 0,  // Track total discount amount
+        totalRevenueGenerated: 0,  // Track revenue from referral bookings
+        createdAt: serverTimestamp()
+      };
+      const docRef = await addDoc(referralsRef, newReferral);
+      return docRef.id;
+    } catch (error) {
+      console.error('Error creating referral code:', error);
+      throw error;
+    }
+  };
+
+  export const validateReferralCode = async (code) => {
+    try {
+      const referralsRef = collection(db, 'referralCodes');
+      const q = query(referralsRef, where('code', '==', code));
+      const snapshot = await getDocs(q);
+
+      if (snapshot.empty) {
+        return { valid: false };
+      }
+
+      const referral = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+      
+      // Check if code is active and valid
+      if (!referral.isActive) {
+        return { valid: false };
+      }
+
+      return {
+        valid: true,
+        discountPercentage: referral.discountPercentage,
+        referralId: referral.id
+      };
+    } catch (error) {
+      console.error('Error validating referral code:', error);
+      throw error;
+    }
+  };
+
+  export const getReferralAnalytics = async (referralId) => {
+    try {
+      const referralDoc = await getDoc(doc(db, 'referralCodes', referralId));
+      if (!referralDoc.exists()) {
+        throw new Error('Referral code not found');
+      }
+      return referralDoc.data();
+    } catch (error) {
+      console.error('Error getting referral analytics:', error);
+      throw error;
+    }
+  };
+
+  export const updateReferralStats = async (referralId, bookingAmount, discountAmount) => {
+    try {
+      const referralRef = doc(db, 'referralCodes', referralId);
+      await updateDoc(referralRef, {
+        totalUsed: increment(1),
+        totalDiscountGiven: increment(discountAmount),
+        totalRevenueGenerated: increment(bookingAmount),
+        lastUsedAt: serverTimestamp()
+      });
+      return true;
+    } catch (error) {
+      console.error('Error updating referral stats:', error);
+      throw error;
+    }
+  };
+
+  export const getAllReferralCodes = async (lastCode = null, pageSize = 20) => {
+    try {
+      let referralsQuery = query(
+        collection(db, 'referralCodes'),
+        orderBy('createdAt', 'desc'),
+        limit(pageSize)
+      );
+
+      if (lastCode) {
+        referralsQuery = query(referralsQuery, startAfter(lastCode));
+      }
+
+      const snapshot = await getDocs(referralsQuery);
+      return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    } catch (error) {
+      console.error('Error getting referral codes:', error);
+      throw error;
+    }
+  };
+
   // Example usage:
   /*
   // Create a user

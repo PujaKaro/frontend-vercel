@@ -6,13 +6,15 @@ import {
   faShoppingBag, faPray, faHistory, faAddressBook, 
   faSignOut, faCalendar, faClock, faRupeeSign,
   faBell, faHeart, faTicket, faGift, faCog,
-  faStar, faQuestionCircle, faShare, faCheckCircle, faCreditCard
+  faStar, faQuestionCircle, faShare, faCheckCircle, faCreditCard,
+  faEye, faCopy, faTimes
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import SEO from '../components/SEO';
 import { getUserBookings, getUserOrders } from '../utils/firestoreUtils';
+import toast from 'react-hot-toast';
 
 const Profile = () => {
   const { currentUser, logout } = useAuth();
@@ -27,6 +29,14 @@ const Profile = () => {
   const [profileProgress, setProfileProgress] = useState(0);
   const [activatedServices, setActivatedServices] = useState([]);
   const [savedCards, setSavedCards] = useState([]);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [referralStats, setReferralStats] = useState({
+    totalUsed: 0,
+    totalDiscountGiven: 0,
+    totalRevenueGenerated: 0
+  });
+  const [referralCode, setReferralCode] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -69,6 +79,21 @@ const Profile = () => {
               console.error('Error fetching orders:', orderError);
               setOrdersError('Unable to load orders. Please try again later.');
               setUserOrders([]);
+            }
+
+            // Get user's referral code if exists
+            const referralsRef = collection(db, 'referralCodes');
+            const q = query(referralsRef, where('userId', '==', currentUser.uid));
+            const referralSnapshot = await getDocs(q);
+            
+            if (!referralSnapshot.empty) {
+              const referralData = referralSnapshot.docs[0].data();
+              setReferralCode(referralData);
+              setReferralStats({
+                totalUsed: referralData.totalUsed || 0,
+                totalDiscountGiven: referralData.totalDiscountGiven || 0,
+                totalRevenueGenerated: referralData.totalRevenueGenerated || 0
+              });
             }
           }
         } catch (error) {
@@ -176,6 +201,32 @@ const Profile = () => {
 
     const rzp = new window.Razorpay(options);
     rzp.open();
+  };
+
+  const handleViewBookingDetails = (booking) => {
+    setSelectedBooking(booking);
+    setShowBookingModal(true);
+  };
+
+  const handleCopyReferralCode = () => {
+    if (referralCode) {
+      navigator.clipboard.writeText(referralCode.code);
+      toast.success('Referral code copied to clipboard!');
+    }
+  };
+
+  const handleShareReferralCode = async () => {
+    if (referralCode) {
+      try {
+        await navigator.share({
+          title: 'PujaKaro Referral',
+          text: `Use my referral code ${referralCode.code} to get ${referralCode.discountPercentage}% off on your first booking!`,
+          url: window.location.origin
+        });
+      } catch (error) {
+        console.error('Error sharing:', error);
+      }
+    }
   };
 
   if (loading) {
@@ -368,6 +419,17 @@ const Profile = () => {
                   <FontAwesomeIcon icon={faCheckCircle} className="mr-2" />
                   Activated Services
                 </button>
+                <button
+                  onClick={() => setActiveTab('referrals')}
+                  className={`w-full text-left px-4 py-2 rounded-lg ${
+                    activeTab === 'referrals'
+                      ? 'bg-orange-50 text-orange-500'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faGift} className="mr-2" />
+                  Referrals
+                </button>
               </nav>
             </div>
           </div>
@@ -482,12 +544,23 @@ const Profile = () => {
                             </span>
                           </div>
                           <div className="text-right">
-                            <p className="font-medium text-gray-900">₹{booking.price.toLocaleString()}</p>
-                            <button className="mt-2 text-orange-500 hover:text-orange-600">
+                            <p className="font-medium text-gray-900">₹{booking.finalPrice?.toLocaleString() || booking.price.toLocaleString()}</p>
+                            <button 
+                              onClick={() => handleViewBookingDetails(booking)}
+                              className="mt-2 text-orange-500 hover:text-orange-600 flex items-center"
+                            >
+                              <FontAwesomeIcon icon={faEye} className="mr-1" />
                               View Details
                             </button>
                           </div>
                         </div>
+                        {booking.referralCode && (
+                          <div className="mt-2 text-sm">
+                            <span className="text-green-600">
+                              Referral code {booking.referralCode} applied - Saved ₹{(booking.price - booking.finalPrice).toLocaleString()}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -792,6 +865,148 @@ const Profile = () => {
                       </p>
                     </div>
                   )}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'referrals' && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h2 className="text-xl font-semibold mb-4">Your Referral Code</h2>
+                  {referralCode ? (
+                    <div>
+                      <div className="flex items-center justify-between bg-orange-50 p-4 rounded-lg mb-4">
+                        <div>
+                          <p className="text-sm text-gray-600">Your unique referral code</p>
+                          <p className="text-2xl font-bold text-orange-600">{referralCode.code}</p>
+                        </div>
+                        <div className="space-x-2">
+                          <button
+                            onClick={handleCopyReferralCode}
+                            className="p-2 text-orange-600 hover:bg-orange-100 rounded-full"
+                          >
+                            <FontAwesomeIcon icon={faCopy} />
+                          </button>
+                          <button
+                            onClick={handleShareReferralCode}
+                            className="p-2 text-orange-600 hover:bg-orange-100 rounded-full"
+                          >
+                            <FontAwesomeIcon icon={faShare} />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-green-50 p-4 rounded-lg">
+                          <p className="text-sm text-gray-600">Total Uses</p>
+                          <p className="text-2xl font-bold text-green-600">{referralStats.totalUsed}</p>
+                        </div>
+                        <div className="bg-blue-50 p-4 rounded-lg">
+                          <p className="text-sm text-gray-600">Total Savings Generated</p>
+                          <p className="text-2xl font-bold text-blue-600">₹{referralStats.totalDiscountGiven.toLocaleString()}</p>
+                        </div>
+                        <div className="bg-purple-50 p-4 rounded-lg">
+                          <p className="text-sm text-gray-600">Total Revenue Generated</p>
+                          <p className="text-2xl font-bold text-purple-600">₹{referralStats.totalRevenueGenerated.toLocaleString()}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-600">You don't have a referral code yet.</p>
+                      <p className="text-sm text-gray-500 mt-2">Complete your first booking to get your referral code!</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Booking Details Modal */}
+            {showBookingModal && selectedBooking && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <h2 className="text-xl font-bold text-gray-900">Booking Details</h2>
+                      <button 
+                        onClick={() => setShowBookingModal(false)}
+                        className="text-gray-500 hover:text-gray-700"
+                      >
+                        <FontAwesomeIcon icon={faTimes} />
+                      </button>
+                    </div>
+                    
+                    <div className="space-y-6">
+                      <div className="bg-gray-50 p-4 rounded-lg">
+                        <h3 className="font-semibold mb-2">Puja Information</h3>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-sm text-gray-600">Name</p>
+                            <p className="font-medium">{selectedBooking.pujaName}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600">Date & Time</p>
+                            <p className="font-medium">
+                              {new Date(selectedBooking.date).toLocaleDateString()}, {selectedBooking.time}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600">Status</p>
+                            <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                              selectedBooking.status === 'completed' ? 'bg-green-100 text-green-800' :
+                              selectedBooking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {selectedBooking.status}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600">Booking ID</p>
+                            <p className="font-medium">{selectedBooking.id}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <h3 className="font-semibold mb-2">Price Details</h3>
+                        <div className="border rounded-lg p-4">
+                          <div className="flex justify-between mb-2">
+                            <span>Original Price</span>
+                            <span>₹{selectedBooking.price.toLocaleString()}</span>
+                          </div>
+                          {selectedBooking.referralCode && (
+                            <>
+                              <div className="flex justify-between text-green-600 mb-2">
+                                <span>Referral Discount</span>
+                                <span>-₹{(selectedBooking.price - selectedBooking.finalPrice).toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between font-bold pt-2 border-t">
+                                <span>Final Price</span>
+                                <span>₹{selectedBooking.finalPrice.toLocaleString()}</span>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <h3 className="font-semibold mb-2">Booking Address</h3>
+                        <div className="border rounded-lg p-4">
+                          <p>{selectedBooking.address}</p>
+                          <p>{selectedBooking.city}, {selectedBooking.state} {selectedBooking.pincode}</p>
+                          <p>Phone: {selectedBooking.phone}</p>
+                        </div>
+                      </div>
+
+                      {selectedBooking.specialInstructions && (
+                        <div>
+                          <h3 className="font-semibold mb-2">Special Instructions</h3>
+                          <div className="border rounded-lg p-4">
+                            <p>{selectedBooking.specialInstructions}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
