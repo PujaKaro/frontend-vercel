@@ -162,7 +162,7 @@ export const products = [
     {
       id: 1,
       name: 'Satyanarayan Puja',
-      image: '/images/satyanarayan.png',
+      image: '/images/featuredPuja.jpg',
       duration: '3 hours',
       price: 5100,
       rating: 4.8,
