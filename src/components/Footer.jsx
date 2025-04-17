@@ -33,7 +33,7 @@ const Footer = () => {
   const socialLinks = [
     { icon: faFacebook, url: 'https://facebook.com/pujakaro' },
     { icon: faTwitter, url: 'https://twitter.com/pujakaro' },
-    { icon: faInstagram, url: 'https://instagram.com/pujakaro' },
+    { icon: faInstagram, url: 'https://instagram.com/pujakaro.in' },
     { icon: faLinkedin, url: 'https://linkedin.com/company/pujakaro' }
   ];
 
