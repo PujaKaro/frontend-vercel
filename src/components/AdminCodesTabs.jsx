@@ -390,7 +390,7 @@ const AdminCodesTabs = ({
                         <div className="text-sm text-gray-500">
                           {coupon.assignedUsers ? (
                             <span className="flex items-center">
-                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 mr-2">
+                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800 mr-2">
                                 Specific
                               </span>
                               {coupon.assignedUsers.length} specific users

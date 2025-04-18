@@ -786,20 +786,20 @@ const Profile = () => {
                         >
                           <div>
                             <div className="flex items-center">
-                              <p className="text-2xl font-bold text-blue-600">{coupon.code}</p>
+                              <p className="text-2xl font-bold text-orange-600">{coupon.code}</p>
                               {!coupon.assignedUsers && (
                                 <span className="ml-2 bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">
                                   Global
                                 </span>
                               )}
                               {coupon.assignedUsers && (
-                                <span className="ml-2 bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                                <span className="ml-2 bg-orange-100 text-orange-800 text-xs font-semibold px-2.5 py-0.5 rounded">
                                   Personal
                                 </span>
                               )}
                             </div>
                             <p className="text-sm text-gray-700 mt-1">{coupon.description}</p>
-                            <p className="text-md font-semibold text-blue-700 mt-1">{coupon.discountPercentage}% discount</p>
+                            <p className="text-md font-semibold text-orange-700 mt-1">{coupon.discountPercentage}% discount</p>
                           </div>
                           <div className="space-x-2">
                             <button
@@ -807,7 +807,7 @@ const Profile = () => {
                                 navigator.clipboard.writeText(coupon.code);
                                 toast.success('Coupon code copied to clipboard!');
                               }}
-                              className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"
+                              className="p-2 text-orange-600 hover:bg-orange-100 rounded-full"
                             >
                               <FontAwesomeIcon icon={faCopy} />
                             </button>
