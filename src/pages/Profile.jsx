@@ -13,7 +13,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import SEO from '../components/SEO';
-import { getUserBookings, getUserOrders, getUserReferralCode, createReferralCode } from '../utils/firestoreUtils';
+import { getUserBookings, getUserOrders, getUserReferralCode, createReferralCode, getUserCoupons } from '../utils/firestoreUtils';
 import toast from 'react-hot-toast';
 
 const Profile = () => {
@@ -37,6 +37,7 @@ const Profile = () => {
     totalRevenueGenerated: 0
   });
   const [referralCode, setReferralCode] = useState(null);
+  const [userCoupons, setUserCoupons] = useState([]);
   const navigate = useNavigate();
 
   const getReferralCode = async () => {
@@ -79,6 +80,17 @@ const Profile = () => {
       }
     } catch (error) {
       console.error('Error handling referral code:', error);
+    }
+  };
+
+  const getUserCouponCodes = async () => {
+    try {
+      if (currentUser) {
+        const coupons = await getUserCoupons(currentUser.uid);
+        setUserCoupons(coupons);
+      }
+    } catch (error) {
+      console.error('Error fetching user coupons:', error);
     }
   };
 
@@ -126,6 +138,9 @@ const Profile = () => {
 
             // Get user's referral code
             await getReferralCode();
+            
+            // Get user's coupon codes
+            await getUserCouponCodes();
           }
         } catch (error) {
           console.error('Error fetching user data:', error);
@@ -418,15 +433,26 @@ const Profile = () => {
                   Support
                 </button>
                 <button
-                  onClick={() => setActiveTab('referral')}
+                  onClick={() => setActiveTab('referrals')}
                   className={`w-full text-left px-4 py-2 rounded-lg ${
-                    activeTab === 'referral'
+                    activeTab === 'referrals'
                       ? 'bg-orange-50 text-orange-500'
                       : 'text-gray-600 hover:bg-gray-50'
                   }`}
                 >
                   <FontAwesomeIcon icon={faGift} className="mr-2" />
-                  Refer & Earn
+                  Referrals
+                </button>
+                <button
+                  onClick={() => setActiveTab('coupons')}
+                  className={`w-full text-left px-4 py-2 rounded-lg ${
+                    activeTab === 'coupons'
+                      ? 'bg-orange-50 text-orange-500'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faTicket} className="mr-2" />
+                  Coupons
                 </button>
                 <button
                   onClick={() => setActiveTab('settings')}
@@ -449,17 +475,6 @@ const Profile = () => {
                 >
                   <FontAwesomeIcon icon={faCheckCircle} className="mr-2" />
                   Activated Services
-                </button>
-                <button
-                  onClick={() => setActiveTab('referrals')}
-                  className={`w-full text-left px-4 py-2 rounded-lg ${
-                    activeTab === 'referrals'
-                      ? 'bg-orange-50 text-orange-500'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  <FontAwesomeIcon icon={faGift} className="mr-2" />
-                  Referrals
                 </button>
               </nav>
             </div>
@@ -705,37 +720,106 @@ const Profile = () => {
               </div>
             )}
 
-            {activeTab === 'referral' && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-semibold mb-4">Refer & Earn</h2>
-                <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg p-6 mb-6">
-                  <h3 className="text-lg font-medium mb-2">Invite Friends & Earn Rewards</h3>
-                  <p className="text-gray-600 mb-4">
-                    Share your referral code with friends and earn points for every successful referral.
-                  </p>
-                  <div className="flex items-center space-x-4">
-                    <div className="bg-white p-3 rounded-lg border">
-                      <code className="text-orange-500 font-mono">REF{currentUser.uid.slice(0, 6)}</code>
+            {activeTab === 'referrals' && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h2 className="text-xl font-semibold mb-4">Your Referral Code</h2>
+                  {referralCode ? (
+                    <div>
+                      <div className="flex items-center justify-between bg-orange-50 p-4 rounded-lg mb-4">
+                        <div>
+                          <p className="text-sm text-gray-600">Your unique referral code</p>
+                          <p className="text-2xl font-bold text-orange-600">{referralCode.code}</p>
+                        </div>
+                        <div className="space-x-2">
+                          <button
+                            onClick={handleCopyReferralCode}
+                            className="p-2 text-orange-600 hover:bg-orange-100 rounded-full"
+                          >
+                            <FontAwesomeIcon icon={faCopy} />
+                          </button>
+                          <button
+                            onClick={handleShareReferralCode}
+                            className="p-2 text-orange-600 hover:bg-orange-100 rounded-full"
+                          >
+                            <FontAwesomeIcon icon={faShare} />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-green-50 p-4 rounded-lg">
+                          <p className="text-sm text-gray-600">Total Uses</p>
+                          <p className="text-2xl font-bold text-green-600">{referralStats.totalUsed}</p>
+                        </div>
+                        <div className="bg-blue-50 p-4 rounded-lg">
+                          <p className="text-sm text-gray-600">Total Savings Generated</p>
+                          <p className="text-2xl font-bold text-blue-600">₹{referralStats.totalDiscountGiven.toLocaleString()}</p>
+                        </div>
+                        <div className="bg-purple-50 p-4 rounded-lg">
+                          <p className="text-sm text-gray-600">Total Revenue Generated</p>
+                          <p className="text-2xl font-bold text-purple-600">₹{referralStats.totalRevenueGenerated.toLocaleString()}</p>
+                        </div>
+                      </div>
                     </div>
-                    <button className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600">
-                      <FontAwesomeIcon icon={faShare} className="mr-2" />
-                      Share Code
-                    </button>
-                  </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-600">You don't have a referral code yet.</p>
+                      <p className="text-sm text-gray-500 mt-2">Complete your first booking to get your referral code!</p>
+                    </div>
+                  )}
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-white border rounded-lg p-4">
-                    <h4 className="font-medium mb-2">Total Referrals</h4>
-                    <p className="text-2xl font-bold text-orange-500">{userData.referrals?.length || 0}</p>
-                  </div>
-                  <div className="bg-white border rounded-lg p-4">
-                    <h4 className="font-medium mb-2">Earned Points</h4>
-                    <p className="text-2xl font-bold text-orange-500">{userData.referralPoints || 0}</p>
-                  </div>
-                  <div className="bg-white border rounded-lg p-4">
-                    <h4 className="font-medium mb-2">Available Rewards</h4>
-                    <p className="text-2xl font-bold text-orange-500">₹{userData.availableRewards || 0}</p>
-                  </div>
+              </div>
+            )}
+
+            {activeTab === 'coupons' && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h2 className="text-xl font-semibold mb-4">Your Coupon Codes</h2>
+                  {userCoupons.length > 0 ? (
+                    <div className="space-y-4">
+                      {userCoupons.map(coupon => (
+                        <div 
+                          key={coupon.id} 
+                          className={`flex items-center justify-between p-4 rounded-lg ${
+                            coupon.assignedUsers ? 'bg-blue-50' : 'bg-green-50'
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-center">
+                              <p className="text-2xl font-bold text-blue-600">{coupon.code}</p>
+                              {!coupon.assignedUsers && (
+                                <span className="ml-2 bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                                  Global
+                                </span>
+                              )}
+                              {coupon.assignedUsers && (
+                                <span className="ml-2 bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                                  Personal
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-700 mt-1">{coupon.description}</p>
+                            <p className="text-md font-semibold text-blue-700 mt-1">{coupon.discountPercentage}% discount</p>
+                          </div>
+                          <div className="space-x-2">
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(coupon.code);
+                                toast.success('Coupon code copied to clipboard!');
+                              }}
+                              className="p-2 text-blue-600 hover:bg-blue-100 rounded-full"
+                            >
+                              <FontAwesomeIcon icon={faCopy} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-600">You don't have any coupon codes yet.</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -894,57 +978,6 @@ const Profile = () => {
                       <p className="text-sm text-gray-500 mt-2">
                         Cards will be saved automatically after successful payments
                       </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'referrals' && (
-              <div className="space-y-6">
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-xl font-semibold mb-4">Your Referral Code</h2>
-                  {referralCode ? (
-                    <div>
-                      <div className="flex items-center justify-between bg-orange-50 p-4 rounded-lg mb-4">
-                        <div>
-                          <p className="text-sm text-gray-600">Your unique referral code</p>
-                          <p className="text-2xl font-bold text-orange-600">{referralCode.code}</p>
-                        </div>
-                        <div className="space-x-2">
-                          <button
-                            onClick={handleCopyReferralCode}
-                            className="p-2 text-orange-600 hover:bg-orange-100 rounded-full"
-                          >
-                            <FontAwesomeIcon icon={faCopy} />
-                          </button>
-                          <button
-                            onClick={handleShareReferralCode}
-                            className="p-2 text-orange-600 hover:bg-orange-100 rounded-full"
-                          >
-                            <FontAwesomeIcon icon={faShare} />
-                          </button>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-green-50 p-4 rounded-lg">
-                          <p className="text-sm text-gray-600">Total Uses</p>
-                          <p className="text-2xl font-bold text-green-600">{referralStats.totalUsed}</p>
-                        </div>
-                        <div className="bg-blue-50 p-4 rounded-lg">
-                          <p className="text-sm text-gray-600">Total Savings Generated</p>
-                          <p className="text-2xl font-bold text-blue-600">₹{referralStats.totalDiscountGiven.toLocaleString()}</p>
-                        </div>
-                        <div className="bg-purple-50 p-4 rounded-lg">
-                          <p className="text-sm text-gray-600">Total Revenue Generated</p>
-                          <p className="text-2xl font-bold text-purple-600">₹{referralStats.totalRevenueGenerated.toLocaleString()}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <p className="text-gray-600">You don't have a referral code yet.</p>
-                      <p className="text-sm text-gray-500 mt-2">Complete your first booking to get your referral code!</p>
                     </div>
                   )}
                 </div>

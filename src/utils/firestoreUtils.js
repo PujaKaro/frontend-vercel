@@ -422,6 +422,170 @@ import {
     }
   };
 
+  // Coupon code functions
+  export const createCouponCode = async (data) => {
+    try {
+      const couponsRef = collection(db, 'coupons');
+      const newCoupon = {
+        ...data,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        totalUsed: 0,
+        totalDiscountGiven: 0,
+        totalRevenueGenerated: 0
+      };
+      const docRef = await addDoc(couponsRef, newCoupon);
+      return { id: docRef.id, ...newCoupon };
+    } catch (error) {
+      console.error('Error creating coupon code:', error);
+      throw error;
+    }
+  };
+
+  export const validateCouponCode = async (code) => {
+    try {
+      const couponsRef = collection(db, 'coupons');
+      const q = query(couponsRef, where('code', '==', code), where('isActive', '==', true));
+      const querySnapshot = await getDocs(q);
+      
+      if (querySnapshot.empty) {
+        return { valid: false };
+      }
+      
+      const couponData = { id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() };
+      
+      // Check if coupon is assigned to specific users
+      if (couponData.assignedUsers && couponData.assignedUsers.length > 0) {
+        // This will be checked in the component against the current user
+        return { 
+          valid: true, 
+          discountPercentage: couponData.discountPercentage,
+          isCoupon: true,
+          assignedUsers: couponData.assignedUsers,
+          couponData
+        };
+      }
+      
+      return { 
+        valid: true, 
+        discountPercentage: couponData.discountPercentage,
+        isCoupon: true,
+        couponData
+      };
+    } catch (error) {
+      console.error('Error validating coupon code:', error);
+      throw error;
+    }
+  };
+
+  export const updateCouponStats = async (couponCode, bookingAmount, discountAmount) => {
+    try {
+      const couponsRef = collection(db, 'coupons');
+      const q = query(couponsRef, where('code', '==', couponCode));
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        const couponDoc = querySnapshot.docs[0];
+        await updateDoc(doc(db, 'coupons', couponDoc.id), {
+          totalUsed: increment(1),
+          totalDiscountGiven: increment(discountAmount),
+          totalRevenueGenerated: increment(bookingAmount),
+          updatedAt: serverTimestamp()
+        });
+      }
+    } catch (error) {
+      console.error('Error updating coupon stats:', error);
+      throw error;
+    }
+  };
+
+  export const getUserCoupons = async (userId) => {
+    try {
+      const couponsRef = collection(db, 'coupons');
+      
+      // Get coupons specifically assigned to this user
+      const userSpecificQuery = query(
+        couponsRef,
+        where('assignedUsers', 'array-contains', userId),
+        where('isActive', '==', true)
+      );
+      const userSpecificSnapshot = await getDocs(userSpecificQuery);
+      
+      // Get coupons available to all users (where assignedUsers is null)
+      const allUsersQuery = query(
+        couponsRef,
+        where('assignedUsers', '==', null),
+        where('isActive', '==', true)
+      );
+      const allUsersSnapshot = await getDocs(allUsersQuery);
+      
+      // Combine both result sets
+      const userCoupons = userSpecificSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      const allUsersCoupons = allUsersSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      return [...userCoupons, ...allUsersCoupons];
+    } catch (error) {
+      console.error('Error getting user coupons:', error);
+      throw error;
+    }
+  };
+
+  export const getAllCoupons = async (lastCode = null, pageSize = 20) => {
+    try {
+      let couponsQuery;
+      
+      if (lastCode) {
+        const lastDocSnapshot = await getDoc(doc(db, 'coupons', lastCode));
+        couponsQuery = query(
+          collection(db, 'coupons'),
+          orderBy('createdAt', 'desc'),
+          startAfter(lastDocSnapshot),
+          limit(pageSize)
+        );
+      } else {
+        couponsQuery = query(
+          collection(db, 'coupons'),
+          orderBy('createdAt', 'desc'),
+          limit(pageSize)
+        );
+      }
+      
+      const querySnapshot = await getDocs(couponsQuery);
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    } catch (error) {
+      console.error('Error getting all coupons:', error);
+      throw error;
+    }
+  };
+
+  // Validation function for both referral and coupon codes
+  export const validateCode = async (code) => {
+    try {
+      // First try referral code validation
+      const referralResult = await validateReferralCode(code);
+      if (referralResult.valid) {
+        return { ...referralResult, isCoupon: false };
+      }
+      
+      // If not a valid referral code, try coupon code validation
+      const couponResult = await validateCouponCode(code);
+      return couponResult;
+    } catch (error) {
+      console.error('Error validating code:', error);
+      throw error;
+    }
+  };
+
   // Example usage:
   /*
   // Create a user

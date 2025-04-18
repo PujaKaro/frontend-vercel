@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -28,14 +28,16 @@ import {
   limit
 } from 'firebase/firestore';
 import SEO from '../components/SEO';
-import { createReferralCode, getAllReferralCodes, updateDocument } from '../utils/firestoreUtils';
+import { createReferralCode, getAllReferralCodes, updateDocument, createCouponCode, getAllCoupons } from '../utils/firestoreUtils';
 import { toast } from 'react-hot-toast';
+import AdminCodesTabs from '../components/AdminCodesTabs';
 
 
 const AdminDashboard = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('users');
+  const [activeCodesTab, setActiveCodesTab] = useState('referrals');
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -47,6 +49,7 @@ const AdminDashboard = () => {
     recentOrders: [],
     recentBlogs: [],
     referrals: [],
+    coupons: [],
     totalRevenue: 0,
     monthlyRevenue: 0,
     averageOrderValue: 0,
@@ -54,7 +57,11 @@ const AdminDashboard = () => {
     userGrowth: 0,
     popularServices: [],
     totalReferralRevenue: 0,
-    totalDiscountsGiven: 0
+    totalDiscountsGiven: 0,
+    totalCouponRevenue: 0,
+    totalCouponDiscounts: 0,
+    totalCouponsIssued: 0,
+    totalCouponsRedeemed: 0
   });
   const [newReferralCode, setNewReferralCode] = useState({
     code: '',
@@ -62,7 +69,18 @@ const AdminDashboard = () => {
     description: '',
     isActive: true
   });
+  const [newCouponCode, setNewCouponCode] = useState({
+    code: '',
+    discountPercentage: '',
+    description: '',
+    isActive: true,
+    selectAllUsers: true,
+    assignedUsers: []
+  });
   const [isCreatingCode, setIsCreatingCode] = useState(false);
+  const [isCreatingCoupon, setIsCreatingCoupon] = useState(false);
+  const [allUsers, setAllUsers] = useState([]);
+  const [selectedUsers, setSelectedUsers] = useState([]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -70,12 +88,13 @@ const AdminDashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const [users, bookings, orders, blogs, referrals] = await Promise.all([
+      const [users, bookings, orders, blogs, referrals, coupons] = await Promise.all([
         getDocs(collection(db, 'users')),
         getDocs(collection(db, 'bookings')),
         getDocs(collection(db, 'orders')),
         getDocs(collection(db, 'blogs')),
-        getAllReferralCodes()
+        getAllReferralCodes(),
+        getAllCoupons()
       ]);
 
       const recentUsersQuery = query(
@@ -158,11 +177,26 @@ const AdminDashboard = () => {
         ? Math.round(((thisMonthUsers - lastMonthUsers) / lastMonthUsers) * 100) 
         : thisMonthUsers > 0 ? 100 : 0;
 
+      // Extract user data for coupon assignment
+      const userData = users.docs.map(doc => ({
+        id: doc.id,
+        name: doc.data().name || doc.data().displayName || 'User',
+        email: doc.data().email || 'No email'
+      }));
+      setAllUsers(userData);
+      
       // Calculate referral stats
       const referralStats = referrals.reduce((acc, ref) => ({
         totalRevenue: acc.totalRevenue + (ref.totalRevenueGenerated || 0),
         totalDiscounts: acc.totalDiscounts + (ref.totalDiscountGiven || 0)
       }), { totalRevenue: 0, totalDiscounts: 0 });
+      
+      // Calculate coupon stats
+      const couponStats = coupons.reduce((acc, coupon) => ({
+        totalRevenue: acc.totalRevenue + (coupon.totalRevenueGenerated || 0),
+        totalDiscounts: acc.totalDiscounts + (coupon.totalDiscountGiven || 0),
+        totalRedeemed: acc.totalRedeemed + (coupon.totalUsed || 0)
+      }), { totalRevenue: 0, totalDiscounts: 0, totalRedeemed: 0 });
 
       // Calculate popular services
       const serviceStats = bookingDocs.reduce((acc, booking) => {
@@ -195,6 +229,7 @@ const AdminDashboard = () => {
         recentOrders: recentOrders.docs.map(doc => ({ id: doc.id, ...doc.data() })),
         recentBlogs: recentBlogs.docs.map(doc => ({ id: doc.id, ...doc.data() })),
         referrals,
+        coupons,
         totalRevenue,
         monthlyRevenue,
         averageOrderValue,
@@ -202,7 +237,11 @@ const AdminDashboard = () => {
         userGrowth,
         popularServices,
         totalReferralRevenue: referralStats.totalRevenue,
-        totalDiscountsGiven: referralStats.totalDiscounts
+        totalDiscountsGiven: referralStats.totalDiscounts,
+        totalCouponRevenue: couponStats.totalRevenue,
+        totalCouponDiscounts: couponStats.totalDiscounts,
+        totalCouponsIssued: coupons.length,
+        totalCouponsRedeemed: couponStats.totalRedeemed
       });
 
       setLoading(false);
@@ -347,6 +386,83 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleCreateCouponCode = async (e) => {
+    e.preventDefault();
+    setIsCreatingCoupon(true);
+    
+    try {
+      const couponData = {
+        code: newCouponCode.code,
+        discountPercentage: parseInt(newCouponCode.discountPercentage),
+        description: newCouponCode.description,
+        isActive: true
+      };
+      
+      // If not selecting all users, add the selected users to the coupon data
+      if (!newCouponCode.selectAllUsers) {
+        couponData.assignedUsers = selectedUsers;
+      } else {
+        // Set the assignedUsers field to null explicitly when "Valid for all users" is selected
+        couponData.assignedUsers = null;
+      }
+      
+      await createCouponCode(couponData);
+      
+      // Reset form and fetch updated data
+      setNewCouponCode({
+        code: '',
+        discountPercentage: '',
+        description: '',
+        isActive: true,
+        selectAllUsers: true,
+        assignedUsers: []
+      });
+      setSelectedUsers([]);
+      
+      await fetchDashboardData();
+      toast.success('Coupon code created successfully!');
+    } catch (error) {
+      console.error('Error creating coupon code:', error);
+      toast.error('Error creating coupon code. Please try again.');
+    } finally {
+      setIsCreatingCoupon(false);
+    }
+  };
+
+  const handleToggleCouponStatus = async (couponId, currentStatus) => {
+    try {
+      await updateDocument('coupons', couponId, { isActive: !currentStatus });
+      await fetchDashboardData();
+      toast.success(`Coupon code ${currentStatus ? 'deactivated' : 'activated'} successfully!`);
+    } catch (error) {
+      console.error('Error toggling coupon status:', error);
+      toast.error('Error updating coupon code. Please try again.');
+    }
+  };
+  
+  const handleCouponInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    if (type === 'checkbox') {
+      setNewCouponCode(prev => ({ ...prev, [name]: checked }));
+    } else {
+      setNewCouponCode(prev => ({ ...prev, [name]: value }));
+    }
+  };
+  
+  const handleUserSelection = (e) => {
+    // Get all selected option values
+    const selectedOptions = Array.from(e.target.selectedOptions).map(option => option.value);
+    
+    // Update state with the new selections
+    setSelectedUsers(selectedOptions);
+    
+    // Also update the newCouponCode state to keep everything in sync
+    setNewCouponCode(prev => ({
+      ...prev,
+      assignedUsers: selectedOptions
+    }));
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -356,7 +472,7 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-100">
       <SEO
         title="Admin Dashboard - PujaKaro"
         description="Administrative dashboard for managing PujaKaro platform"
@@ -371,7 +487,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Sidebar */}
           <div className="md:col-span-1">
@@ -433,15 +549,15 @@ const AdminDashboard = () => {
                   Analytics
                 </button>
                 <button
-                  onClick={() => setActiveTab('referrals')}
+                  onClick={() => setActiveTab('codes')}
                   className={`w-full text-left px-4 py-2 rounded-lg ${
-                    activeTab === 'referrals'
+                    activeTab === 'codes'
                       ? 'bg-orange-50 text-orange-500'
                       : 'text-gray-600 hover:bg-gray-50'
                   }`}
                 >
                   <FontAwesomeIcon icon={faGift} className="mr-2" />
-                  Referrals
+                  Codes
                 </button>
               </nav>
             </div>
@@ -916,170 +1032,26 @@ const AdminDashboard = () => {
               </div>
             )}
 
-            {activeTab === 'referrals' && (
-              <div className="space-y-6">
-                {/* Referral Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-white rounded-lg shadow-sm p-6">
-                    <h3 className="text-sm text-gray-500">Total Referral Revenue</h3>
-                    <p className="text-2xl font-bold text-green-600">
-                      ₹{stats.totalReferralRevenue.toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="bg-white rounded-lg shadow-sm p-6">
-                    <h3 className="text-sm text-gray-500">Total Discounts Given</h3>
-                    <p className="text-2xl font-bold text-orange-600">
-                      ₹{stats.totalDiscountsGiven.toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="bg-white rounded-lg shadow-sm p-6">
-                    <h3 className="text-sm text-gray-500">Active Referral Codes</h3>
-                    <p className="text-2xl font-bold text-blue-600">
-                      {stats.referrals.filter(r => r.isActive).length}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Create New Referral Code */}
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-xl font-semibold mb-4">Create Referral Code</h2>
-                  <form onSubmit={handleCreateReferralCode} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Code</label>
-                        <input
-                          type="text"
-                          required
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
-                          value={newReferralCode.code}
-                          onChange={(e) => setNewReferralCode(prev => ({ ...prev, code: e.target.value }))}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">Discount Percentage</label>
-                        <input
-                          type="number"
-                          required
-                          min="0"
-                          max="100"
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
-                          value={newReferralCode.discountPercentage}
-                          onChange={(e) => setNewReferralCode(prev => ({ ...prev, discountPercentage: e.target.value }))}
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Description</label>
-                      <input
-                        type="text"
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
-                        value={newReferralCode.description}
-                        onChange={(e) => setNewReferralCode(prev => ({ ...prev, description: e.target.value }))}
-                      />
-                    </div>
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id="isActive"
-                        className="rounded border-gray-300 text-orange-500 focus:ring-orange-500"
-                        checked={newReferralCode.isActive}
-                        onChange={(e) => setNewReferralCode(prev => ({ ...prev, isActive: e.target.checked }))}
-                      />
-                      <label htmlFor="isActive" className="ml-2 text-sm text-gray-700">
-                        Active
-                      </label>
-                    </div>
-                    <div>
-                      <button
-                        type="submit"
-                        disabled={isCreatingCode}
-                        className={`w-full bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 
-                          ${isCreatingCode ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      >
-                        {isCreatingCode ? 'Creating...' : 'Create Referral Code'}
-                      </button>
-                    </div>
-                  </form>
-                </div>
-
-                {/* Referral Codes List */}
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-xl font-semibold mb-4">Referral Codes</h2>
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead>
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Code
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Discount
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Usage
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Revenue
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Status
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200">
-                        {stats.referrals.map((referral) => (
-                          <tr key={referral.id}>
-                            <td className="px-6 py-4">
-                              <div>
-                                <div className="font-medium text-gray-900">{referral.code}</div>
-                                <div className="text-sm text-gray-500">{referral.description}</div>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <span className="text-green-600 font-medium">
-                                {referral.discountPercentage}%
-                              </span>
-                            </td>
-                            <td className="px-6 py-4">
-                              <div>
-                                <div className="text-gray-900">{referral.totalUsed || 0}</div>
-                                <div className="text-sm text-gray-500">
-                                  ₹{(referral.totalDiscountGiven || 0).toLocaleString()} saved
-                                </div>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <span className="font-medium text-gray-900">
-                                ₹{(referral.totalRevenueGenerated || 0).toLocaleString()}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4">
-                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                ${referral.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
-                              >
-                                {referral.isActive ? 'Active' : 'Inactive'}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4">
-                              <button
-                                onClick={() => handleToggleReferralStatus(referral.id, referral.isActive)}
-                                className={`text-sm font-medium ${
-                                  referral.isActive ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'
-                                }`}
-                              >
-                                {referral.isActive ? 'Deactivate' : 'Activate'}
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
+            {activeTab === 'codes' && (
+              <AdminCodesTabs 
+                activeCodesTab={activeCodesTab}
+                setActiveCodesTab={setActiveCodesTab}
+                stats={stats}
+                handleCreateReferralCode={handleCreateReferralCode}
+                handleToggleReferralStatus={handleToggleReferralStatus}
+                newReferralCode={newReferralCode}
+                setNewReferralCode={setNewReferralCode}
+                isCreatingCode={isCreatingCode}
+                handleCreateCouponCode={handleCreateCouponCode}
+                newCouponCode={newCouponCode}
+                handleCouponInputChange={handleCouponInputChange}
+                selectedUsers={selectedUsers}
+                setNewCouponCode={setNewCouponCode}
+                handleUserSelection={handleUserSelection}
+                allUsers={allUsers}
+                isCreatingCoupon={isCreatingCoupon}
+                handleToggleCouponStatus={handleToggleCouponStatus}
+              />
             )}
           </div>
         </div>

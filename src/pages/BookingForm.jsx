@@ -11,7 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { doc, updateDoc, arrayUnion, Timestamp, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import emailjs from 'emailjs-com';
-import { createBooking, validateReferralCode, updateReferralStats } from '../utils/firestoreUtils';
+import { createBooking, validateReferralCode, updateReferralStats, validateCode, updateCouponStats } from '../utils/firestoreUtils';
 
 // EmailJS configuration from environment variables
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
@@ -46,6 +46,8 @@ const BookingForm = () => {
   const [errors, setErrors] = useState({});
   const [discountApplied, setDiscountApplied] = useState(0);
   const [isValidatingCode, setIsValidatingCode] = useState(false);
+  const [validatedCodeData, setValidatedCodeData] = useState(null);
+  const [codeError, setCodeError] = useState('');
   
   useEffect(() => {
     // Initialize EmailJS
@@ -109,6 +111,12 @@ const BookingForm = () => {
         [name]: ''
       });
     }
+    
+    // Clear coupon/referral code error when user changes the code
+    if (name === 'referralCode') {
+      setCodeError('');
+      setValidatedCodeData(null);
+    }
   };
   
   const validateForm = () => {
@@ -140,22 +148,38 @@ const BookingForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleReferralCodeValidation = async () => {
+  const handleCodeValidation = async () => {
     if (!formData.referralCode) return;
     
     setIsValidatingCode(true);
+    setCodeError('');
     try {
-      const result = await validateReferralCode(formData.referralCode);
+      const result = await validateCode(formData.referralCode);
+      
       if (result.valid) {
+        // For coupon codes that are assigned to specific users
+        if (result.isCoupon && result.assignedUsers) {
+          // Check if current user is in the assigned users list
+          if (!result.assignedUsers.includes(currentUser.uid)) {
+            setDiscountApplied(0);
+            setCodeError('This coupon code is not valid for your account');
+            setValidatedCodeData(null);
+            return;
+          }
+        }
+        
         setDiscountApplied(result.discountPercentage);
+        setValidatedCodeData(result);
         toast.success(`${result.discountPercentage}% discount applied!`);
       } else {
         setDiscountApplied(0);
-        toast.error('Invalid referral code');
+        setCodeError('Invalid code - please enter a valid referral or coupon code');
+        setValidatedCodeData(null);
       }
     } catch (error) {
-      console.error('Error validating referral code:', error);
-      toast.error('Error validating referral code');
+      console.error('Error validating code:', error);
+      setCodeError('Error validating code');
+      setValidatedCodeData(null);
     } finally {
       setIsValidatingCode(false);
     }
@@ -174,6 +198,15 @@ const BookingForm = () => {
       setIsSubmitting(true);
       
       try {
+        // Validate code one more time if it exists but hasn't been validated
+        if (formData.referralCode && !validatedCodeData) {
+          await handleCodeValidation();
+          if (codeError) {
+            setIsSubmitting(false);
+            return;
+          }
+        }
+        
         const finalPrice = puja.price * (1 - discountApplied / 100);
         
         const bookingData = {
@@ -186,6 +219,7 @@ const BookingForm = () => {
           finalPrice: finalPrice,
           discountApplied: discountApplied,
           referralCode: formData.referralCode || null,
+          discountType: validatedCodeData?.isCoupon ? 'coupon' : 'referral',
           date: formData.date,
           time: formData.time,
           address: formData.address,
@@ -206,10 +240,15 @@ const BookingForm = () => {
           status: 'pending'
         });
 
-        // Update referral stats if referral code was used
-        if (formData.referralCode) {
+        // Update stats based on code type
+        if (formData.referralCode && validatedCodeData) {
           const discountAmount = puja.price - finalPrice;
-          await updateReferralStats(formData.referralCode, finalPrice, discountAmount);
+          
+          if (validatedCodeData.isCoupon) {
+            await updateCouponStats(formData.referralCode, finalPrice, discountAmount);
+          } else {
+            await updateReferralStats(formData.referralCode, finalPrice, discountAmount);
+          }
         }
 
         // Send email notification about the new booking
@@ -479,37 +518,34 @@ const BookingForm = () => {
                 ></textarea>
               </div>
 
-              <div className="mb-6">
-                <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="referralCode">
-                  Referral Code (Optional)
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="referralCode">
+                  Referral or Coupon Code (Optional)
                 </label>
-                <div className="flex gap-2">
+                <div className="flex">
                   <input
                     type="text"
-                    id="referralCode"
                     name="referralCode"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Enter referral code"
+                    id="referralCode"
                     value={formData.referralCode}
                     onChange={handleInputChange}
+                    className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${codeError ? 'border-red-500' : ''}`}
+                    placeholder="Enter referral or coupon code"
                   />
                   <button
                     type="button"
-                    onClick={handleReferralCodeValidation}
+                    onClick={handleCodeValidation}
                     disabled={!formData.referralCode || isValidatingCode}
-                    className={`px-4 py-2 rounded-md ${
-                      isValidatingCode 
-                        ? 'bg-gray-300 cursor-not-allowed' 
-                        : 'bg-blue-600 hover:bg-blue-700 text-white'
-                    }`}
+                    className="ml-2 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50"
                   >
                     {isValidatingCode ? 'Validating...' : 'Apply'}
                   </button>
                 </div>
-                {discountApplied > 0 && (
-                  <p className="mt-2 text-sm text-green-600">
-                    {discountApplied}% discount will be applied to your booking
-                  </p>
+                {codeError && <p className="text-red-500 text-xs italic mt-1">{codeError}</p>}
+                {validatedCodeData && (
+                  <div className="mt-2 p-2 bg-green-50 text-green-700 text-sm rounded">
+                    {validatedCodeData.isCoupon ? 'Coupon' : 'Referral'} code applied: {discountApplied}% discount
+                  </div>
                 )}
               </div>
 
