@@ -20,8 +20,12 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import useNavigationTracker from '../hooks/useNavigationTracker';
 
 const PujaBooking = () => {
+  // Use the navigation tracker hook to enable page navigation notifications
+  useNavigationTracker();
+  
   const [pujas, setPujas] = useState([
     {
       id: 1,

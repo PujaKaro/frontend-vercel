@@ -8,6 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SEO from '../components/SEO';
+import { sendCartNotification } from "../utils/firestoreUtils";
 
 const Shop = () => {
   const [productList, setProductList] = useState([]);
@@ -21,7 +22,7 @@ const Shop = () => {
   const [showFilters, setShowFilters] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { currentUser, isAuthenticated } = useAuth();
 
   useEffect(() => {
     // Set initial products from data file
@@ -119,41 +120,33 @@ const Shop = () => {
     applyFilters(productList, newFilters);
   };
 
-  const addToCart = (event, product) => {
-    event.preventDefault(); // Prevent navigation to product detail
-    event.stopPropagation(); // Stop event propagation
+  const addToCart = (product) => {
+    // Check if user is logged in
+    const userId = currentUser?.uid;
     
-    // Get existing cart from localStorage or initialize empty array
-    const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const existingProductIndex = cart.findIndex(item => item.id === product.id);
     
-    // Check if product already exists in cart
-    const existingProductIndex = existingCart.findIndex(item => 
-      item.id === product.id && item.type === 'product'
-    );
-    
-    if (existingProductIndex >= 0) {
-      // Increment quantity if product already exists
-      existingCart[existingProductIndex].quantity += 1;
+    if (existingProductIndex > -1) {
+      cart[existingProductIndex].quantity += 1;
     } else {
-      // Add new product to cart
-      existingCart.push({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        quantity: 1,
-        type: 'product'
-      });
+      cart.push({ ...product, quantity: 1 });
     }
     
-    // Save updated cart to localStorage
-    localStorage.setItem('cart', JSON.stringify(existingCart));
-    
-    // Show success message
-    toast.success(`${product.name} added to cart successfully!`);
+    localStorage.setItem('cart', JSON.stringify(cart));
     
     // Force a refresh on header component by updating sessionStorage
     sessionStorage.setItem('cartUpdated', Date.now().toString());
+    
+    // Send notification if user is logged in
+    if (userId) {
+      sendCartNotification(userId, product).catch(err => console.error("Failed to send cart notification:", err));
+    }
+    
+    toast.success("Added to cart!", {
+      position: "bottom-center",
+      autoClose: 2000,
+    });
   };
 
   const handleSearch = (e) => {
@@ -406,7 +399,11 @@ const Shop = () => {
                           )}
                         </div>
                         <button
-                          onClick={(e) => addToCart(e, product)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            addToCart(product);
+                          }}
                           className="flex items-center justify-center p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
                         >
                           <FontAwesomeIcon icon={faShoppingCart} />

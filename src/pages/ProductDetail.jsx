@@ -9,8 +9,12 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SEO from '../components/SEO';
 import { trackProductView, trackAddToCart } from '../utils/analytics';
+import useNavigationTracker from '../hooks/useNavigationTracker';
 
 const ProductDetail = () => {
+  // Use the navigation tracker hook to enable page navigation notifications
+  useNavigationTracker();
+  
   const { type, id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();

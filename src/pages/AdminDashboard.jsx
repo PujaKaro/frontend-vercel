@@ -12,7 +12,8 @@ import {
   faBan,
   faCheck,
   faPlus,
-  faGift
+  faGift,
+  faBell
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../config/firebase';
@@ -25,12 +26,14 @@ import {
   query,
   where,
   orderBy,
-  limit
+  limit,
+  getDoc
 } from 'firebase/firestore';
 import SEO from '../components/SEO';
-import { createReferralCode, getAllReferralCodes, updateDocument, createCouponCode, getAllCoupons } from '../utils/firestoreUtils';
+import { createReferralCode, getAllReferralCodes, updateDocument, createCouponCode, getAllCoupons, sendCouponNotification, sendBookingNotification, sendOrderNotification } from '../utils/firestoreUtils';
 import { toast } from 'react-hot-toast';
 import AdminCodesTabs from '../components/AdminCodesTabs';
+import AdminNotificationsTab from '../components/AdminNotificationsTab';
 
 
 const AdminDashboard = () => {
@@ -274,32 +277,76 @@ const AdminDashboard = () => {
   const handleBookingAction = async (bookingId, action) => {
     try {
       const bookingRef = doc(db, 'bookings', bookingId);
+      const bookingSnapshot = await getDoc(bookingRef);
+      
+      if (!bookingSnapshot.exists()) {
+        toast.error('Booking not found');
+        return;
+      }
+      
+      const bookingData = bookingSnapshot.data();
+      const userId = bookingData.userId;
+      
       switch (action) {
         case 'approve':
           await updateDoc(bookingRef, { status: 'approved' });
+          // Send notification to user
+          if (userId) {
+            await sendBookingNotification(
+              userId, 
+              bookingId, 
+              'approved', 
+              bookingData.pujaName || 'your booking'
+            );
+          }
           break;
         case 'reject':
           await updateDoc(bookingRef, { status: 'rejected' });
+          // Send notification to user
+          if (userId) {
+            await sendBookingNotification(
+              userId, 
+              bookingId, 
+              'rejected', 
+              bookingData.pujaName || 'your booking'
+            );
+          }
           break;
         case 'delete':
           await deleteDoc(bookingRef);
           break;
       }
       fetchDashboardData();
+      toast.success(`Booking ${action === 'delete' ? 'deleted' : action + 'd'} successfully`);
     } catch (error) {
       console.error('Error performing booking action:', error);
+      toast.error('An error occurred. Please try again.');
     }
   };
 
   const handleOrderAction = async (orderId, action) => {
     try {
       const orderRef = doc(db, 'orders', orderId);
+      const orderSnapshot = await getDoc(orderRef);
+      
+      if (!orderSnapshot.exists()) {
+        toast.error('Order not found');
+        return;
+      }
+      
+      const orderData = orderSnapshot.data();
+      const userId = orderData.userId;
+      
       switch (action) {
         case 'process':
           await updateDoc(orderRef, { 
             status: 'processing',
             updatedAt: new Date()
           });
+          // Send notification to user
+          if (userId) {
+            await sendOrderNotification(userId, orderId, 'processing');
+          }
           break;
         case 'deliver':
           await updateDoc(orderRef, { 
@@ -307,14 +354,20 @@ const AdminDashboard = () => {
             updatedAt: new Date(),
             deliveredAt: new Date()
           });
+          // Send notification to user
+          if (userId) {
+            await sendOrderNotification(userId, orderId, 'delivered');
+          }
           break;
         case 'delete':
           await deleteDoc(orderRef);
           break;
       }
       fetchDashboardData();
+      toast.success(`Order ${action === 'delete' ? 'deleted' : action === 'process' ? 'processing' : action + 'd'} successfully`);
     } catch (error) {
       console.error('Error performing order action:', error);
+      toast.error('An error occurred. Please try again.');
     }
   };
 
@@ -407,6 +460,18 @@ const AdminDashboard = () => {
       }
       
       await createCouponCode(couponData);
+      
+      // Send notifications to users about the new coupon
+      if (!newCouponCode.selectAllUsers && selectedUsers.length > 0) {
+        // Send notifications to specific users
+        for (const userId of selectedUsers) {
+          await sendCouponNotification(
+            userId, 
+            couponData.code, 
+            couponData.discountPercentage
+          );
+        }
+      }
       
       // Reset form and fetch updated data
       setNewCouponCode({
@@ -558,6 +623,17 @@ const AdminDashboard = () => {
                 >
                   <FontAwesomeIcon icon={faGift} className="mr-2" />
                   Codes
+                </button>
+                <button
+                  onClick={() => setActiveTab('notifications')}
+                  className={`w-full text-left px-4 py-2 rounded-lg ${
+                    activeTab === 'notifications'
+                      ? 'bg-orange-50 text-orange-500'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faBell} className="mr-2" />
+                  Notifications
                 </button>
               </nav>
             </div>
@@ -1052,6 +1128,10 @@ const AdminDashboard = () => {
                 isCreatingCoupon={isCreatingCoupon}
                 handleToggleCouponStatus={handleToggleCouponStatus}
               />
+            )}
+
+            {activeTab === 'notifications' && (
+              <AdminNotificationsTab />
             )}
           </div>
         </div>

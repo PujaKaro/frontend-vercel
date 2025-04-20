@@ -14,6 +14,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import NotificationBell from './NotificationBell';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -281,6 +282,8 @@ const handleLogout = async () => {
                 Sign in
               </Link>
             )}
+            
+            {currentUser && <NotificationBell />}
             
             <Link 
               to="/cart" 

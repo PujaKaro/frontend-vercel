@@ -8,7 +8,7 @@ import {
   signInWithPopup
 } from 'firebase/auth';
 import { auth } from '../config/firebase';
-import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc, collection, query, where, orderBy, onSnapshot, limit } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
 // Create context
@@ -18,6 +18,9 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  // Add notification state
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   async function signup(email, password, userData) {
     try {
@@ -146,6 +149,63 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // Function to mark a notification as read
+  async function markNotificationAsRead(notificationId) {
+    try {
+      if (!currentUser) return;
+      
+      await updateDoc(doc(db, 'notifications', notificationId), {
+        read: true
+      });
+      
+      // Update local state
+      setNotifications(prev => 
+        prev.map(notification => 
+          notification.id === notificationId 
+            ? { ...notification, read: true } 
+            : notification
+        )
+      );
+      
+      // Update unread count
+      setUnreadCount(prev => Math.max(0, prev - 1));
+      
+      return true;
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      return false;
+    }
+  }
+
+  // Function to mark all notifications as read
+  async function markAllNotificationsAsRead() {
+    try {
+      if (!currentUser) return;
+      
+      const unreadNotifications = notifications.filter(n => !n.read);
+      
+      // Update all unread notifications in Firestore
+      const updatePromises = unreadNotifications.map(notification => 
+        updateDoc(doc(db, 'notifications', notification.id), { read: true })
+      );
+      
+      await Promise.all(updatePromises);
+      
+      // Update local state
+      setNotifications(prev => 
+        prev.map(notification => ({ ...notification, read: true }))
+      );
+      
+      // Reset unread count
+      setUnreadCount(0);
+      
+      return true;
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      return false;
+    }
+  }
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -165,6 +225,102 @@ export function AuthProvider({ children }) {
     return unsubscribe;
   }, []);
 
+  // Listen for notifications when user is authenticated
+  useEffect(() => {
+    let unsubscribeNotifications = null;
+    
+    if (currentUser) {
+      // Function to set up the fallback query without ordering
+      const setupFallbackQuery = () => {
+        const simpleQuery = query(
+          collection(db, 'notifications'),
+          where('userId', '==', currentUser.uid),
+          limit(50)
+        );
+        
+        return onSnapshot(simpleQuery, (snapshot) => {
+          const notificationData = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          
+          // Sort notifications by createdAt in memory instead of in the query
+          notificationData.sort((a, b) => {
+            // Handle missing createdAt field
+            if (!a.createdAt) return 1;  // Put items without timestamp at the end
+            if (!b.createdAt) return -1;
+            
+            // Try to convert timestamps to Date objects
+            let dateA, dateB;
+            
+            try {
+              dateA = a.createdAt.toDate ? a.createdAt.toDate() : new Date(a.createdAt);
+            } catch (e) {
+              dateA = new Date(0);
+            }
+            
+            try {
+              dateB = b.createdAt.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
+            } catch (e) {
+              dateB = new Date(0);
+            }
+            
+            return dateB - dateA; // descending order (newest first)
+          });
+          
+          setNotifications(notificationData);
+          setUnreadCount(notificationData.filter(n => !n.read).length);
+        }, (error) => {
+          // Reset to empty if all else fails
+          setNotifications([]);
+          setUnreadCount(0);
+        });
+      };
+      
+      // Try with the complex query first
+      try {
+        const notificationsQuery = query(
+          collection(db, 'notifications'),
+          where('userId', '==', currentUser.uid),
+          orderBy('createdAt', 'desc'),
+          limit(50)
+        );
+        
+        unsubscribeNotifications = onSnapshot(notificationsQuery, 
+          (snapshot) => {
+            const notificationData = snapshot.docs.map(doc => ({
+              id: doc.id,
+              ...doc.data()
+            }));
+            
+            setNotifications(notificationData);
+            setUnreadCount(notificationData.filter(n => !n.read).length);
+          }, 
+          (error) => {
+            // If we encounter an index error, use the fallback
+            if (unsubscribeNotifications) {
+              unsubscribeNotifications();
+            }
+            
+            unsubscribeNotifications = setupFallbackQuery();
+          }
+        );
+      } catch (setupError) {
+        unsubscribeNotifications = setupFallbackQuery();
+      }
+    } else {
+      // Reset notifications when user logs out
+      setNotifications([]);
+      setUnreadCount(0);
+    }
+    
+    return () => {
+      if (unsubscribeNotifications) {
+        unsubscribeNotifications();
+      }
+    };
+  }, [currentUser]);
+
   const value = {
     currentUser,
     signup,
@@ -173,7 +329,12 @@ export function AuthProvider({ children }) {
     signInWithGoogle,
     updateUserProfile,
     promoteToAdmin,
-    demoteFromAdmin
+    demoteFromAdmin,
+    // Add notification related values
+    notifications,
+    unreadCount,
+    markNotificationAsRead,
+    markAllNotificationsAsRead
   };
 
   return (

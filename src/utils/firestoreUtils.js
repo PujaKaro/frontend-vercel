@@ -586,6 +586,159 @@ import {
     }
   };
 
+  // Add these at the end of the file
+
+  /**
+   * Send a notification to a user
+   * @param {string} userId - The recipient user ID
+   * @param {string} title - Notification title
+   * @param {string} message - Notification message
+   * @param {Object} additionalData - Any additional data to include
+   */
+  export const sendNotification = async (userId, title, message, additionalData = {}) => {
+    try {
+      const notificationData = {
+        userId,
+        title,
+        message,
+        read: false,
+        createdAt: serverTimestamp(),
+        ...additionalData
+      };
+      
+      const docRef = await addDoc(collection(db, 'notifications'), notificationData);
+      console.log('Notification created with ID:', docRef.id);
+      return true;
+    } catch (error) {
+      console.error('Error sending notification:', error);
+      return false;
+    }
+  };
+
+  /**
+   * Send a notification about a new coupon code
+   */
+  export const sendCouponNotification = async (userId, couponCode, discountPercentage) => {
+    return sendNotification(
+      userId,
+      'New Coupon Available',
+      `You've been assigned a new coupon code: ${couponCode} for ${discountPercentage}% discount.`,
+      { 
+        type: 'coupon',
+        couponCode,
+        discountPercentage 
+      }
+    );
+  };
+
+  /**
+   * Send a notification about a booking status change
+   */
+  export const sendBookingNotification = async (userId, bookingId, status, pujaName) => {
+    const statusMessages = {
+      'approved': `Your booking for ${pujaName} has been confirmed.`,
+      'rejected': `Your booking for ${pujaName} has been rejected.`,
+      'completed': `Your booking for ${pujaName} has been marked as completed.`
+    };
+    
+    return sendNotification(
+      userId,
+      `Booking ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+      statusMessages[status] || `Your booking status has been updated to: ${status}`,
+      { 
+        type: 'booking',
+        bookingId,
+        status 
+      }
+    );
+  };
+
+  /**
+   * Send a notification about an order status change
+   */
+  export const sendOrderNotification = async (userId, orderId, status) => {
+    const statusMessages = {
+      'processing': 'Your order is now being processed.',
+      'shipped': 'Your order has been shipped and is on its way.',
+      'delivered': 'Your order has been delivered.',
+      'cancelled': 'Your order has been cancelled.'
+    };
+    
+    return sendNotification(
+      userId,
+      `Order ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+      statusMessages[status] || `Your order status has been updated to: ${status}`,
+      { 
+        type: 'order',
+        orderId,
+        status 
+      }
+    );
+  };
+
+  /**
+   * Send a notification about adding a product to cart
+   * @param {string} userId - The user ID
+   * @param {object} product - The product information
+   * @returns {Promise<boolean>} - Success or failure
+   */
+  export const sendCartNotification = async (userId, product) => {
+    return sendNotification(
+      userId,
+      'Item Added to Cart',
+      `${product.name} has been added to your cart.`,
+      {
+        type: 'cart',
+        productId: product.id,
+        productName: product.name,
+        productImage: product.image
+      }
+    );
+  };
+
+  /**
+   * Send a notification to multiple users at once (for admin broadcasts)
+   */
+  export const sendBulkNotification = async (userIds, title, message, additionalData = {}) => {
+    try {
+      const batch = [];
+      
+      for (const userId of userIds) {
+        batch.push(
+          sendNotification(userId, title, message, additionalData)
+        );
+      }
+      
+      await Promise.all(batch);
+      return true;
+    } catch (error) {
+      console.error('Error sending bulk notifications:', error);
+      return false;
+    }
+  };
+
+  /**
+   * Send a notification about navigation to a specific page
+   * @param {string} userId - The user ID
+   * @param {string} fromPage - The page the user navigated from
+   * @param {string} toPage - The page the user navigated to
+   * @param {string} pageTitle - The title of the destination page
+   * @returns {Promise<boolean>} - Success or failure
+   */
+  export const sendNavigationNotification = async (userId, fromPage, toPage, pageTitle) => {
+    return sendNotification(
+      userId,
+      'Page Navigation',
+      `You navigated to ${pageTitle || toPage}.`,
+      {
+        type: 'navigation',
+        fromPage,
+        toPage,
+        pageTitle
+      }
+    );
+  };
+
   // Example usage:
   /*
   // Create a user
