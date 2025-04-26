@@ -3,21 +3,21 @@ import { Link } from 'react-router-dom';
 const Services = () => {
   const services = [
     {
-      image: "public/images/puja_booking.svg",
+      image: "images/puja_booking.svg",
       title: "Puja Booking",
       description: "Book authentic pujas performed by verified pandits",
       link: "/puja-booking",
       buttonText: "Book Now"
     },
     {
-      image: "public/images/flower.svg",
+      image: "images/flower.svg",
       title: "Flowers & Mala",
       description: "Fresh flowers and garlands delivered to your doorstep",
       link: "/flowers-and-mala",
       buttonText: "Subscribe Now"
     },
     {
-      image: "public/images/prashad.svg",
+      image: "images/prashad.svg",
       title: "Prashad Services",
       description: "Sacred Prasad offerings prepared with pure devotion",
       link: "/prashad-services",
