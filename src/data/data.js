@@ -162,7 +162,7 @@ export const products = [
     {
       id: 1,
       name: 'Satyanarayan Puja',
-      image: '/images/vishnu.png',
+      image: '/images/satyanarayan.jpg',
       duration: '3 hours',
       price: 5100,
       rating: 4.8,
@@ -184,7 +184,7 @@ export const products = [
     {
       id: 2,
       name: 'Ganesh Puja',
-      image: '/images/bappa.png',
+      image: '/images/ganeshaa.jpg',
       duration: '2 hours',
       price: 5100,
       rating: 4.7,
@@ -206,7 +206,7 @@ export const products = [
     {
       id: 3,
       name: 'Lakshmi Puja',
-      image: '/images/lakshmi.png',
+      image: '/images/lakshmi-devi.jpg',
       duration: '2 hours',
       price: 5100,
       rating: 4.9,
@@ -272,7 +272,7 @@ export const products = [
     {
       id: 6,
       name: 'Rudrabhishek',
-      image: '/images/shivling.png',
+      image: '/images/shiv-ling.jpg',
       duration: '2.5 hours',
       price: 5100,
       rating: 4.7,
@@ -316,7 +316,7 @@ export const products = [
     {
       id: 8,
       name: 'Sundarkand Path',
-      image: '/images/hanuman.png',
+      image: '/images/hanumanji.jpg',
       duration: '3 hours',
       price: 5100,
       rating: 4.8,
