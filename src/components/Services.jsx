@@ -1,25 +1,23 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPray, faSeedling, faOm} from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 
 const Services = () => {
   const services = [
     {
-      icon: faPray,
+      image: "public/images/puja_booking.svg",
       title: "Puja Booking",
       description: "Book authentic pujas performed by verified pandits",
       link: "/puja-booking",
       buttonText: "Book Now"
     },
     {
-      icon: faSeedling, // Using same icon as placeholder
+      image: "public/images/flower.svg",
       title: "Flowers & Mala",
       description: "Fresh flowers and garlands delivered to your doorstep",
       link: "/flowers-and-mala",
       buttonText: "Subscribe Now"
     },
     {
-      icon: faOm, // Using same icon as placeholder
+      image: "public/images/prashad.svg",
       title: "Prashad Services",
       description: "Sacred Prasad offerings prepared with pure devotion",
       link: "/prashad-services",
@@ -36,7 +34,7 @@ const Services = () => {
         {services.map((service, index) => (
           <div key={index} className="bg-white p-4 rounded-lg shadow-sm text-center hover:shadow-md transition">
             <div className="w-16 h-16 bg-custom/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FontAwesomeIcon icon={service.icon} className="text-2xl text-custom" />
+              <img src={service.image} alt={service.title} className="w-full h-full object-contain rounded-full" />
             </div>
             <h3 className="text-lg font-semibold mb-2">{service.title}</h3>
             <p className="text-gray-600 mb-4">{service.description}</p>

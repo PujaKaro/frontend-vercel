@@ -82,9 +82,9 @@ const ProductDetail = () => {
       // Generate additional mock images
       const mockImages = [
         foundItem.image || '/images/featuredPuja.jpg',
-        '/images/ganesh.jpg',
-        '/images/featuredPuja.jpg',
-        '/images/ganesh.jpg',
+        // '/images/ganesh.jpg',
+        // '/images/featuredPuja.jpg',
+        // '/images/ganesh.jpg',
       ];
       setAdditionalImages(mockImages);
       setActiveImage(0);
@@ -496,7 +496,56 @@ const ProductDetail = () => {
                   </span>
                 )}
               </div>
-              
+              {itemType === 'puja' && (
+                <div className="mb-6">
+                  <h2 className="text-lg font-semibold mb-2">Select Date & Time</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-gray-700 text-sm font-medium mb-1">Date</label>
+                      <input
+                        type="date"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        min={new Date().toISOString().split('T')[0]}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gray-700 text-sm font-medium mb-1">Time Slot</label>
+                      <select
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        value={selectedTime}
+                        onChange={(e) => setSelectedTime(e.target.value)}
+                      >
+                        <option value="">Select a time slot</option>
+                        {item.availableTimeSlots.map((slot, index) => (
+                          <option key={index} value={slot}>
+                            {slot}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>)}
+
+              {itemType === 'product' ? (
+                <button
+                  onClick={handleAddToCart}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium flex items-center justify-center mb-4"
+
+                >
+                  <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
+                  Add to Cart
+                </button>
+              ) : (
+                <button
+                  onClick={handleBookNow}
+                  className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-medium flex items-center justify-center mb-4"
+                >
+                  <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
+                  Book Now
+                </button>
+              )}
               <div className="mb-6">
                 <h2 className="text-lg font-semibold mb-2">Description</h2>
                 <p className="text-gray-600">
@@ -587,39 +636,11 @@ const ProductDetail = () => {
                     </div>
                   </div>
                   
-                  <div className="mb-6">
-                    <h2 className="text-lg font-semibold mb-2">Select Date & Time</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-gray-700 text-sm font-medium mb-1">Date</label>
-                        <input
-                          type="date"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                          value={selectedDate}
-                          onChange={(e) => setSelectedDate(e.target.value)}
-                          min={new Date().toISOString().split('T')[0]}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-gray-700 text-sm font-medium mb-1">Time Slot</label>
-                        <select
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                          value={selectedTime}
-                          onChange={(e) => setSelectedTime(e.target.value)}
-                        >
-                          <option value="">Select a time slot</option>
-                          {item.availableTimeSlots.map((slot, index) => (
-                            <option key={index} value={slot}>
-                              {slot}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                  </div>
+                  
                 </>
               )}
               
+
               {itemType === 'product' && (
                 <>
                   <div className="mb-6">
@@ -682,23 +703,7 @@ const ProductDetail = () => {
                 </>
               )}
               
-              {itemType === 'product' ? (
-                <button
-                  onClick={handleAddToCart}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium flex items-center justify-center"
-                >
-                  <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
-                  Add to Cart
-                </button>
-              ) : (
-                <button
-                  onClick={handleBookNow}
-                  className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-medium flex items-center justify-center"
-                >
-                  <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
-                  Book Now
-                </button>
-              )}
+              
             </div>
           </div>
         </div>

@@ -137,7 +137,7 @@ const Header = () => {
     <>
       {/* Offer Banner */}
       {isBannerVisible && (
-        <div className="bg-blue-500 text-white text-center py-2 px-4 relative">
+        <div className="bg-blue-500 text-white text-center py-1 px-4 relative">
           <span>🎉 Limited Time Offer: Get 20% off on all bookings! Use code: PUJA20</span>
           <button
             onClick={handleBannerClose}
@@ -147,7 +147,7 @@ const Header = () => {
           </button>
           <button
             onClick={() => navigate('/puja-booking')}
-            className="ml-4 bg-white text-blue-500 font-medium px-4 py-2 rounded-md hover:bg-gray-100"
+            className="ml-4 bg-white text-blue-500 font-medium px-4 py-1 rounded-md hover:bg-gray-100"
           >
             Book Now
           </button>
@@ -156,11 +156,23 @@ const Header = () => {
 
       {/* Header */}
       <header className={`sticky top-0 z-50 bg-white ${isScrolled ? 'shadow-md' : ''} transition-shadow duration-300`}>
-        <div className="container mx-auto px-4 py-3">
+        {/* <div className="container mx-auto px-4 py-2"> */}
+        <div className="container mx-auto px-4 pb-1 py-1">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="text-xl sm:text-2xl font-bold text-custom">
-              PujaKaro
+            <Link to="/" className="flex justify-center items-center pr-4">
+              {/* Mobile Logo */}
+              <img 
+                src="/public/images/pujakaro_logo_mobile.png" 
+                alt="Logo" 
+                className="block sm:hidden h-8"
+              />
+              {/* Desktop Logo */}
+              <img 
+                src="/public/images/pujakaro_logo_desktop.png" 
+                alt="Logo" 
+                className="hidden sm:block h-12"
+              />
             </Link>
 
             {/* Desktop Navigation */}
