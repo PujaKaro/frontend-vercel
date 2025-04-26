@@ -614,7 +614,7 @@ const ProductDetail = () => {
                     </p>
                   </div>
                   
-                  <div className="mb-6">
+                  {/* <div className="mb-6">
                     <h2 className="text-lg font-semibold mb-2">Available Pandits</h2>
                     <div className="space-y-3">
                       {item.pandits.map(panditId => {
@@ -634,7 +634,7 @@ const ProductDetail = () => {
                         );
                       })}
                     </div>
-                  </div>
+                  </div> */}
                   
                   
                 </>

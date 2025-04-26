@@ -163,13 +163,13 @@ const Header = () => {
             <Link to="/" className="flex justify-center items-center pr-4">
               {/* Mobile Logo */}
               <img 
-                src="/public/images/pujakaro_logo_mobile.png" 
+                src="/public/images/logo_mobile.svg" 
                 alt="Logo" 
                 className="block sm:hidden h-8"
               />
               {/* Desktop Logo */}
               <img 
-                src="/public/images/pujakaro_logo_desktop.png" 
+                src="/public/images/logo_desktop.svg" 
                 alt="Logo" 
                 className="hidden sm:block h-12"
               />
