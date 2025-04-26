@@ -145,6 +145,12 @@ const Header = () => {
           >
             <FontAwesomeIcon icon={faTimesCircle} className="text-lg" />
           </button>
+          <button
+            onClick={() => navigate('/puja-booking')}
+            className="ml-4 bg-white text-blue-500 font-medium px-4 py-2 rounded-md hover:bg-gray-100"
+          >
+            Book Now
+          </button>
         </div>
       )}
 
