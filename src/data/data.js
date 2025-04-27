@@ -334,6 +334,26 @@ export const products = [
       ],
       pandits: [3],
       availableTimeSlots: ['Evening (4 PM - 7 PM)', 'Night (6 PM - 9 PM)']
+    },
+    {
+      id: 10,
+      name: 'Astrological Consultation',
+      image: '/images/featuredPuja.jpg',
+      duration: '1 hour',
+      price: 2500,
+      rating: 4.9,
+      reviews: 152,
+      category: 'consultation',
+      occasions: ['career-guidance', 'marriage', 'health', 'spiritual-growth'],
+      description: 'Receive personalized astrological guidance based on your birth chart from our experienced Vedic astrologers. Understand planetary influences and receive remedies for harmonizing cosmic energies.',
+      longDescription: 'Our Astrological Consultation service provides in-depth analysis of your birth chart (Janam Kundali) by our team of experienced Vedic astrologers. Each consultation is personalized to address your specific concerns and provide guidance for various aspects of life including career, relationships, health, and spiritual growth.\n\nDuring the consultation, our astrologers will analyze the position of all nine planets (Navagraha) at the time of your birth and explain how these cosmic energies influence different aspects of your life. You will receive insights about your strengths, challenges, and potential opportunities based on planetary positions.\n\nThe session also includes personalized remedial measures such as gemstone recommendations, mantras, and specific rituals that can help you harmonize challenging planetary influences and enhance positive ones. Our astrologers combine traditional Vedic knowledge with practical modern advice to provide guidance that is both spiritually grounded and applicable to contemporary life.\n\nThis service is ideal for those seeking clarity during important life transitions, making major decisions, or simply wanting to gain deeper self-awareness through the ancient wisdom of Vedic astrology.',
+      requirements: [
+        'Your exact date, time, and place of birth (if available)',
+        'List of specific questions or concerns you wish to address',
+        'Details of any previous astrological consultations or remedies performed'
+      ],
+      pandits: [1, 3, 4],
+      availableTimeSlots: ['Morning (9 AM - 12 PM)', 'Afternoon (2 PM - 5 PM)', 'Evening (6 PM - 8 PM)']
     }
   ];
   

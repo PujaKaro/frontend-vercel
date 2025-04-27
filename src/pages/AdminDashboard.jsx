@@ -13,7 +13,8 @@ import {
   faCheck,
   faPlus,
   faGift,
-  faBell
+  faBell,
+  faStar
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../config/firebase';
@@ -634,6 +635,17 @@ const AdminDashboard = () => {
                 >
                   <FontAwesomeIcon icon={faBell} className="mr-2" />
                   Notifications
+                </button>
+                <button
+                  className={`flex items-center px-4 py-2 rounded-lg ${
+                    activeTab === 'horoscope' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'
+                  }`}
+                  onClick={() => {
+                    navigate('/admin/horoscope', { state: { fromAdmin: true } });
+                  }}
+                >
+                  <FontAwesomeIcon icon={faStar} className="mr-2" />
+                  <span>Horoscope</span>
                 </button>
               </nav>
             </div>

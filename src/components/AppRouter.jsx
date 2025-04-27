@@ -26,6 +26,8 @@ import SoftwareEngineerApplication from '../pages/SoftwareEngineerApplication';
 import ProductManagerApplication from '../pages/ProductManagerApplication';
 import MarketingSpecialistApplication from '../pages/MarketingSpecialistApplication';
 import AdminDashboard from '../pages/AdminDashboard';
+import DailyHoroscope from '../pages/DailyHoroscope';
+import HoroscopeAdmin from '../pages/HoroscopeAdmin';
   
 // Import authentication pages
 import SignIn from '../pages/SignIn';
@@ -66,11 +68,20 @@ const AppRouter = () => {
       <Route path="/apply/software-engineer" element={<SoftwareEngineerApplication />} />
       <Route path="/apply/product-manager" element={<ProductManagerApplication />} />
       <Route path="/apply/marketing-specialist" element={<MarketingSpecialistApplication />} />
+      <Route path="/daily-horoscope" element={<DailyHoroscope />} />
       <Route 
         path="/admin" 
         element={
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminDashboard />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/horoscope" 
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <HoroscopeAdmin />
           </ProtectedRoute>
         } 
       />

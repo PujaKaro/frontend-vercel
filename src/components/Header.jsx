@@ -186,6 +186,9 @@ const Header = () => {
               <Link to="/puja-booking" className="text-gray-700 hover:text-[#317bea] font-medium">
                 Book a Puja
               </Link>
+              <Link to="/daily-horoscope" className="text-gray-700 hover:text-[#317bea] font-medium">
+                Daily Horoscope
+              </Link>
             </nav>
 
             {/* Search Bar and Location/Language */}
@@ -385,6 +388,13 @@ const Header = () => {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Book a Puja
+              </Link>
+              <Link 
+                to="/daily-horoscope"
+                className="block py-2 text-gray-700 hover:text-[#317bea]"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Daily Horoscope
               </Link>
 
               <div className="border-t border-gray-200 pt-4">
