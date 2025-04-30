@@ -82,17 +82,20 @@ const BookingConfirmation = () => {
             )}
             <div className="text-right">
               <h2 className="text-sm text-gray-600 font-medium">BOOKING AMOUNT</h2>
-              {bookingDetails.referralCode ? (
+              {bookingDetails.finalPrice !== bookingDetails.price ? (
                 <div>
                   <p className="text-lg font-bold text-gray-800">
                     ₹{bookingDetails.finalPrice.toLocaleString()}
                   </p>
+                  <p className="text-sm text-gray-500 line-through">
+                    Original Price: ₹{bookingDetails.price.toLocaleString()}
+                  </p>
                   <p className="text-sm text-green-600">
-                    Saved ₹{(bookingDetails.price - bookingDetails.finalPrice).toLocaleString()}
+                    You saved ₹{(bookingDetails.price - bookingDetails.finalPrice).toLocaleString()}
                   </p>
                 </div>
               ) : (
-                <p className="text-lg font-bold text-gray-800">₹{price.toLocaleString()}</p>
+                <p className="text-lg font-bold text-gray-800">₹{bookingDetails.price.toLocaleString()}</p>
               )}
             </div>
           </div>
