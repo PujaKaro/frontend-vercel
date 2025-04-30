@@ -179,7 +179,15 @@ export const products = [
         'Incense sticks and camphor'
       ],
       pandits: [1, 2, 3],
-      availableTimeSlots: ['Morning (8 AM - 11 AM)', 'Evening (4 PM - 7 PM)']
+      availableTimeSlots: [
+        'Early Morning (4 AM - 6 AM)',
+        'Morning (6 AM - 8 AM)',
+        'Late Morning (8 AM - 10 AM)',
+        'Late Morning (10 AM - 12 PM)',
+        'Afternoon (12 PM - 2 PM)',
+        'Afternoon (2 PM - 4 PM)',
+        'Evening (4 PM - 6 PM)'
+      ]
     },
     {
       id: 2,
@@ -201,7 +209,15 @@ export const products = [
         'Red cloth'
       ],
       pandits: [3, 4],
-      availableTimeSlots: ['Morning (9 AM - 11 AM)', 'Afternoon (12 PM - 2 PM)', 'Evening (5 PM - 7 PM)']
+      availableTimeSlots: [
+        'Early Morning (4 AM - 6 AM)',
+        'Morning (6 AM - 8 AM)',
+        'Late Morning (8 AM - 10 AM)',
+        'Late Morning (10 AM - 12 PM)',
+        'Afternoon (12 PM - 2 PM)',
+        'Afternoon (2 PM - 4 PM)',
+        'Evening (4 PM - 6 PM)'
+      ]
     },
     {
       id: 3,
@@ -223,7 +239,15 @@ export const products = [
         'Yellow cloth'
       ],
       pandits: [1, 2],
-      availableTimeSlots: ['Evening (6 PM - 8 PM)', 'Night (7 PM - 9 PM)']
+      availableTimeSlots: [
+        'Early Morning (4 AM - 6 AM)',
+        'Morning (6 AM - 8 AM)',
+        'Late Morning (8 AM - 10 AM)',
+        'Late Morning (10 AM - 12 PM)',
+        'Afternoon (12 PM - 2 PM)',
+        'Afternoon (2 PM - 4 PM)',
+        'Evening (4 PM - 6 PM)'
+      ]
     },
     {
       id: 4,
@@ -245,7 +269,15 @@ export const products = [
         'Mango leaves'
       ],
       pandits: [1, 3, 4],
-      availableTimeSlots: ['Morning (8 AM - 11:30 AM)', 'Afternoon (12 PM - 3:30 PM)']
+      availableTimeSlots: [
+        'Early Morning (4 AM - 6 AM)',
+        'Morning (6 AM - 8 AM)',
+        'Late Morning (8 AM - 10 AM)',
+        'Late Morning (10 AM - 12 PM)',
+        'Afternoon (12 PM - 2 PM)',
+        'Afternoon (2 PM - 4 PM)',
+        'Evening (4 PM - 6 PM)'
+      ]
     },
     {
       id: 5,
@@ -267,7 +299,15 @@ export const products = [
         'Copper or silver coins'
       ],
       pandits: [2, 4],
-      availableTimeSlots: ['Morning (6 AM - 8:30 AM)', 'Evening (5 PM - 7:30 PM)']
+      availableTimeSlots: [
+        'Early Morning (4 AM - 6 AM)',
+        'Morning (6 AM - 8 AM)',
+        'Late Morning (8 AM - 10 AM)',
+        'Late Morning (10 AM - 12 PM)',
+        'Afternoon (12 PM - 2 PM)',
+        'Afternoon (2 PM - 4 PM)',
+        'Evening (4 PM - 6 PM)'
+      ]
     },
     {
       id: 6,
@@ -289,7 +329,15 @@ export const products = [
         'Black sesame seeds'
       ],
       pandits: [2, 4],
-      availableTimeSlots: ['Morning (4 AM - 6:30 AM)', 'Evening (6 PM - 8:30 PM)']
+      availableTimeSlots: [
+        'Early Morning (4 AM - 6 AM)',
+        'Morning (6 AM - 8 AM)',
+        'Late Morning (8 AM - 10 AM)',
+        'Late Morning (10 AM - 12 PM)',
+        'Afternoon (12 PM - 2 PM)',
+        'Afternoon (2 PM - 4 PM)',
+        'Evening (4 PM - 6 PM)'
+      ]
     },
     {
       id: 7,
@@ -311,7 +359,15 @@ export const products = [
         'Fruits and sweets'
       ],
       pandits: [1, 3],
-      availableTimeSlots: ['Morning (10 AM - 12 PM)', 'Afternoon (2 PM - 4 PM)']
+      availableTimeSlots: [
+        'Early Morning (4 AM - 6 AM)',
+        'Morning (6 AM - 8 AM)',
+        'Late Morning (8 AM - 10 AM)',
+        'Late Morning (10 AM - 12 PM)',
+        'Afternoon (12 PM - 2 PM)',
+        'Afternoon (2 PM - 4 PM)',
+        'Evening (4 PM - 6 PM)'
+      ]
     },
     {
       id: 8,
@@ -333,7 +389,15 @@ export const products = [
         'Flowers and incense'
       ],
       pandits: [3],
-      availableTimeSlots: ['Evening (4 PM - 7 PM)', 'Night (6 PM - 9 PM)']
+      availableTimeSlots: [
+        'Early Morning (4 AM - 6 AM)',
+        'Morning (6 AM - 8 AM)',
+        'Late Morning (8 AM - 10 AM)',
+        'Late Morning (10 AM - 12 PM)',
+        'Afternoon (12 PM - 2 PM)',
+        'Afternoon (2 PM - 4 PM)',
+        'Evening (4 PM - 6 PM)'
+      ]
     },
     {
       id: 10,
@@ -353,7 +417,15 @@ export const products = [
         'Details of any previous astrological consultations or remedies performed'
       ],
       pandits: [1, 3, 4],
-      availableTimeSlots: ['Morning (9 AM - 12 PM)', 'Afternoon (2 PM - 5 PM)', 'Evening (6 PM - 8 PM)']
+      availableTimeSlots: [
+        'Early Morning (4 AM - 6 AM)',
+        'Morning (6 AM - 8 AM)',
+        'Late Morning (8 AM - 10 AM)',
+        'Late Morning (10 AM - 12 PM)',
+        'Afternoon (12 PM - 2 PM)',
+        'Afternoon (2 PM - 4 PM)',
+        'Evening (4 PM - 6 PM)'
+      ]
     }
   ];
   
