@@ -47,25 +47,27 @@ const AdminNotificationsTab = () => {
     fetchData();
   }, []);
 
-  // Fetch all notifications created by admin
+  // Fetch all notifications
   const fetchNotifications = async () => {
     try {
       const notificationsQuery = query(
         collection(db, 'notifications'),
-        where('adminGenerated', '==', true),
         orderBy('createdAt', 'desc')
       );
       
       const snapshot = await getDocs(notificationsQuery);
       const notificationData = snapshot.docs.map(doc => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate?.() || new Date()
       }));
       
+      console.log('Fetched notifications:', notificationData);
       setNotifications(notificationData);
       return notificationData;
     } catch (error) {
       console.error('Error fetching notifications:', error);
+      toast.error('Failed to fetch notifications');
       return [];
     }
   };
@@ -277,17 +279,15 @@ const AdminNotificationsTab = () => {
                     size="8"
                   >
                     {users.map(user => (
-                      <option
-                        key={user.id}
-                        value={user.id}
-                        style={{
-                          backgroundColor: selectedUsers.includes(user.id) ? '#fdba74' : 'transparent',
-                          color: selectedUsers.includes(user.id) ? '#7c2d12' : 'inherit',
-                          padding: '8px',
-                          marginBottom: '2px',
-                          borderRadius: '4px'
-                        }}
-                      >
+                      <option key={user.id} value={user.id}
+                      style={{
+                        backgroundColor: selectedUsers.includes(user.id) ? '#fdba74' : 'transparent',
+                        color: selectedUsers.includes(user.id) ? '#7c2d12' : 'inherit',
+                        padding: '8px',
+                        marginBottom: '2px',
+                        borderRadius: '4px'
+                      }}
+                    >
                         {user.name} ({user.email})
                       </option>
                     ))}
@@ -356,6 +356,11 @@ const AdminNotificationsTab = () => {
                         <td className="px-6 py-4">
                           <div className="text-sm font-medium text-gray-900">{notification.title}</div>
                           <div className="text-sm text-gray-500 mt-1">{notification.message}</div>
+                          {notification.type && (
+                            <span className="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded mt-2">
+                              {notification.type}
+                            </span>
+                          )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">

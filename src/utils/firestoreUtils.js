@@ -594,6 +594,7 @@ import {
    * @param {string} title - Notification title
    * @param {string} message - Notification message
    * @param {Object} additionalData - Any additional data to include
+   * @returns {Promise<boolean>} - Success or failure
    */
   export const sendNotification = async (userId, title, message, additionalData = {}) => {
     try {
@@ -616,23 +617,12 @@ import {
   };
 
   /**
-   * Send a notification about a new coupon code
-   */
-  export const sendCouponNotification = async (userId, couponCode, discountPercentage) => {
-    return sendNotification(
-      userId,
-      'New Coupon Available',
-      `You've been assigned a new coupon code: ${couponCode} for ${discountPercentage}% discount.`,
-      { 
-        type: 'coupon',
-        couponCode,
-        discountPercentage 
-      }
-    );
-  };
-
-  /**
    * Send a notification about a booking status change
+   * @param {string} userId - The user ID
+   * @param {string} bookingId - The booking ID
+   * @param {string} status - The booking status
+   * @param {string} pujaName - The name of the puja
+   * @returns {Promise<boolean>} - Success or failure
    */
   export const sendBookingNotification = async (userId, bookingId, status, pujaName) => {
     const statusMessages = {
@@ -648,13 +638,18 @@ import {
       { 
         type: 'booking',
         bookingId,
-        status 
+        status,
+        adminGenerated: true
       }
     );
   };
 
   /**
    * Send a notification about an order status change
+   * @param {string} userId - The user ID
+   * @param {string} orderId - The order ID
+   * @param {string} status - The order status
+   * @returns {Promise<boolean>} - Success or failure
    */
   export const sendOrderNotification = async (userId, orderId, status) => {
     const statusMessages = {
@@ -671,7 +666,8 @@ import {
       { 
         type: 'order',
         orderId,
-        status 
+        status,
+        adminGenerated: true
       }
     );
   };
@@ -691,13 +687,40 @@ import {
         type: 'cart',
         productId: product.id,
         productName: product.name,
-        productImage: product.image
+        productImage: product.image,
+        adminGenerated: true
+      }
+    );
+  };
+
+  /**
+   * Send a notification about a new coupon code
+   * @param {string} userId - The user ID
+   * @param {string} couponCode - The coupon code
+   * @param {number} discountPercentage - The discount percentage
+   * @returns {Promise<boolean>} - Success or failure
+   */
+  export const sendCouponNotification = async (userId, couponCode, discountPercentage) => {
+    return sendNotification(
+      userId,
+      'New Coupon Available',
+      `You've been assigned a new coupon code: ${couponCode} for ${discountPercentage}% discount.`,
+      { 
+        type: 'coupon',
+        couponCode,
+        discountPercentage,
+        adminGenerated: true
       }
     );
   };
 
   /**
    * Send a notification to multiple users at once (for admin broadcasts)
+   * @param {string[]} userIds - Array of user IDs
+   * @param {string} title - Notification title
+   * @param {string} message - Notification message
+   * @param {Object} additionalData - Any additional data to include
+   * @returns {Promise<boolean>} - Success or failure
    */
   export const sendBulkNotification = async (userIds, title, message, additionalData = {}) => {
     try {
@@ -705,7 +728,10 @@ import {
       
       for (const userId of userIds) {
         batch.push(
-          sendNotification(userId, title, message, additionalData)
+          sendNotification(userId, title, message, {
+            ...additionalData,
+            adminGenerated: true
+          })
         );
       }
       
@@ -734,9 +760,91 @@ import {
         type: 'navigation',
         fromPage,
         toPage,
-        pageTitle
+        pageTitle,
+        adminGenerated: true
       }
     );
+  };
+
+  /**
+   * Mark a notification as read
+   * @param {string} notificationId - The notification ID
+   * @returns {Promise<boolean>} - Success or failure
+   */
+  export const markNotificationAsRead = async (notificationId) => {
+    try {
+      await updateDoc(doc(db, 'notifications', notificationId), {
+        read: true,
+        readAt: serverTimestamp()
+      });
+      return true;
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      return false;
+    }
+  };
+
+  /**
+   * Get all notifications for a user
+   * @param {string} userId - The user ID
+   * @returns {Promise<Array>} - Array of notifications
+   */
+  export const getUserNotifications = async (userId) => {
+    try {
+      const notificationsQuery = query(
+        collection(db, 'notifications'),
+        where('userId', '==', userId),
+        orderBy('createdAt', 'desc')
+      );
+      
+      const querySnapshot = await getDocs(notificationsQuery);
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate?.() || new Date()
+      }));
+    } catch (error) {
+      console.error('Error getting user notifications:', error);
+      return [];
+    }
+  };
+
+  /**
+   * Get all notifications (admin view)
+   * @returns {Promise<Array>} - Array of notifications
+   */
+  export const getAllNotifications = async () => {
+    try {
+      const notificationsQuery = query(
+        collection(db, 'notifications'),
+        orderBy('createdAt', 'desc')
+      );
+      
+      const querySnapshot = await getDocs(notificationsQuery);
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate?.() || new Date()
+      }));
+    } catch (error) {
+      console.error('Error getting all notifications:', error);
+      return [];
+    }
+  };
+
+  /**
+   * Delete a notification
+   * @param {string} notificationId - The notification ID
+   * @returns {Promise<boolean>} - Success or failure
+   */
+  export const deleteNotification = async (notificationId) => {
+    try {
+      await deleteDoc(doc(db, 'notifications', notificationId));
+      return true;
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      return false;
+    }
   };
 
   // Example usage:
