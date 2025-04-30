@@ -93,8 +93,14 @@ const PujaBooking = () => {
   };
   
   const handleBookPuja = (puja) => {
-    // Navigate directly to the puja details page
-    navigate(`/puja-booking/${puja.id}`);
+    // Navigate to the booking form with the selected date and time
+    navigate(`/puja-booking/${puja.id}`, {
+      state: {
+        puja,
+        selectedDate,
+        selectedTime: '09:00' // Default time, can be made configurable
+      }
+    });
   };
 
   const handleSelectPandit = (pandit) => {

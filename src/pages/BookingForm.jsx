@@ -37,7 +37,7 @@ const BookingForm = () => {
     date: '',
     time: '',
     specialInstructions: '',
-    referralCode: ''  // Add referral code field
+    referralCode: ''
   });
   
   const [puja, setPuja] = useState(null);
@@ -48,6 +48,7 @@ const BookingForm = () => {
   const [isValidatingCode, setIsValidatingCode] = useState(false);
   const [validatedCodeData, setValidatedCodeData] = useState(null);
   const [codeError, setCodeError] = useState('');
+  const [displayTimeSlot, setDisplayTimeSlot] = useState('');
   
   useEffect(() => {
     // Initialize EmailJS
@@ -56,6 +57,37 @@ const BookingForm = () => {
     // Get puja info from location state or fetch it based on ID
     if (location.state?.puja) {
       setPuja(location.state.puja);
+      // Set the date and time from location state if available
+      if (location.state.date) {
+        // Extract the first time from the timeSlot if it contains a range
+        let timeValue = location.state.timeSlot || '';
+        let displayTime = timeValue;
+        
+        if (timeValue.includes('(')) {
+          // Extract the first time from the range (e.g., "Evening (6 PM - 8 PM)" -> "6 PM")
+          const timeMatch = timeValue.match(/\(([^)]+)\)/);
+          if (timeMatch) {
+            const timeRange = timeMatch[1];
+            const firstTime = timeRange.split('-')[0].trim();
+            // Convert 6 PM to 18:00 format
+            const [hours, period] = firstTime.split(' ');
+            let hour = parseInt(hours);
+            if (period === 'PM' && hour !== 12) {
+              hour += 12;
+            } else if (period === 'AM' && hour === 12) {
+              hour = 0;
+            }
+            timeValue = `${hour.toString().padStart(2, '0')}:00`;
+          }
+        }
+        
+        setDisplayTimeSlot(displayTime);
+        setFormData(prev => ({
+          ...prev,
+          date: location.state.date,
+          time: timeValue
+        }));
+      }
     } else {
       const pujaData = pujaServices.find(puja => puja.id === parseInt(id));
       if (pujaData) {
@@ -143,6 +175,9 @@ const BookingForm = () => {
     } else if (!/^\d{6}$/.test(formData.pincode.replace(/\D/g, ''))) {
       newErrors.pincode = 'Pincode must be 6 digits';
     }
+
+    if (!formData.date.trim()) newErrors.date = 'Date is required';
+    if (!formData.time.trim()) newErrors.time = 'Time is required';
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -356,7 +391,7 @@ const BookingForm = () => {
                     <FontAwesomeIcon icon={faClock} className="mr-2" />
                     Time:
                   </div>
-                  <div className="font-medium">{formData.time}</div>
+                  <div className="font-medium">{displayTimeSlot || formData.time}</div>
                 </div>
               </div>
             </div>
@@ -407,7 +442,52 @@ const BookingForm = () => {
                   </div>
                   {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
                 </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="date">
+                    Date*
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <FontAwesomeIcon icon={faCalendarAlt} className="text-gray-400" />
+                    </div>
+                    <input
+                      type="date"
+                      id="date"
+                      name="date"
+                      className={`w-full pl-10 pr-3 py-2 border ${errors.date ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                      value={formData.date}
+                      onChange={handleInputChange}
+                      min={new Date().toISOString().split('T')[0]}
+                    />
+                  </div>
+                  {errors.date && <p className="mt-1 text-sm text-red-500">{errors.date}</p>}
+                </div>
                 
+                <div>
+                  <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="time">
+                    Time*
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <FontAwesomeIcon icon={faClock} className="text-gray-400" />
+                    </div>
+                    <input
+                      type="time"
+                      id="time"
+                      name="time"
+                      className={`w-full pl-10 pr-3 py-2 border ${errors.time ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                      value={formData.time}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  {errors.time && <p className="mt-1 text-sm text-red-500">{errors.time}</p>}
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="phone">
                     Phone Number*
