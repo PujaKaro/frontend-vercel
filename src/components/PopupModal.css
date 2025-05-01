@@ -4,70 +4,105 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
     display: flex;
     justify-content: center;
-    align-items: center; /* Center the modal vertically */
+    align-items: center;
     z-index: 1000;
-    overflow-y: auto; /* Allow scrolling if content overflows */
-    padding: 20px; /* Add padding to prevent clipping */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+  }
+  
+  .popup-modal.fade-in {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .popup-modal.fade-out {
+    opacity: 0;
+    visibility: hidden;
   }
   
   .popup-content {
     position: relative;
-    background: white;
-    border-radius: 8px;
-    overflow: hidden;
-    max-width: 90%;
-    max-height: 90%;
-    animation: fade-in 0.3s ease-in-out;
+    width: 75%;
+    height: 75%;
     display: flex;
     justify-content: center;
     align-items: center;
+    background-color: transparent;
+    animation: popIn 0.3s ease-out;
   }
   
-  .popup-image {
-    width: auto;
-    height: auto;
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain; /* Ensure the entire image is visible */
-    display: block;
+  @keyframes popIn {
+    from {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
   }
   
   .close-button {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background: transparent;
+    top: 20px;
+    right: 250px;
+    background: rgba(255, 255, 255, 0.9);
     border: none;
-    font-size: 24px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 20px;
     cursor: pointer;
     color: #333;
+    padding: 0;
+    line-height: 1;
+    transition: all 0.2s ease;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translate(50%, -50%);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   }
   
   .close-button:hover {
-    color: #000;
+    background: rgba(255, 255, 255, 1);
+    transform: translate(50%, -50%) scale(1.1);
   }
   
-  @keyframes fade-in {
-    from {
-      opacity: 0;
+  .popup-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Mobile-specific styles */
+  @media (max-width: 768px) {
+    .popup-content {
+      width: 80%;
+      height: 60%;
     }
-    to {
-      opacity: 1;
+  
+    .close-button {
+      width: 25px;
+      height: 25px;
+      font-size: 16px;
     }
   }
   
-  .fade-out {
-    animation: fade-out 0.3s ease-in-out forwards;
+  /* Accessibility improvements */
+  .popup-modal:focus {
+    outline: none;
   }
   
-  @keyframes fade-out {
-    from {
-      opacity: 1;
-    }
-    to {
-      opacity: 0;
-    }
+  .close-button:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
   }
