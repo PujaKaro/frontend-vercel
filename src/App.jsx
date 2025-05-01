@@ -6,6 +6,7 @@ import AppRouter from './components/AppRouter';
 import AnalyticsTracker from './components/AnalyticsTracker';
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
+import PopupModal from './components/PopupModal';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <AuthProvider>
         <CartProvider>
           <AnalyticsTracker />
+          <PopupModal />
           <Header />
           <main>
             <AppRouter />
