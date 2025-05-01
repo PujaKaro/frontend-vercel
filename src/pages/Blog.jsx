@@ -4,7 +4,7 @@ import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt, faUser, faClock, faTags, faSearch } from '@fortawesome/free-solid-svg-icons';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 
 const Blog = () => {
   const [posts, setPosts] = useState([]);

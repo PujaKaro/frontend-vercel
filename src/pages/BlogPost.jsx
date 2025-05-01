@@ -4,7 +4,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt, faUser, faClock, faTags, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 
 const BlogPost = () => {
   const { id } = useParams();

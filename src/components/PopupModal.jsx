@@ -3,6 +3,7 @@ import './PopupModal.css'; // Import CSS for styling
 
 const PopupModal = () => {
   const [isVisible, setIsVisible] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
   const handleClose = () => {
     const modal = document.getElementById('popup-modal');
@@ -11,8 +12,25 @@ const PopupModal = () => {
   };
 
   useEffect(() => {
-    // Automatically show the modal on page load
-    setIsVisible(true);
+    // Function to check if device is mobile
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    // Initial check
+    checkMobile();
+
+    // Add event listener for window resize
+    const handleResize = () => {
+      checkMobile();
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup function
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   if (!isVisible) return null;
@@ -24,7 +42,7 @@ const PopupModal = () => {
           &times;
         </button>
         <img
-          src="/images/value-props.png"
+          src={isMobile ? "/images/value-props_mobile.png" : "/images/value-props.png"}
           alt="Value Props"
           className="popup-image"
         />
