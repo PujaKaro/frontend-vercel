@@ -23,7 +23,7 @@ const Footer = () => {
       { name: 'Custom Services', path: '/custom-services' }
     ],
     support: [
-      { name: 'CancellationAndRefund', path: '/cancellation-and-refund' },
+      { name: 'Cancellation And Refund', path: '/cancellation-and-refund' },
       { name: 'Terms of Service', path: '/terms-and-conditions' },
       { name: 'Privacy Policy', path: '/privacy-policy' },
       { name: 'Shipping & Delivery', path: '/shipping-and-delivery' }
