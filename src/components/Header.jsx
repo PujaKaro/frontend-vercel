@@ -138,7 +138,7 @@ const Header = () => {
       {/* Offer Banner */}
       {isBannerVisible && (
         <div className="bg-blue-500 text-white text-center py-1 px-4 relative">
-          <span>🎉 Limited Time Offer: Get 20% off on all bookings! Use code: PUJA20</span>
+          <span>🎉 Limited Time Offer: Get 20% off on all bookings! Use code: PUJAKARO20</span>
           <button
             onClick={handleBannerClose}
             className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-200"
