@@ -295,7 +295,7 @@ const FlowersAndMala = () => {
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <FontAwesomeIcon icon={faPhone} className="h-6 w-6 text-[#FF8C00] mb-3" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Call Us</h3>
-            <p className="text-gray-600">+91 7982545360</p>
+            <p className="text-gray-600">+91 8800627513</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <FontAwesomeIcon icon={faEnvelope} className="h-6 w-6 text-[#FF8C00] mb-3" />
