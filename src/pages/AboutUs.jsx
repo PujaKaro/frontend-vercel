@@ -47,7 +47,7 @@ const AboutUs = () => {
       {/* Hero Section */}
       <div className="bg-[#FF8C00] text-white py-16">
         <div className="container mx-auto px-4">
-          <h1 className="text-4xl md:text-5xl font-bold text-center mb-6">About PujaKaro</h1>
+<h1 className="text-4xl md:text-5xl font-bold text-center mb-6">About PujaKaro - Your Spiritual Partner</h1>
           <p className="text-xl text-center max-w-3xl mx-auto">
             Connecting devotees with authentic spiritual experiences through traditional pujas and rituals
           </p>
