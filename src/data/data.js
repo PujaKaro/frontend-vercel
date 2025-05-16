@@ -551,7 +551,7 @@ Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, D
   category: 'path',
   occasions: ['spiritual', 'remedy'],
   description: "Recital of 'Shri Ramcharitmanas' [without break]. Honor Rama as a symbol of wisdom, moral behavior, and admirable qualities.",
-  longDescription: `<b>Description:</b> The Akhand Ramayan Path involves reciting the entire Shri Ram Charitra Manas continuously for a full day. The readings are not interspersed. Seven kaands—Baalkand, Ayodhyakand, Aranyakand, Kishkindhakand, Sundarkand, Lankakand, and Uttarkand—are covered throughout the entire text.
+  longDescription: `Description: The Akhand Ramayan Path involves reciting the entire Shri Ram Charitra Manas continuously for a full day. The readings are not interspersed. Seven kaands—Baalkand, Ayodhyakand, Aranyakand, Kishkindhakand, Sundarkand, Lankakand, and Uttarkand—are covered throughout the entire text.
 By following this path, you can overcome obstacles in your life and attract good fortune. The main panditji leads this route, starting with the Gauri Ganesh Kalash Puja. While a group of pandits play kirtans and bhajans on the Dholak, Manjeera, and other instruments in worship of the Lord Shri Ram, he reads the route.
 Puja Vidhi:
 • Shuddhikaran
@@ -563,7 +563,7 @@ Puja Vidhi:
 • Mukhya Puja Vidhi
 • Havan Karyakram Sampannam
 • Aarti & Prasad Vitaran
-Puja Samagri:Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
 Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
   requirements: [
     'All Puja Samagri & Havan Samagri included as per tradition',
@@ -592,9 +592,9 @@ Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, D
   category: 'sanskar',
   occasions: ['education', 'child'],
   description: "A Hindu ceremony marking a child's official start of schooling. Seeks blessings of Ganesha and Saraswati for wisdom.",
-  longDescription: `<b>Description:</b> Akshara Abhyasam, also known as Vidyarambham or Aksharabhyas, signifies a child's official start of schooling. It is important in Hindu tradition as it marks the beginning of a lifetime of study and wisdom, aiming to obtain the blessings of Ganesha (the Remover of Obstacles) and Saraswati (the Goddess of Knowledge).
+  longDescription: `Description: Akshara Abhyasam, also known as Vidyarambham or Aksharabhyas, signifies a child's official start of schooling. It is important in Hindu tradition as it marks the beginning of a lifetime of study and wisdom, aiming to obtain the blessings of Ganesha (the Remover of Obstacles) and Saraswati (the Goddess of Knowledge).
 Puja Vidhi:
-• The priest or elder holds the child’s hand and helps them write the first letters: OM, Aa, Hare Rama Hare Krishna, Om Namah Sivay<br/>
+• The priest or elder holds the child’s hand and helps them write the first letters: OM, Aa, Hare Rama Hare Krishna, Om Namah Sivay
 • Swasti Vachnam
 • Shodasha Upachara Puja
 • Gauri Ganesh Puja
@@ -629,7 +629,7 @@ Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, D
   category: 'festival',
   occasions: ['new-beginnings', 'prosperity'],
   description: "Highly auspicious day for new beginnings. Prayers to Lord Vishnu, Ganesha, and Lakshmi.",
-  longDescription: ` Akshay Tritiya is considered a highly auspicious day for new beginnings and is particularly important in Hindu tradition. The day is celebrated with specific rituals, including prayers to Lord Vishnu, Lord Ganesha, and Goddess Lakshmi, along with the worship of the Kalash (sacred water pot).
+  longDescription: `Akshay Tritiya is considered a highly auspicious day for new beginnings and is particularly important in Hindu tradition. The day is celebrated with specific rituals, including prayers to Lord Vishnu, Lord Ganesha, and Goddess Lakshmi, along with the worship of the Kalash (sacred water pot).
 Puja Vidhi:
 • Swasti Vachnam
 • Shodasha Upachara Puja
@@ -640,50 +640,13 @@ Puja Vidhi:
 • Kalash & Navgrah Puja
 • Havan Karyakram Sampannam
 • Aarti & Prasad Vitaran
- Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
 Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
   requirements: [
     'All Puja Samagri & Havan Samagri included',
     'Clean site for puja setup'
   ],
   pandits: [2, 3],
-  availableTimeSlots: [
-    'Morning (6 AM - 8 AM)',
-    'Late Morning (8 AM - 10 AM)',
-    'Late Morning (10 AM - 12 PM)',
-    'Afternoon (12 PM - 2 PM)'
-  ]
-},
-{
-  id: 16,
-  name: 'Annaprashana Puja',
-  image: '/images/satyanarayan.jpg',
-  duration: '2 hours',
-  price: 4100,
-  rating: 4.8,
-  reviews: 62,
-  category: 'sanskar',
-  occasions: ['child', 'health'],
-  description: "Marks the 1st intake of solid food by the infant. Part of the shodasha (16) sanskaras.",
-  longDescription: `Annaprashana (Sanskrit for 'grain initiation') marks the first intake of solid food by the infant, typically between six and eight months. The ceremony is performed on an auspicious day and time, determined in consultation with the priest. Puja and a havan are performed to pray for the baby's health, wealth, and happiness. After the puja, the baby tastes his first solid food.
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Annaprashana Ceremony
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
-Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-  requirements: [
-    'Infant (6-8 months) and parents present',
-    'All Puja Samagri & Havan Samagri included',
-    'Clean site for puja setup'
-  ],
-  pandits: [1, 2],
   availableTimeSlots: [
     'Morning (6 AM - 8 AM)',
     'Late Morning (8 AM - 10 AM)',
@@ -751,8 +714,8 @@ Puja Vidhi:
 • Ark Vivah
 • Havan Karyakram Sampannam
 • Aarti & Prasad Vitaran
-<b>Puja Samagri:</b> Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.<br/><br/>
-<b>Havan Samagri:</b> Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
   requirements: [
     'Male with Manglik dosha',
     'All Puja Samagri & Havan Samagri included',
@@ -777,18 +740,18 @@ Puja Vidhi:
   category: 'devi',
   occasions: ['protection', 'spiritual-growth'],
   description: "Invokes eight powerful forms of the Divine Mother for protection, strength, and energy purification.",
-  longDescription: `<b>Description:</b> Ashta Matrika Puja holds great spiritual importance as it invokes eight powerful forms of the Divine Mother for protection, strength, and energy purification. These goddesses represent different aspects of Shakti and help destroy negative forces, boost inner power, and ensure peace, prosperity, and spiritual growth.<br/><br/>
-<b>Puja Vidhi:</b><br/>
-• Swasti Vachnam<br/>
-• Shodasha Upachara Puja<br/>
-• Maha Sankalpam<br/>
-• Gauri Ganesh Puja<br/>
-• Kalash & Navgrah Puja<br/>
-• Punyaha Vachnam<br/>
-• Mahavidya Mantra Pujan Havan<br/>
-• Aarti & Prasad Vitaran<br/><br/>
-<b>Puja Samagri:</b> Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.<br/><br/>
-<b>Havan Samagri:</b> Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+  longDescription: `Ashta Matrika Puja holds great spiritual importance as it invokes eight powerful forms of the Divine Mother for protection, strength, and energy purification. These goddesses represent different aspects of Shakti and help destroy negative forces, boost inner power, and ensure peace, prosperity, and spiritual growth.
+Puja Vidhi:
+• Swasti Vachnam
+• Shodasha Upachara Puja
+• Maha Sankalpam
+• Gauri Ganesh Puja
+• Kalash & Navgrah Puja
+• Punyaha Vachnam
+• Mahavidya Mantra Pujan Havan
+• Aarti & Prasad Vitaran
+Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
   requirements: [
     'All Puja Samagri & Havan Samagri included',
     'Clean site for puja setup'
@@ -812,20 +775,20 @@ Puja Vidhi:
   category: 'health',
   occasions: ['health', 'longevity'],
   description: "Lord Ayur Devata [incarnation of Lord Vishnu] divine physician for all the three worlds. For long, healthy life.",
-  longDescription: `<b>Description:</b> The main goal of the Ayush Havan is to make people live longer by making their various health problems less severe. The primary objective is to win the favour of Ayur Devata, often known as the God of life. Everyone can increase their chances of living a long and healthy life if they participate in this havan.<br/><br/>
-<b>Puja Vidhi:</b><br/>
-• Swasti Vachnam<br/>
-• Shodasha Upachara Puja<br/>
-• Maha Sankalpam<br/>
-• Gauri Ganesh Puja<br/>
-• Kalash & Navgrah Puja<br/>
-• Punyaha Vachnam<br/>
-• Ayur Devta Puja<br/>
-• Chants of Sri Sukta (*21)<br/>
-• Ayur Devta Havan Karyakram Sampannam<br/>
-• Aarti & Prasad Vitaran<br/><br/>
-<b>Puja Samagri:</b> Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.<br/><br/>
-<b>Havan Samagri:</b> Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+  longDescription: `The main goal of the Ayush Havan is to make people live longer by making their various health problems less severe. The primary objective is to win the favour of Ayur Devata, often known as the God of life. Everyone can increase their chances of living a long and healthy life if they participate in this havan.
+Puja Vidhi:
+• Swasti Vachnam
+• Shodasha Upachara Puja
+• Maha Sankalpam
+• Gauri Ganesh Puja
+• Kalash & Navgrah Puja
+• Punyaha Vachnam
+• Ayur Devta Puja
+• Chants of Sri Sukta (*21)
+• Ayur Devta Havan Karyakram Sampannam
+• Aarti & Prasad Vitaran
+Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
   requirements: [
     'All Puja Samagri & Havan Samagri included',
     'Clean site for puja setup'
@@ -838,6 +801,49 @@ Puja Vidhi:
     'Afternoon (12 PM - 2 PM)'
   ]
 },
+{
+  id: 20,
+  name: 'Diwali Laxmi Puja',
+  image: '/images/satyanarayan.jpg',
+  duration: '2 hours',
+  price: 5100,
+  rating: 4.9,
+  reviews: 120,
+  category: 'festival',
+  occasions: ['diwali', 'prosperity'],
+  description: "Symbolic victory of good over evil and knowledge over ignorance. Invite prosperity, wealth, health and abundance.",
+  longDescription: `Maya is the goddess Lakshmi. She never stays in one place for long. Because of this, Goddess Lakshmi is also known by the name Chanchala. This means that we move very quickly from one place to another without realising it. It's hard to get her permission and keep her in our house for a long time.
+The day of Laxmi Puja is the dark night of Amavasya. Even though it's dark at night, people make it brighter by lighting a lot of candles. They also give Goddess Laxmi a big diya with lights in all four directions so that their lives will be full of light from all directions.
+During Diwali, the Goddess Mahalakshmi goes to every home to bring luck, wealth, and other blessings. When you celebrate Diwali Lakshmi puja, you can get Goddess Lakshmi's blessings and bring wealth, health, and plenty into your home. Also, if you worship Lakshmi, you can reach your real goals in life. Because she is the thing that helps you get where you want to go.
+Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
+
+Puja Vidhi:
+• Swasti Vachnam
+• Shodasha Upachara Puja
+• Maha Sankalpam
+• Gauri Ganesh Puja
+• Kalash & Navgrah Puja
+• Punyaha Vachnam
+• Laxmi Puja
+• Havan Karyakram Sampannam
+• Aarti & Prasad Vitaran
+
+Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+
+Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+  requirements: [
+    'All Puja Samagri & Havan Samagri included',
+    'Clean site for puja setup'
+  ],
+  pandits: [1, 2, 3],
+  availableTimeSlots: [
+    'Morning (6 AM - 8 AM)',
+    'Late Morning (8 AM - 10 AM)',
+    'Late Morning (10 AM - 12 PM)',
+    'Afternoon (12 PM - 2 PM)'
+  ]
+},
+
      {
       id: 20,
       name: 'Diwali Laxmi Puja',
