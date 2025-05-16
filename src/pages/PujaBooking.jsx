@@ -43,6 +43,7 @@ const PujaBooking = () => {
   const [showPanditModal, setShowPanditModal] = useState(false);
   const [selectedPuja, setSelectedPuja] = useState(null);
   const [selectedPandit, setSelectedPandit] = useState(null);
+  const [expandedPujaId, setExpandedPujaId] = useState(null);
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   
@@ -380,6 +381,40 @@ const PujaBooking = () => {
                 </div>
                 
                 <p className="text-gray-600 text-sm mb-4">{puja.description.length > 120 ? `${puja.description.substring(0, 120)}...` : puja.description}</p>
+                
+                {expandedPujaId === puja.id ? (
+                  <>
+                    <p className="text-gray-700 whitespace-pre-line mb-2">{puja.longDescription}</p>
+                    <button
+                      className="text-blue-600 text-sm underline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExpandedPujaId(null);
+                      }}
+                    >
+                      Read Less
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-gray-700 whitespace-pre-line mb-2">
+                      {puja.longDescription.length > 180
+                        ? `${puja.longDescription.substring(0, 180)}...`
+                        : puja.longDescription}
+                    </p>
+                    {puja.longDescription.length > 180 && (
+                      <button
+                        className="text-blue-600 text-sm underline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setExpandedPujaId(puja.id);
+                        }}
+                      >
+                        Read More
+                      </button>
+                    )}
+                  </>
+                )}
                 
                 <div className="flex items-center justify-between">
                   <div className="text-blue-600 font-bold">₹{puja.price.toLocaleString()}</div>
