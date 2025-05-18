@@ -11,7 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { doc, updateDoc, arrayUnion, Timestamp, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import emailjs from 'emailjs-com';
-import { createBooking, validateReferralCode, updateReferralStats, validateCode, updateCouponStats } from '../utils/firestoreUtils';
+import { createBooking, validateReferralCode, updateReferralStats, validateCode, updateCouponStats, validatePincode } from '../utils/firestoreUtils';
 
 // EmailJS configuration from environment variables
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
@@ -222,7 +222,7 @@ const BookingForm = () => {
   
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!currentUser) {
       toast.error('Please sign in to book a puja');
       navigate('/login');
@@ -230,8 +230,15 @@ const BookingForm = () => {
     }
 
     if (validateForm()) {
+      // Validate pincode before proceeding
+      const isPincodeValid = await handlePincodeValidation();
+      if (!isPincodeValid) {
+        toast.error('Please enter a valid pincode');
+        return;
+      }
+
       setIsSubmitting(true);
-      
+
       try {
         // Validate code one more time if it exists but hasn't been validated
         if (formData.referralCode && !validatedCodeData) {
@@ -334,6 +341,31 @@ const BookingForm = () => {
       } finally {
         setIsSubmitting(false);
       }
+    }
+  };
+  
+  const handlePincodeValidation = async () => {
+    if (!formData.pincode.trim()) {
+      setErrors(prev => ({ ...prev, pincode: 'Pincode is required' }));
+      return false;
+    }
+
+    try {
+      const result = await validatePincode(formData.pincode);
+
+      if (result.valid) {
+        setErrors(prev => ({ ...prev, pincode: '' })); // Clear any previous errors
+        return true;
+      } else {
+        toast.error('Invalid pincode. Please enter a valid one.');
+        setErrors(prev => ({ ...prev, pincode: 'Invalid pincode' }));
+        return false;
+      }
+    } catch (error) {
+      console.error('Error validating pincode:', error);
+      toast.error('Error validating pincode. Please try again.');
+      setErrors(prev => ({ ...prev, pincode: 'Error validating pincode' }));
+      return false;
     }
   };
   
