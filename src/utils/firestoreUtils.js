@@ -14,7 +14,8 @@ import {
     addDoc,
     serverTimestamp,
     startAfter,
-    increment
+    increment,
+    arrayUnion
   } from 'firebase/firestore';
   import { db } from '../config/firebase';
   
@@ -236,7 +237,7 @@ import {
         // Sort in memory as fallback
         return results.sort((a, b) => {
           const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt);
-          const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt);
+          const dateB = b.createdAt?.toDate?.() || new Date(a.createdAt);
           return dateB - dateA;
         });
       }
@@ -432,7 +433,8 @@ import {
         updatedAt: serverTimestamp(),
         totalUsed: 0,
         totalDiscountGiven: 0,
-        totalRevenueGenerated: 0
+        totalRevenueGenerated: 0,
+         usedEmails: []
       };
       const docRef = await addDoc(couponsRef, newCoupon);
       return { id: docRef.id, ...newCoupon };
@@ -442,21 +444,26 @@ import {
     }
   };
 
-  export const validateCouponCode = async (code) => {
+  export const validateCouponCode = async (code, email = null) => {
     try {
       const couponsRef = collection(db, 'coupons');
       const q = query(couponsRef, where('code', '==', code), where('isActive', '==', true));
       const querySnapshot = await getDocs(q);
-      
+      console.log('Validating coupon:', code);
+console.log('Query snapshot empty:', querySnapshot.empty);
       if (querySnapshot.empty) {
+       
         return { valid: false };
       }
       
       const couponData = { id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() };
       
+      // Email check: agar email diya hai aur usedEmails me hai, toh invalid
+      if (email && couponData.usedEmails && couponData.usedEmails.includes(email)) {
+        return { valid: false, reason: 'already-used', message: 'Coupon already used by this email.' };
+      }
       // Check if coupon is assigned to specific users
       if (couponData.assignedUsers && couponData.assignedUsers.length > 0) {
-        // This will be checked in the component against the current user
         return { 
           valid: true, 
           discountPercentage: couponData.discountPercentage,
@@ -478,7 +485,7 @@ import {
     }
   };
 
-  export const updateCouponStats = async (couponCode, bookingAmount, discountAmount) => {
+  export const updateCouponStats = async (couponCode, bookingAmount, discountAmount, userEmail) => {
     try {
       const couponsRef = collection(db, 'coupons');
       const q = query(couponsRef, where('code', '==', couponCode));
@@ -490,7 +497,8 @@ import {
           totalUsed: increment(1),
           totalDiscountGiven: increment(discountAmount),
           totalRevenueGenerated: increment(bookingAmount),
-          updatedAt: serverTimestamp()
+          updatedAt: serverTimestamp(),
+          usedEmails: arrayUnion(userEmail)
         });
       }
     } catch (error) {
