@@ -11,7 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { doc, updateDoc, arrayUnion, Timestamp, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import emailjs from 'emailjs-com';
-import { createBooking, validateReferralCode, updateReferralStats, validateCode, updateCouponStats } from '../utils/firestoreUtils';
+import { createBooking, validateReferralCode, updateReferralStats, validateCouponCode, updateCouponStats } from '../utils/firestoreUtils';
 
 // EmailJS configuration from environment variables
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
@@ -185,27 +185,39 @@ const BookingForm = () => {
 
   const handleCodeValidation = async () => {
     if (!formData.referralCode) return;
-    
+
     setIsValidatingCode(true);
     setCodeError('');
     try {
-      const result = await validateCode(formData.referralCode);
-      
-      if (result.valid) {
-        // For coupon codes that are assigned to specific users
-        if (result.isCoupon && result.assignedUsers) {
-          // Check if current user is in the assigned users list
-          if (!result.assignedUsers.includes(currentUser.uid)) {
+      // Try coupon code validation first
+      const couponResult = await validateCouponCode(formData.referralCode, formData.email);
+
+      if (couponResult.valid) {
+        if (couponResult.isCoupon && couponResult.assignedUsers) {
+          if (!couponResult.assignedUsers.includes(currentUser.uid)) {
             setDiscountApplied(0);
             setCodeError('This coupon code is not valid for your account');
             setValidatedCodeData(null);
             return;
           }
         }
-        
-        setDiscountApplied(result.discountPercentage);
-        setValidatedCodeData(result);
-        toast.success(`${result.discountPercentage}% discount applied!`);
+        setDiscountApplied(couponResult.discountPercentage);
+        setValidatedCodeData(couponResult);
+        toast.success(`${couponResult.discountPercentage}% discount applied!`);
+        return;
+      } else if (couponResult.reason === 'already-used') {
+        setDiscountApplied(0);
+        setCodeError('You have already used this coupon code');
+        setValidatedCodeData(null);
+        return;
+      }
+
+      // If not a valid coupon, try referral code validation
+      const referralResult = await validateReferralCode(formData.referralCode, formData.email);
+      if (referralResult.valid) {
+        setDiscountApplied(referralResult.discountPercentage);
+        setValidatedCodeData(referralResult);
+        toast.success(`${referralResult.discountPercentage}% discount applied!`);
       } else {
         setDiscountApplied(0);
         setCodeError('Invalid code - please enter a valid referral or coupon code');
@@ -280,7 +292,7 @@ const BookingForm = () => {
           const discountAmount = puja.price - finalPrice;
           
           if (validatedCodeData.isCoupon) {
-            await updateCouponStats(formData.referralCode, finalPrice, discountAmount);
+            await updateCouponStats(formData.referralCode, finalPrice, discountAmount, formData.email);
           } else {
             await updateReferralStats(formData.referralCode, finalPrice, discountAmount);
           }
