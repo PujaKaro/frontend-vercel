@@ -427,1218 +427,1147 @@ export const products = [
         'Evening (4 PM - 6 PM)'
       ]
     },
-    {
-      id: 11,
-      name: '1.	Akhand Ramayan Path',
-      image: '/images/featuredPuja.jpg',
-      duration: '1 hour',
-      price: 2500,
-      rating: 4.9,
-      reviews: 152,
-      category: 'consultation',
-      occasions: ['career-guidance', 'marriage', 'health', 'spiritual-growth'],
-      description: 'Receive personalized astrological guidance based on your birth chart from our experienced Vedic astrologers. Understand planetary influences and receive remedies for harmonizing cosmic energies.',
-      longDescription: 'Our Astrological Consultation service provides in-depth analysis of your birth chart (Janam Kundali) by our team of experienced Vedic astrologers. Each consultation is personalized to address your specific concerns and provide guidance for various aspects of life including career, relationships, health, and spiritual growth.\n\nDuring the consultation, our astrologers will analyze the position of all nine planets (Navagraha) at the time of your birth and explain how these cosmic energies influence different aspects of your life. You will receive insights about your strengths, challenges, and potential opportunities based on planetary positions.\n\nThe session also includes personalized remedial measures such as gemstone recommendations, mantras, and specific rituals that can help you harmonize challenging planetary influences and enhance positive ones. Our astrologers combine traditional Vedic knowledge with practical modern advice to provide guidance that is both spiritually grounded and applicable to contemporary life.\n\nThis service is ideal for those seeking clarity during important life transitions, making major decisions, or simply wanting to gain deeper self-awareness through the ancient wisdom of Vedic astrology.',
-      requirements: [
-        'Your exact date, time, and place of birth (if available)',
-        'List of specific questions or concerns you wish to address',
-        'Details of any previous astrological consultations or remedies performed'
-      ],
-      pandits: [1, 3, 4],
-      availableTimeSlots: [
-        'Early Morning (4 AM - 6 AM)',
-        'Morning (6 AM - 8 AM)',
-        'Late Morning (8 AM - 10 AM)',
-        'Late Morning (10 AM - 12 PM)',
-        'Afternoon (12 PM - 2 PM)',
-        'Afternoon (2 PM - 4 PM)',
-        'Evening (4 PM - 6 PM)'
-      ]
-    },
-    {
-      id: 12,
-      name: 'Bhumi Pujan',
-      image: '/images/satyanarayan.jpg',
-      duration: '3 hours',
-      price: 5100,
-      rating: 4.8,
-      reviews: 126,
-      category: 'traditional',
-      occasions: ['house-warming', 'new-venture'],
-      description: 'Dedicated to Vastu Purusha, Mother Bhoomi & Pancha Bootha. Remove negative impact & Vastu dosha from site. Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.',
-      longDescription: `Before building on a piece of land or working the land, Bhoomi Puja is done. Bhoomi, which means Earth, is seen as the Mother of everything. By doing this puja, we are asking for permission to do what we want to do and asking for forgiveness for upsetting Mother Earth's balance and equilibrium. During the Puja, we chant special Vedic sutras and hymns to make peace with the different energies in the space and to keep away any bad energies. Bhoomi Puja is done to give the building good luck and fortune. It is done to ask God for his blessings so that the building can be finished without any problems or surprises. Also to ask Mother Earth for forgiveness for messing up the natural habitat. Goddess Bhoomi and the god of architecture, Vastu Purush, are the recipients of worship during a ceremony of bhoomi pooja.,
+  {
+    id: 13, // Use the next available unique ID
+    name: 'Akhand Ramayan Path',
+    image: '/images/satyanarayan.jpg', // Update with your image path
+    duration: '24 hours',
+    price: 7100,
+    rating: 4.9,
+    reviews: 80,
+    category: 'path',
+    occasions: ['spiritual', 'remedy'],
+    description: "Recital of 'Shri Ramcharitmanas'. Honor Rama as a symbol of wisdom, moral behavior, and admirable qualities.",
+    longDescription: ` The Akhand Ramayan Path involves reciting the entire Shri Ram Charitra Manas continuously for a full day. The readings are not interspersed. Seven kaands—Baalkand, Ayodhyakand, Aranyakand, Kishkindhakand, Sundarkand, Lankakand, and Uttarkand—are covered throughout the entire text. The various lives and actions of Lord Shree Ram are detailed in each of the kaands.
+  By following this path, you can overcome obstacles in your life and attract good fortune. The main panditji leads this route, starting with the Gauri Ganesh Kalash Puja. While a group of pandits play kirtans and bhajans on the Dholak, Manjeera, and other instruments in worship of the Lord Shri Ram, he reads the route.
+  Get the best deal on all puja and havan samagri materials when you book a pandit online with PujaKaro.in. Get spiritual and ritual divinity without any hassles.
+  Puja Vidhi:
+  • Shuddhikaran
+  • Swastivachan
+  • Sankalp
+  • Kalash Puja & Sacred Element Worship
+  • Gauri Ganesh Puja
+  • Shodash Matrika, Saptghrit Matrika, Navgrah, Panch Lokpal, Dash Dikpal & Chausath Yogini Pujan
+  • Mukhya Puja Vidhi
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
+  Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`
+  ,
+    requirements: [
+      'All Puja Samagri & Havan Samagri included as per tradition (see details in description)',
+      'Clean site for puja setup',
+      'Access to water and basic utilities'
+    ],
+    pandits: [1, 2, 3],
+    availableTimeSlots: [
+      'Early Morning (4 AM - 6 AM)',
+      'Morning (6 AM - 8 AM)',
+      'Late Morning (8 AM - 10 AM)',
+      'Late Morning (10 AM - 12 PM)',
+      'Afternoon (12 PM - 2 PM)',
+      'Afternoon (2 PM - 4 PM)',
+      'Evening (4 PM - 6 PM)'
+    ]
+  },{
+    id: 13,
+    name: 'Akhand Ramayan Path',
+    image: '/images/satyanarayan.jpg',
+    duration: '24 hours',
+    price: 7100,
+    rating: 4.9,
+    reviews: 80,
+    category: 'path',
+    occasions: ['spiritual', 'remedy'],
+    description: "Recital of 'Shri Ramcharitmanas' [without break]. Honor Rama as a symbol of wisdom, moral behavior, and admirable qualities.",
+    longDescription: `Description: The Akhand Ramayan Path involves reciting the entire Shri Ram Charitra Manas continuously for a full day. The readings are not interspersed. Seven kaands—Baalkand, Ayodhyakand, Aranyakand, Kishkindhakand, Sundarkand, Lankakand, and Uttarkand—are covered throughout the entire text.
+  By following this path, you can overcome obstacles in your life and attract good fortune. The main panditji leads this route, starting with the Gauri Ganesh Kalash Puja. While a group of pandits play kirtans and bhajans on the Dholak, Manjeera, and other instruments in worship of the Lord Shri Ram, he reads the route.
+  Puja Vidhi:
+  • Shuddhikaran
+  • Swastivachan
+  • Sankalp
+  • Kalash Puja & Sacred Element Worship
+  • Gauri Ganesh Puja
+  • Shodash Matrika, Saptghrit Matrika, Navgrah, Panch Lokpal, Dash Dikpal & Chausath Yogini Pujan
+  • Mukhya Puja Vidhi
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
+  Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+    requirements: [
+      'All Puja Samagri & Havan Samagri included as per tradition',
+      'Clean site for puja setup',
+      'Access to water and basic utilities'
+    ],
+    pandits: [1, 2, 3],
+    availableTimeSlots: [
+      'Early Morning (4 AM - 6 AM)',
+      'Morning (6 AM - 8 AM)',
+      'Late Morning (8 AM - 10 AM)',
+      'Late Morning (10 AM - 12 PM)',
+      'Afternoon (12 PM - 2 PM)',
+      'Afternoon (2 PM - 4 PM)',
+      'Evening (4 PM - 6 PM)'
+    ]
+  },
+  {
+    id: 14,
+    name: 'Akshara Abhyasam',
+    image: '/images/satyanarayan.jpg',
+    duration: '2 hours',
+    price: 4100,
+    rating: 4.8,
+    reviews: 60,
+    category: 'sanskar',
+    occasions: ['education', 'child'],
+    description: "A Hindu ceremony marking a child's official start of schooling. Seeks blessings of Ganesha and Saraswati for wisdom.",
+    longDescription: `Description: Akshara Abhyasam, also known as Vidyarambham or Aksharabhyas, signifies a child's official start of schooling. It is important in Hindu tradition as it marks the beginning of a lifetime of study and wisdom, aiming to obtain the blessings of Ganesha (the Remover of Obstacles) and Saraswati (the Goddess of Knowledge).
+  Puja Vidhi:
+  • The priest or elder holds the child’s hand and helps them write the first letters: OM, Aa, Hare Rama Hare Krishna, Om Namah Sivay
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Gauri Ganesh Puja
+  • Punyaha Vachnam
+  • Maha Sankalpam
+  • Kalash & Navgrah Puja
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
+  Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+    requirements: [
+      'Child (age 2-5) and parents present',
+      'All Puja Samagri & Havan Samagri included',
+      'Clean site for puja setup'
+    ],
+    pandits: [1, 3],
+    availableTimeSlots: [
+      'Morning (6 AM - 8 AM)',
+      'Late Morning (8 AM - 10 AM)',
+      'Late Morning (10 AM - 12 PM)',
+      'Afternoon (12 PM - 2 PM)'
+    ]
+  },
+  {
+    id: 15,
+    name: 'Akshay Tritiya Puja',
+    image: '/images/satyanarayan.jpg',
+    duration: '2 hours',
+    price: 4100,
+    rating: 4.7,
+    reviews: 55,
+    category: 'festival',
+    occasions: ['new-beginnings', 'prosperity'],
+    description: "Highly auspicious day for new beginnings. Prayers to Lord Vishnu, Ganesha, and Lakshmi.",
+    longDescription: `Akshay Tritiya is considered a highly auspicious day for new beginnings and is particularly important in Hindu tradition. The day is celebrated with specific rituals, including prayers to Lord Vishnu, Lord Ganesha, and Goddess Lakshmi, along with the worship of the Kalash (sacred water pot).
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Laxmi Narayana Puja
+  • Punyaha Vachnam
+  • Maha Sankalpam
+  • Ganapati Puja
+  • Kalash & Navgrah Puja
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
+  Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+    requirements: [
+      'All Puja Samagri & Havan Samagri included',
+      'Clean site for puja setup'
+    ],
+    pandits: [2, 3],
+    availableTimeSlots: [
+      'Morning (6 AM - 8 AM)',
+      'Late Morning (8 AM - 10 AM)',
+      'Late Morning (10 AM - 12 PM)',
+      'Afternoon (12 PM - 2 PM)'
+    ]
+  },
+  {
+    id: 17,
+    name: 'Anniversary Puja',
+    image: '/images/satyanarayan.jpg',
+    duration: '2 hours',
+    price: 5100,
+    rating: 4.9,
+    reviews: 70,
+    category: 'special',
+    occasions: ['marriage', 'anniversary'],
+    description: "Obtain blessings of Maa Parvati & Shiva for a happy married life. Rekindle love and harmony.",
+    longDescription: ` A wedding anniversary puja is performed by couples on their anniversary, honoring Lord Shiva and Goddess Parvati. This puja ensures a tranquil and successful married life, rekindling love between life partners and saving shattered marriages.
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Agni Pratishtha
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
+  Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+    requirements: [
+      'Couple present',
+      'All Puja Samagri & Havan Samagri included',
+      'Clean site for puja setup'
+    ],
+    pandits: [1, 3],
+    availableTimeSlots: [
+      'Morning (6 AM - 8 AM)',
+      'Late Morning (8 AM - 10 AM)',
+      'Late Morning (10 AM - 12 PM)',
+      'Afternoon (12 PM - 2 PM)'
+    ]
+  },
+  {
+    id: 18,
+    name: 'Ark Vivah (for Male: Manglik)',
+    image: '/images/satyanarayan.jpg',
+    duration: '2.5 hours',
+    price: 6100,
+    rating: 4.8,
+    reviews: 45,
+    category: 'astrological',
+    occasions: ['manglik-dosh', 'remedy'],
+    description: "Ark Vivah assists a male in getting rid of Manglik dosha in his horoscope.",
+    longDescription: ` Ark Vivah assists a male in getting rid of Manglik dosha in his horoscope. Mangal Graha is the most malefic planet for marriage, and its presence in specific houses causes Mangalik dosh. PujaKaro.in Pandit Ji does the Gouri Gomesh Kalash Navgraha puja, followed by chanting the Vishnu and Mangal Jaaps. A havan is conducted, followed by Vivah in accordance with the Shastras using the Ark plant.
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Sarvatobhadra Puja
+  • Ark Vivah
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
+  Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+    requirements: [
+      'Male with Manglik dosha',
+      'All Puja Samagri & Havan Samagri included',
+      'Clean site for puja setup'
+    ],
+    pandits: [2, 4],
+    availableTimeSlots: [
+      'Morning (6 AM - 8 AM)',
+      'Late Morning (8 AM - 10 AM)',
+      'Late Morning (10 AM - 12 PM)',
+      'Afternoon (12 PM - 2 PM)'
+    ]
+  },
+  {
+    id: 19,
+    name: 'Ashta Matrika Puja',
+    image: '/images/satyanarayan.jpg',
+    duration: '2 hours',
+    price: 5100,
+    rating: 4.7,
+    reviews: 38,
+    category: 'devi',
+    occasions: ['protection', 'spiritual-growth'],
+    description: "Invokes eight powerful forms of the Divine Mother for protection, strength, and energy purification.",
+    longDescription: `Ashta Matrika Puja holds great spiritual importance as it invokes eight powerful forms of the Divine Mother for protection, strength, and energy purification. These goddesses represent different aspects of Shakti and help destroy negative forces, boost inner power, and ensure peace, prosperity, and spiritual growth.
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Mahavidya Mantra Pujan Havan
+  • Aarti & Prasad Vitaran
+  Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+    requirements: [
+      'All Puja Samagri & Havan Samagri included',
+      'Clean site for puja setup'
+    ],
+    pandits: [1, 4],
+    availableTimeSlots: [
+      'Morning (6 AM - 8 AM)',
+      'Late Morning (8 AM - 10 AM)',
+      'Late Morning (10 AM - 12 PM)',
+      'Afternoon (12 PM - 2 PM)'
+    ]
+  },
+  {
+    id: 20,
+    name: 'Ayush Havan',
+    image: '/images/ayush-havan.jpg',
+    duration: '2 hours',
+    price: 5100,
+    rating: 4.8,
+    reviews: 44,
+    category: 'health',
+    occasions: ['health', 'longevity'],
+    description: "Lord Ayur Devata [incarnation of Lord Vishnu] divine physician for all the three worlds. For long, healthy life.",
+    longDescription: `The main goal of the Ayush Havan is to make people live longer by making their various health problems less severe. The primary objective is to win the favour of Ayur Devata, often known as the God of life. Everyone can increase their chances of living a long and healthy life if they participate in this havan.
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Ayur Devta Puja
+  • Chants of Sri Sukta (*21)
+  • Ayur Devta Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
+  Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+    requirements: [
+      'All Puja Samagri & Havan Samagri included',
+      'Clean site for puja setup'
+    ],
+    pandits: [2, 3],
+    availableTimeSlots: [
+      'Morning (6 AM - 8 AM)',
+      'Late Morning (8 AM - 10 AM)',
+      'Late Morning (10 AM - 12 PM)',
+      'Afternoon (12 PM - 2 PM)'
+    ]
+  },
+  {
+    id: 20,
+    name: 'Diwali Laxmi Puja',
+    image: '/images/satyanarayan.jpg',
+    duration: '2 hours',
+    price: 5100,
+    rating: 4.9,
+    reviews: 120,
+    category: 'festival',
+    occasions: ['diwali', 'prosperity'],
+    description: "Symbolic victory of good over evil and knowledge over ignorance. Invite prosperity, wealth, health and abundance.",
+    longDescription: `Maya is the goddess Lakshmi. She never stays in one place for long. Because of this, Goddess Lakshmi is also known by the name Chanchala. This means that we move very quickly from one place to another without realising it. It's hard to get her permission and keep her in our house for a long time.
+  The day of Laxmi Puja is the dark night of Amavasya. Even though it's dark at night, people make it brighter by lighting a lot of candles. They also give Goddess Laxmi a big diya with lights in all four directions so that their lives will be full of light from all directions.
+  During Diwali, the Goddess Mahalakshmi goes to every home to bring luck, wealth, and other blessings. When you celebrate Diwali Lakshmi puja, you can get Goddess Lakshmi's blessings and bring wealth, health, and plenty into your home. Also, if you worship Lakshmi, you can reach your real goals in life. Because she is the thing that helps you get where you want to go.
+  Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
 
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam 
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Bhumi & Vastu Dosh Puja
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Laxmi Puja
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
 
-Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
 
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-      requirements: [
-        'All Puja Samagri & Havan Samagri included as per tradition (see details in description)',
-        'Clean site for puja setup',
-        'Access to water and basic utilities'
-      ],
-      pandits: [1, 2, 3],
-      availableTimeSlots: [
-        'Early Morning (4 AM - 6 AM)',
-        'Morning (6 AM - 8 AM)',
-        'Late Morning (8 AM - 10 AM)',
-        'Late Morning (10 AM - 12 PM)',
-        'Afternoon (12 PM - 2 PM)',
-        'Afternoon (2 PM - 4 PM)',
-        'Evening (4 PM - 6 PM)'
-      ]
-    },
-{
-  id: 13, // Use the next available unique ID
-  name: 'Akhand Ramayan Path',
-  image: '/images/satyanarayan.jpg', // Update with your image path
-  duration: '24 hours',
-  price: 7100,
-  rating: 4.9,
-  reviews: 80,
-  category: 'path',
-  occasions: ['spiritual', 'remedy'],
-  description: "Recital of 'Shri Ramcharitmanas'. Honor Rama as a symbol of wisdom, moral behavior, and admirable qualities.",
-  longDescription: ` The Akhand Ramayan Path involves reciting the entire Shri Ram Charitra Manas continuously for a full day. The readings are not interspersed. Seven kaands—Baalkand, Ayodhyakand, Aranyakand, Kishkindhakand, Sundarkand, Lankakand, and Uttarkand—are covered throughout the entire text. The various lives and actions of Lord Shree Ram are detailed in each of the kaands.
-By following this path, you can overcome obstacles in your life and attract good fortune. The main panditji leads this route, starting with the Gauri Ganesh Kalash Puja. While a group of pandits play kirtans and bhajans on the Dholak, Manjeera, and other instruments in worship of the Lord Shri Ram, he reads the route.
-Get the best deal on all puja and havan samagri materials when you book a pandit online with PujaKaro.in. Get spiritual and ritual divinity without any hassles.
-Puja Vidhi:
-• Shuddhikaran
-• Swastivachan
-• Sankalp
-• Kalash Puja & Sacred Element Worship
-• Gauri Ganesh Puja
-• Shodash Matrika, Saptghrit Matrika, Navgrah, Panch Lokpal, Dash Dikpal & Chausath Yogini Pujan
-• Mukhya Puja Vidhi
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
-Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`
-,
-  requirements: [
-    'All Puja Samagri & Havan Samagri included as per tradition (see details in description)',
-    'Clean site for puja setup',
-    'Access to water and basic utilities'
-  ],
-  pandits: [1, 2, 3],
-  availableTimeSlots: [
-    'Early Morning (4 AM - 6 AM)',
-    'Morning (6 AM - 8 AM)',
-    'Late Morning (8 AM - 10 AM)',
-    'Late Morning (10 AM - 12 PM)',
-    'Afternoon (12 PM - 2 PM)',
-    'Afternoon (2 PM - 4 PM)',
-    'Evening (4 PM - 6 PM)'
-  ]
-},{
-  id: 13,
-  name: 'Akhand Ramayan Path',
-  image: '/images/satyanarayan.jpg',
-  duration: '24 hours',
-  price: 7100,
-  rating: 4.9,
-  reviews: 80,
-  category: 'path',
-  occasions: ['spiritual', 'remedy'],
-  description: "Recital of 'Shri Ramcharitmanas' [without break]. Honor Rama as a symbol of wisdom, moral behavior, and admirable qualities.",
-  longDescription: `Description: The Akhand Ramayan Path involves reciting the entire Shri Ram Charitra Manas continuously for a full day. The readings are not interspersed. Seven kaands—Baalkand, Ayodhyakand, Aranyakand, Kishkindhakand, Sundarkand, Lankakand, and Uttarkand—are covered throughout the entire text.
-By following this path, you can overcome obstacles in your life and attract good fortune. The main panditji leads this route, starting with the Gauri Ganesh Kalash Puja. While a group of pandits play kirtans and bhajans on the Dholak, Manjeera, and other instruments in worship of the Lord Shri Ram, he reads the route.
-Puja Vidhi:
-• Shuddhikaran
-• Swastivachan
-• Sankalp
-• Kalash Puja & Sacred Element Worship
-• Gauri Ganesh Puja
-• Shodash Matrika, Saptghrit Matrika, Navgrah, Panch Lokpal, Dash Dikpal & Chausath Yogini Pujan
-• Mukhya Puja Vidhi
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
-Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-  requirements: [
-    'All Puja Samagri & Havan Samagri included as per tradition',
-    'Clean site for puja setup',
-    'Access to water and basic utilities'
-  ],
-  pandits: [1, 2, 3],
-  availableTimeSlots: [
-    'Early Morning (4 AM - 6 AM)',
-    'Morning (6 AM - 8 AM)',
-    'Late Morning (8 AM - 10 AM)',
-    'Late Morning (10 AM - 12 PM)',
-    'Afternoon (12 PM - 2 PM)',
-    'Afternoon (2 PM - 4 PM)',
-    'Evening (4 PM - 6 PM)'
-  ]
-},
-{
-  id: 14,
-  name: 'Akshara Abhyasam',
-  image: '/images/satyanarayan.jpg',
-  duration: '2 hours',
-  price: 4100,
-  rating: 4.8,
-  reviews: 60,
-  category: 'sanskar',
-  occasions: ['education', 'child'],
-  description: "A Hindu ceremony marking a child's official start of schooling. Seeks blessings of Ganesha and Saraswati for wisdom.",
-  longDescription: `Description: Akshara Abhyasam, also known as Vidyarambham or Aksharabhyas, signifies a child's official start of schooling. It is important in Hindu tradition as it marks the beginning of a lifetime of study and wisdom, aiming to obtain the blessings of Ganesha (the Remover of Obstacles) and Saraswati (the Goddess of Knowledge).
-Puja Vidhi:
-• The priest or elder holds the child’s hand and helps them write the first letters: OM, Aa, Hare Rama Hare Krishna, Om Namah Sivay
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Gauri Ganesh Puja
-• Punyaha Vachnam
-• Maha Sankalpam
-• Kalash & Navgrah Puja
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
-Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-  requirements: [
-    'Child (age 2-5) and parents present',
-    'All Puja Samagri & Havan Samagri included',
-    'Clean site for puja setup'
-  ],
-  pandits: [1, 3],
-  availableTimeSlots: [
-    'Morning (6 AM - 8 AM)',
-    'Late Morning (8 AM - 10 AM)',
-    'Late Morning (10 AM - 12 PM)',
-    'Afternoon (12 PM - 2 PM)'
-  ]
-},
-{
-  id: 15,
-  name: 'Akshay Tritiya Puja',
-  image: '/images/satyanarayan.jpg',
-  duration: '2 hours',
-  price: 4100,
-  rating: 4.7,
-  reviews: 55,
-  category: 'festival',
-  occasions: ['new-beginnings', 'prosperity'],
-  description: "Highly auspicious day for new beginnings. Prayers to Lord Vishnu, Ganesha, and Lakshmi.",
-  longDescription: `Akshay Tritiya is considered a highly auspicious day for new beginnings and is particularly important in Hindu tradition. The day is celebrated with specific rituals, including prayers to Lord Vishnu, Lord Ganesha, and Goddess Lakshmi, along with the worship of the Kalash (sacred water pot).
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Laxmi Narayana Puja
-• Punyaha Vachnam
-• Maha Sankalpam
-• Ganapati Puja
-• Kalash & Navgrah Puja
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
-Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-  requirements: [
-    'All Puja Samagri & Havan Samagri included',
-    'Clean site for puja setup'
-  ],
-  pandits: [2, 3],
-  availableTimeSlots: [
-    'Morning (6 AM - 8 AM)',
-    'Late Morning (8 AM - 10 AM)',
-    'Late Morning (10 AM - 12 PM)',
-    'Afternoon (12 PM - 2 PM)'
-  ]
-},
-{
-  id: 17,
-  name: 'Anniversary Puja',
-  image: '/images/satyanarayan.jpg',
-  duration: '2 hours',
-  price: 5100,
-  rating: 4.9,
-  reviews: 70,
-  category: 'special',
-  occasions: ['marriage', 'anniversary'],
-  description: "Obtain blessings of Maa Parvati & Shiva for a happy married life. Rekindle love and harmony.",
-  longDescription: ` A wedding anniversary puja is performed by couples on their anniversary, honoring Lord Shiva and Goddess Parvati. This puja ensures a tranquil and successful married life, rekindling love between life partners and saving shattered marriages.
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Agni Pratishtha
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
-Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-  requirements: [
-    'Couple present',
-    'All Puja Samagri & Havan Samagri included',
-    'Clean site for puja setup'
-  ],
-  pandits: [1, 3],
-  availableTimeSlots: [
-    'Morning (6 AM - 8 AM)',
-    'Late Morning (8 AM - 10 AM)',
-    'Late Morning (10 AM - 12 PM)',
-    'Afternoon (12 PM - 2 PM)'
-  ]
-},
-{
-  id: 18,
-  name: 'Ark Vivah (for Male: Manglik)',
-  image: '/images/satyanarayan.jpg',
-  duration: '2.5 hours',
-  price: 6100,
-  rating: 4.8,
-  reviews: 45,
-  category: 'astrological',
-  occasions: ['manglik-dosh', 'remedy'],
-  description: "Ark Vivah assists a male in getting rid of Manglik dosha in his horoscope.",
-  longDescription: ` Ark Vivah assists a male in getting rid of Manglik dosha in his horoscope. Mangal Graha is the most malefic planet for marriage, and its presence in specific houses causes Mangalik dosh. PujaKaro.in Pandit Ji does the Gouri Gomesh Kalash Navgraha puja, followed by chanting the Vishnu and Mangal Jaaps. A havan is conducted, followed by Vivah in accordance with the Shastras using the Ark plant.
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Sarvatobhadra Puja
-• Ark Vivah
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
-Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-  requirements: [
-    'Male with Manglik dosha',
-    'All Puja Samagri & Havan Samagri included',
-    'Clean site for puja setup'
-  ],
-  pandits: [2, 4],
-  availableTimeSlots: [
-    'Morning (6 AM - 8 AM)',
-    'Late Morning (8 AM - 10 AM)',
-    'Late Morning (10 AM - 12 PM)',
-    'Afternoon (12 PM - 2 PM)'
-  ]
-},
-{
-  id: 19,
-  name: 'Ashta Matrika Puja',
-  image: '/images/satyanarayan.jpg',
-  duration: '2 hours',
-  price: 5100,
-  rating: 4.7,
-  reviews: 38,
-  category: 'devi',
-  occasions: ['protection', 'spiritual-growth'],
-  description: "Invokes eight powerful forms of the Divine Mother for protection, strength, and energy purification.",
-  longDescription: `Ashta Matrika Puja holds great spiritual importance as it invokes eight powerful forms of the Divine Mother for protection, strength, and energy purification. These goddesses represent different aspects of Shakti and help destroy negative forces, boost inner power, and ensure peace, prosperity, and spiritual growth.
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Mahavidya Mantra Pujan Havan
-• Aarti & Prasad Vitaran
-Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-  requirements: [
-    'All Puja Samagri & Havan Samagri included',
-    'Clean site for puja setup'
-  ],
-  pandits: [1, 4],
-  availableTimeSlots: [
-    'Morning (6 AM - 8 AM)',
-    'Late Morning (8 AM - 10 AM)',
-    'Late Morning (10 AM - 12 PM)',
-    'Afternoon (12 PM - 2 PM)'
-  ]
-},
-{
-  id: 20,
-  name: 'Ayush Havan',
-  image: '/images/ayush-havan.jpg',
-  duration: '2 hours',
-  price: 5100,
-  rating: 4.8,
-  reviews: 44,
-  category: 'health',
-  occasions: ['health', 'longevity'],
-  description: "Lord Ayur Devata [incarnation of Lord Vishnu] divine physician for all the three worlds. For long, healthy life.",
-  longDescription: `The main goal of the Ayush Havan is to make people live longer by making their various health problems less severe. The primary objective is to win the favour of Ayur Devata, often known as the God of life. Everyone can increase their chances of living a long and healthy life if they participate in this havan.
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Ayur Devta Puja
-• Chants of Sri Sukta (*21)
-• Ayur Devta Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
-Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-  requirements: [
-    'All Puja Samagri & Havan Samagri included',
-    'Clean site for puja setup'
-  ],
-  pandits: [2, 3],
-  availableTimeSlots: [
-    'Morning (6 AM - 8 AM)',
-    'Late Morning (8 AM - 10 AM)',
-    'Late Morning (10 AM - 12 PM)',
-    'Afternoon (12 PM - 2 PM)'
-  ]
-},
-{
-  id: 20,
-  name: 'Diwali Laxmi Puja',
-  image: '/images/satyanarayan.jpg',
-  duration: '2 hours',
-  price: 5100,
-  rating: 4.9,
-  reviews: 120,
-  category: 'festival',
-  occasions: ['diwali', 'prosperity'],
-  description: "Symbolic victory of good over evil and knowledge over ignorance. Invite prosperity, wealth, health and abundance.",
-  longDescription: `Maya is the goddess Lakshmi. She never stays in one place for long. Because of this, Goddess Lakshmi is also known by the name Chanchala. This means that we move very quickly from one place to another without realising it. It's hard to get her permission and keep her in our house for a long time.
-The day of Laxmi Puja is the dark night of Amavasya. Even though it's dark at night, people make it brighter by lighting a lot of candles. They also give Goddess Laxmi a big diya with lights in all four directions so that their lives will be full of light from all directions.
-During Diwali, the Goddess Mahalakshmi goes to every home to bring luck, wealth, and other blessings. When you celebrate Diwali Lakshmi puja, you can get Goddess Lakshmi's blessings and bring wealth, health, and plenty into your home. Also, if you worship Lakshmi, you can reach your real goals in life. Because she is the thing that helps you get where you want to go.
-Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+    requirements: [
+      'All Puja Samagri & Havan Samagri included',
+      'Clean site for puja setup'
+    ],
+    pandits: [1, 2, 3],
+    availableTimeSlots: [
+      'Morning (6 AM - 8 AM)',
+      'Late Morning (8 AM - 10 AM)',
+      'Late Morning (10 AM - 12 PM)',
+      'Afternoon (12 PM - 2 PM)'
+    ]
+  },
 
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Laxmi Puja
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
+      {
+        id: 20,
+        name: 'Diwali Laxmi Puja',
+        image: '/images/satyanarayan.jpg',
+        duration: '2 hours',
+        price: 5100,
+        rating: 4.9,
+        reviews: 120,
+        category: 'festival',
+        occasions: ['diwali', 'prosperity'],
+        description: "Symbolic victory of good over evil and knowledge over ignorance. Invite prosperity, wealth, health and abundance.",
+        longDescription: `Description: Maya is the goddess Lakshmi. She never stays in one place for long. Because of this, Goddess Lakshmi is also known by the name Chanchala. This means that we move very quickly from one place to another without realising it. It's hard to get her permission and keep her in our house for a long time.
+  The day of Laxmi Puja is the dark night of Amavasya. Even though it's dark at night, people make it brighter by lighting a lot of candles. They also give Goddess Laxmi a big diya with lights in all four directions so that their lives will be full of light from all directions.
+  During Diwali, the Goddess Mahalakshmi goes to every home to bring luck, wealth, and other blessings. When you celebrate Diwali Lakshmi puja, you can get Goddess Lakshmi's blessings and bring wealth, health, and plenty into your home. Also, if you worship Lakshmi, you can reach your real goals in life. Because she is the thing that helps you get where you want to go.
+  Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
 
-Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Laxmi Puja
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
 
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-  requirements: [
-    'All Puja Samagri & Havan Samagri included',
-    'Clean site for puja setup'
-  ],
-  pandits: [1, 2, 3],
-  availableTimeSlots: [
-    'Morning (6 AM - 8 AM)',
-    'Late Morning (8 AM - 10 AM)',
-    'Late Morning (10 AM - 12 PM)',
-    'Afternoon (12 PM - 2 PM)'
-  ]
-},
+  Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
 
-     {
-      id: 20,
-      name: 'Diwali Laxmi Puja',
-      image: '/images/satyanarayan.jpg',
-      duration: '2 hours',
-      price: 5100,
-      rating: 4.9,
-      reviews: 120,
-      category: 'festival',
-      occasions: ['diwali', 'prosperity'],
-      description: "Symbolic victory of good over evil and knowledge over ignorance. Invite prosperity, wealth, health and abundance.",
-      longDescription: `Description: Maya is the goddess Lakshmi. She never stays in one place for long. Because of this, Goddess Lakshmi is also known by the name Chanchala. This means that we move very quickly from one place to another without realising it. It's hard to get her permission and keep her in our house for a long time.
-The day of Laxmi Puja is the dark night of Amavasya. Even though it's dark at night, people make it brighter by lighting a lot of candles. They also give Goddess Laxmi a big diya with lights in all four directions so that their lives will be full of light from all directions.
-During Diwali, the Goddess Mahalakshmi goes to every home to bring luck, wealth, and other blessings. When you celebrate Diwali Lakshmi puja, you can get Goddess Lakshmi's blessings and bring wealth, health, and plenty into your home. Also, if you worship Lakshmi, you can reach your real goals in life. Because she is the thing that helps you get where you want to go.
-Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+        requirements: [
+          'All Puja Samagri & Havan Samagri included',
+          'Clean site for puja setup'
+        ],
+        pandits: [1, 2, 3],
+        availableTimeSlots: [
+          'Morning (6 AM - 8 AM)',
+          'Late Morning (8 AM - 10 AM)',
+          'Late Morning (10 AM - 12 PM)',
+          'Afternoon (12 PM - 2 PM)'
+        ]
+      },
+      {
+        id: 21,
+        name: 'Durga Abhishekam',
+        image: '/images/satyanarayan.jpg',
+        duration: '2 hours',
+        price: 5100,
+        rating: 4.8,
+        reviews: 95,
+        category: 'devi',
+        occasions: ['durga', 'spiritual-growth'],
+        description: "Ceremonial bathing (Abhishekam) of Maa Durga's idol or Yantra with various holy substances, each holding spiritual significance.",
+        longDescription: `Description: It involves the ceremonial bathing (Abhishekam) of Maa Durga's idol or Yantra with various holy substances, each holding spiritual significance. Ganga Jal purifies the idol and environment. Panchamrit (mixture of 5 sacred liquids): Cow's Milk - Purity and nourishment, Curd - Prosperity and bliss, Honey - Sweetness in life, Sugar - Happiness and harmony, Ghee - Spiritual enlightenment, Coconut Water - Prosperity and well-being, Rose Water - Enhances divine aura, Saffron Water (Kesar Jala) - Royal blessings, Turmeric Water (Haldi Jala) - Health and protection, Kumkum Water (Sindoor Jala) - Goddess's grace, Sandalwood Paste (Chandan Jala) - Peace and divine energy, Holy Ash (Bhasma) - Protection from negative energies, Sugarcane Juice - Attracts wealth and success, Fruit Juices (Mango, Pomegranate, etc.) - Fulfillment of desires.
+  Book Pandit ji for Durga Abhishekam at your preferred location | PujaKaro.in
 
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Laxmi Puja
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Durga Abhishekam
+  • 108 Names of Durga Maa
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
 
-Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
 
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-      requirements: [
-        'All Puja Samagri & Havan Samagri included',
-        'Clean site for puja setup'
-      ],
-      pandits: [1, 2, 3],
-      availableTimeSlots: [
-        'Morning (6 AM - 8 AM)',
-        'Late Morning (8 AM - 10 AM)',
-        'Late Morning (10 AM - 12 PM)',
-        'Afternoon (12 PM - 2 PM)'
-      ]
-    },
-    {
-      id: 21,
-      name: 'Durga Abhishekam',
-      image: '/images/satyanarayan.jpg',
-      duration: '2 hours',
-      price: 5100,
-      rating: 4.8,
-      reviews: 95,
-      category: 'devi',
-      occasions: ['durga', 'spiritual-growth'],
-      description: "Ceremonial bathing (Abhishekam) of Maa Durga's idol or Yantra with various holy substances, each holding spiritual significance.",
-      longDescription: `Description: It involves the ceremonial bathing (Abhishekam) of Maa Durga's idol or Yantra with various holy substances, each holding spiritual significance. Ganga Jal purifies the idol and environment. Panchamrit (mixture of 5 sacred liquids): Cow's Milk - Purity and nourishment, Curd - Prosperity and bliss, Honey - Sweetness in life, Sugar - Happiness and harmony, Ghee - Spiritual enlightenment, Coconut Water - Prosperity and well-being, Rose Water - Enhances divine aura, Saffron Water (Kesar Jala) - Royal blessings, Turmeric Water (Haldi Jala) - Health and protection, Kumkum Water (Sindoor Jala) - Goddess's grace, Sandalwood Paste (Chandan Jala) - Peace and divine energy, Holy Ash (Bhasma) - Protection from negative energies, Sugarcane Juice - Attracts wealth and success, Fruit Juices (Mango, Pomegranate, etc.) - Fulfillment of desires.
-Book Pandit ji for Durga Abhishekam at your preferred location | PujaKaro.in
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+        requirements: [
+          'All Puja Samagri & Havan Samagri included',
+          'Clean site for puja setup'
+        ],
+        pandits: [2, 3],
+        availableTimeSlots: [
+          'Morning (6 AM - 8 AM)',
+          'Late Morning (8 AM - 10 AM)',
+          'Late Morning (10 AM - 12 PM)',
+          'Afternoon (12 PM - 2 PM)'
+        ]
+      },
+      {
+        id: 22,
+        name: 'Durga Saptashati Path',
+        image: '/images/satyanarayan.jpg',
+        duration: '3 hours',
+        price: 6100,
+        rating: 4.9,
+        reviews: 110,
+        category: 'devi',
+        occasions: ['durga', 'spiritual-growth'],
+        description: "Path encompasses 4 facets of life: Faith (dharma), Facts (Arth), Desire (Kaam), and Freedom from rebirth (Moksha).",
+        longDescription: `Description: In the ancient Vedic text Durga Saptashati, Devi is described as the most powerful and creative force of the Supreme Absolute. She is part of the Markandeya Puran, so she is also called Devi Mahatmya. This path tells the story of a fierce battle between good and evil in which Devi took the form of Durga to lead the good forces against the demon king Mahishasura. Lakshmi is the goddess or creative energy that brings wealth and happiness to the world. Durga Saptashati says that you should do Candi Homa to get healthy and stop being afraid of the enemy.
+  Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
 
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Durga Abhishekam
-• 108 Names of Durga Maa
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Durga Saptashati Path
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
 
-Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
 
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-      requirements: [
-        'All Puja Samagri & Havan Samagri included',
-        'Clean site for puja setup'
-      ],
-      pandits: [2, 3],
-      availableTimeSlots: [
-        'Morning (6 AM - 8 AM)',
-        'Late Morning (8 AM - 10 AM)',
-        'Late Morning (10 AM - 12 PM)',
-        'Afternoon (12 PM - 2 PM)'
-      ]
-    },
-    {
-      id: 22,
-      name: 'Durga Saptashati Path',
-      image: '/images/satyanarayan.jpg',
-      duration: '3 hours',
-      price: 6100,
-      rating: 4.9,
-      reviews: 110,
-      category: 'devi',
-      occasions: ['durga', 'spiritual-growth'],
-      description: "Path encompasses 4 facets of life: Faith (dharma), Facts (Arth), Desire (Kaam), and Freedom from rebirth (Moksha).",
-      longDescription: `Description: In the ancient Vedic text Durga Saptashati, Devi is described as the most powerful and creative force of the Supreme Absolute. She is part of the Markandeya Puran, so she is also called Devi Mahatmya. This path tells the story of a fierce battle between good and evil in which Devi took the form of Durga to lead the good forces against the demon king Mahishasura. Lakshmi is the goddess or creative energy that brings wealth and happiness to the world. Durga Saptashati says that you should do Candi Homa to get healthy and stop being afraid of the enemy.
-Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+        requirements: [
+          'All Puja Samagri & Havan Samagri included',
+          'Clean site for puja setup'
+        ],
+        pandits: [1, 4],
+        availableTimeSlots: [
+          'Morning (6 AM - 8 AM)',
+          'Late Morning (8 AM - 10 AM)',
+          'Late Morning (10 AM - 12 PM)',
+          'Afternoon (12 PM - 2 PM)'
+        ]
+      },
+      {
+        id: 23,
+        name: 'Dusshera Puja',
+        image: '/images/satyanarayan.jpg',
+        duration: '2 hours',
+        price: 5100,
+        rating: 4.8,
+        reviews: 90,
+        category: 'festival',
+        occasions: ['dusshera', 'victory'],
+        description: "Symbolises triumph of good over evil. Celebrates the victory of Lord Rama over Ravana.",
+        longDescription: `Description: Dussehra, also known as Dasara and Vijayadashami, is a Hindu festival celebrating the vanquishing of the demon king Ravana and the rescue of Rama's wife Sita. The name of the celebration comes from the Sanskrit terms for "ten" (dasha) and "defeat" (hara). On the tenth day of Ashvina (September-October), the seventh month of the Hindu calendar, the full moon appears, ushering in the "bright fortnight" that marks the beginning of the festival of Dussehra and symbolises the triumph of good over evil (shukla paksha). As the tenth and final day of the Durga Puja and Navratri festivals, Dussehra marks the conclusion of two major Hindu celebrations. Many people start getting ready for Diwali, which is celebrated 20 days following Dussehra.
+  Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
 
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Durga Saptashati Path
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Dusshera Puja
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
 
-Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
 
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-      requirements: [
-        'All Puja Samagri & Havan Samagri included',
-        'Clean site for puja setup'
-      ],
-      pandits: [1, 4],
-      availableTimeSlots: [
-        'Morning (6 AM - 8 AM)',
-        'Late Morning (8 AM - 10 AM)',
-        'Late Morning (10 AM - 12 PM)',
-        'Afternoon (12 PM - 2 PM)'
-      ]
-    },
-    {
-      id: 23,
-      name: 'Dusshera Puja',
-      image: '/images/satyanarayan.jpg',
-      duration: '2 hours',
-      price: 5100,
-      rating: 4.8,
-      reviews: 90,
-      category: 'festival',
-      occasions: ['dusshera', 'victory'],
-      description: "Symbolises triumph of good over evil. Celebrates the victory of Lord Rama over Ravana.",
-      longDescription: `Description: Dussehra, also known as Dasara and Vijayadashami, is a Hindu festival celebrating the vanquishing of the demon king Ravana and the rescue of Rama's wife Sita. The name of the celebration comes from the Sanskrit terms for "ten" (dasha) and "defeat" (hara). On the tenth day of Ashvina (September-October), the seventh month of the Hindu calendar, the full moon appears, ushering in the "bright fortnight" that marks the beginning of the festival of Dussehra and symbolises the triumph of good over evil (shukla paksha). As the tenth and final day of the Durga Puja and Navratri festivals, Dussehra marks the conclusion of two major Hindu celebrations. Many people start getting ready for Diwali, which is celebrated 20 days following Dussehra.
-Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+        requirements: [
+          'All Puja Samagri & Havan Samagri included',
+          'Clean site for puja setup'
+        ],
+        pandits: [2, 3],
+        availableTimeSlots: [
+          'Morning (6 AM - 8 AM)',
+          'Late Morning (8 AM - 10 AM)',
+          'Late Morning (10 AM - 12 PM)',
+          'Afternoon (12 PM - 2 PM)'
+        ]
+      },
+      {
+        id: 24,
+        name: 'Engagement Puja',
+        image: '/images/satyanarayan.jpg',
+        duration: '2 hours',
+        price: 5100,
+        rating: 4.7,
+        reviews: 85,
+        category: 'special',
+        occasions: ['marriage', 'engagement'],
+        description: "Ceremony to get blessings for upcoming wedding. Conducted to fix the marriage date, marked by exchange of rings.",
+        longDescription: `Description: The primary purpose of the engagement ceremony is to determine the date of the wedding. The engagement ceremony is where the bride and groom exchange rings. Many people think of an engagement party as the event that sets the tone for the rest of the celebrations.
+  In India, Hindu weddings are still very traditional and based on Vedic customs and old ideas. According to Indian tradition, the newly formed bond between the two souls must also have God's unqualified approval.
+  The rings symbolise a sacred link that calls for unwavering devotion and fidelity from both parties. After exchanging rings, the bride-to-be and groom-to-be will be blessed by the elders of both families and treated to delicacies. Garlands are often exchanged after the ring ceremony as a symbol of good luck and prosperity for the soon-to-be wed.
+  Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
 
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Dusshera Puja
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Patrika Puja
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
 
-Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
 
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-      requirements: [
-        'All Puja Samagri & Havan Samagri included',
-        'Clean site for puja setup'
-      ],
-      pandits: [2, 3],
-      availableTimeSlots: [
-        'Morning (6 AM - 8 AM)',
-        'Late Morning (8 AM - 10 AM)',
-        'Late Morning (10 AM - 12 PM)',
-        'Afternoon (12 PM - 2 PM)'
-      ]
-    },
-    {
-      id: 24,
-      name: 'Engagement Puja',
-      image: '/images/satyanarayan.jpg',
-      duration: '2 hours',
-      price: 5100,
-      rating: 4.7,
-      reviews: 85,
-      category: 'special',
-      occasions: ['marriage', 'engagement'],
-      description: "Ceremony to get blessings for upcoming wedding. Conducted to fix the marriage date, marked by exchange of rings.",
-      longDescription: `Description: The primary purpose of the engagement ceremony is to determine the date of the wedding. The engagement ceremony is where the bride and groom exchange rings. Many people think of an engagement party as the event that sets the tone for the rest of the celebrations.
-In India, Hindu weddings are still very traditional and based on Vedic customs and old ideas. According to Indian tradition, the newly formed bond between the two souls must also have God's unqualified approval.
-The rings symbolise a sacred link that calls for unwavering devotion and fidelity from both parties. After exchanging rings, the bride-to-be and groom-to-be will be blessed by the elders of both families and treated to delicacies. Garlands are often exchanged after the ring ceremony as a symbol of good luck and prosperity for the soon-to-be wed.
-Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+        requirements: [
+          'All Puja Samagri & Havan Samagri included',
+          'Clean site for puja setup'
+        ],
+        pandits: [1, 3],
+        availableTimeSlots: [
+          'Morning (6 AM - 8 AM)',
+          'Late Morning (8 AM - 10 AM)',
+          'Late Morning (10 AM - 12 PM)',
+          'Afternoon (12 PM - 2 PM)'
+        ]
+      },
+      {
+        id: 25,
+        name: 'Ganapati Puja',
+        image: '/images/satyanarayan.jpg',
+        duration: '2 hours',
+        price: 5100,
+        rating: 4.9,
+        reviews: 100,
+        category: 'traditional',
+        occasions: ['ganesh', 'new-beginnings'],
+        description: "Lord of Gana (common people). God of new beginnings and discriminating intellect to attain perfection in life.",
+        longDescription: `Description: It is the birthday of Lord Ganesha, who has the head of an elephant. Ganesha is recognised as the God of money, sciences, knowledge, wisdom, and success, which is why the majority of Hindus pray to him before beginning any significant endeavour.
+  This puja, or ceremony, is held to bestow good fortune upon the newlyweds and their families so that any barriers they may face are eliminated. In the Hindu religion, every auspicious ceremony begins with a prayer to Lord Ganesh.
+  After washing the feet of Lord Ganesha, worshippers bathe the idol in milk, ghee, honey, curd, and sugar (panchamrit snan). Following this is perfumed oil and ganga jal. The idol is then presented with new garments, flowers, unbroken rice (Akshata), a garland, sindoor, and chandan.
+  Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
 
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Patrika Puja
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Ganesh Sthapana
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
 
-Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
 
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-      requirements: [
-        'All Puja Samagri & Havan Samagri included',
-        'Clean site for puja setup'
-      ],
-      pandits: [1, 3],
-      availableTimeSlots: [
-        'Morning (6 AM - 8 AM)',
-        'Late Morning (8 AM - 10 AM)',
-        'Late Morning (10 AM - 12 PM)',
-        'Afternoon (12 PM - 2 PM)'
-      ]
-    },
-    {
-      id: 25,
-      name: 'Ganapati Puja',
-      image: '/images/satyanarayan.jpg',
-      duration: '2 hours',
-      price: 5100,
-      rating: 4.9,
-      reviews: 100,
-      category: 'traditional',
-      occasions: ['ganesh', 'new-beginnings'],
-      description: "Lord of Gana (common people). God of new beginnings and discriminating intellect to attain perfection in life.",
-      longDescription: `Description: It is the birthday of Lord Ganesha, who has the head of an elephant. Ganesha is recognised as the God of money, sciences, knowledge, wisdom, and success, which is why the majority of Hindus pray to him before beginning any significant endeavour.
-This puja, or ceremony, is held to bestow good fortune upon the newlyweds and their families so that any barriers they may face are eliminated. In the Hindu religion, every auspicious ceremony begins with a prayer to Lord Ganesh.
-After washing the feet of Lord Ganesha, worshippers bathe the idol in milk, ghee, honey, curd, and sugar (panchamrit snan). Following this is perfumed oil and ganga jal. The idol is then presented with new garments, flowers, unbroken rice (Akshata), a garland, sindoor, and chandan.
-Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+        requirements: [
+          'All Puja Samagri & Havan Samagri included',
+          'Clean site for puja setup'
+        ],
+        pandits: [2, 4],
+        availableTimeSlots: [
+          'Morning (6 AM - 8 AM)',
+          'Late Morning (8 AM - 10 AM)',
+          'Late Morning (10 AM - 12 PM)',
+          'Afternoon (12 PM - 2 PM)'
+        ]
+      },
+      {
+        id: 26,
+        name: 'Ganapati Strotam',
+        image: '/images/satyanarayan.jpg',
+        duration: '2 hours',
+        price: 4100,
+        rating: 4.7,
+        reviews: 70,
+        category: 'devotional',
+        occasions: ['ganesh', 'obstacle-removal'],
+        description: "Reciting Ganesha Stotram is one of the most powerful ways to appease Ganpati Ji. Removes all problems, hurdles and evil energies.",
+        longDescription: `Description: Reciting Ganesha Stotram is one of the most powerful ways to appease Ganpati Ji. The significance of Ganesha Stotram is mentioned in Narada Puran and it is believed that reciting this Stotram eliminates all the problems, hurdles and evil energies.
+  Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
 
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Ganesh Sthapana
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Ganesh Sthapana
+  • Ganapati Strotam
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
 
-Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
 
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-      requirements: [
-        'All Puja Samagri & Havan Samagri included',
-        'Clean site for puja setup'
-      ],
-      pandits: [2, 4],
-      availableTimeSlots: [
-        'Morning (6 AM - 8 AM)',
-        'Late Morning (8 AM - 10 AM)',
-        'Late Morning (10 AM - 12 PM)',
-        'Afternoon (12 PM - 2 PM)'
-      ]
-    },
-    {
-      id: 26,
-      name: 'Ganapati Strotam',
-      image: '/images/satyanarayan.jpg',
-      duration: '2 hours',
-      price: 4100,
-      rating: 4.7,
-      reviews: 70,
-      category: 'devotional',
-      occasions: ['ganesh', 'obstacle-removal'],
-      description: "Reciting Ganesha Stotram is one of the most powerful ways to appease Ganpati Ji. Removes all problems, hurdles and evil energies.",
-      longDescription: `Description: Reciting Ganesha Stotram is one of the most powerful ways to appease Ganpati Ji. The significance of Ganesha Stotram is mentioned in Narada Puran and it is believed that reciting this Stotram eliminates all the problems, hurdles and evil energies.
-Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+        requirements: [
+          'All Puja Samagri & Havan Samagri included',
+          'Clean site for puja setup'
+        ],
+        pandits: [1, 3],
+        availableTimeSlots: [
+          'Morning (6 AM - 8 AM)',
+          'Late Morning (8 AM - 10 AM)',
+          'Late Morning (10 AM - 12 PM)',
+          'Afternoon (12 PM - 2 PM)'
+        ]
+      },
+      {
+        id: 27,
+        name: 'Gand Mool Nakshatra',
+        image: '/images/satyanarayan.jpg',
+        duration: '2 hours',
+        price: 5100,
+        rating: 4.8,
+        reviews: 60,
+        category: 'astrological',
+        occasions: ['nakshatra', 'remedy'],
+        description: "Shanti puja done to reduce the malefic impact if born in Akashvani, Ashlesha, Magha, Jyeshtha, Mool & Revati.",
+        longDescription: `Description: Mool Nakshatra Within twenty-seven days after a person's birth, Shanti Puja is recommended to dispel questions regarding their nakshatra. In addition, if the ritual is not done within the prescribed time frame for whatever reason, it can be prolonged to a period of either 27 months or 27 years, with the latter option being preferred.
+  Eleven thousand planetary mantras are recited during this process. For puja, the leaves of 27 different plants were gathered, as well as water from 27 distinct locations. According to the vidhi, gifts are presented to the twenty-seven Brahmins following the completion of the puja.
+  This ritual will only be conducted if the infant is born during the mool nakshatras. The removal of the negative effects of mool nakshatras is enhanced by wearing gemstones and completing this puja practise.
+  Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
 
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Ganesh Sthapana
-• Ganapati Strotam
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Nakshatra Jaap
+  • Abhishek
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
 
-Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
 
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-      requirements: [
-        'All Puja Samagri & Havan Samagri included',
-        'Clean site for puja setup'
-      ],
-      pandits: [1, 3],
-      availableTimeSlots: [
-        'Morning (6 AM - 8 AM)',
-        'Late Morning (8 AM - 10 AM)',
-        'Late Morning (10 AM - 12 PM)',
-        'Afternoon (12 PM - 2 PM)'
-      ]
-    },
-    {
-      id: 27,
-      name: 'Gand Mool Nakshatra',
-      image: '/images/satyanarayan.jpg',
-      duration: '2 hours',
-      price: 5100,
-      rating: 4.8,
-      reviews: 60,
-      category: 'astrological',
-      occasions: ['nakshatra', 'remedy'],
-      description: "Shanti puja done to reduce the malefic impact if born in Akashvani, Ashlesha, Magha, Jyeshtha, Mool & Revati.",
-      longDescription: `Description: Mool Nakshatra Within twenty-seven days after a person's birth, Shanti Puja is recommended to dispel questions regarding their nakshatra. In addition, if the ritual is not done within the prescribed time frame for whatever reason, it can be prolonged to a period of either 27 months or 27 years, with the latter option being preferred.
-Eleven thousand planetary mantras are recited during this process. For puja, the leaves of 27 different plants were gathered, as well as water from 27 distinct locations. According to the vidhi, gifts are presented to the twenty-seven Brahmins following the completion of the puja.
-This ritual will only be conducted if the infant is born during the mool nakshatras. The removal of the negative effects of mool nakshatras is enhanced by wearing gemstones and completing this puja practise.
-Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+        requirements: [
+          'All Puja Samagri & Havan Samagri included',
+          'Clean site for puja setup'
+        ],
+        pandits: [2, 4],
+        availableTimeSlots: [
+          'Morning (6 AM - 8 AM)',
+          'Late Morning (8 AM - 10 AM)',
+          'Late Morning (10 AM - 12 PM)',
+          'Afternoon (12 PM - 2 PM)'
+        ]
+      },
+      {
+        id: 28,
+        name: 'Ganesh Atharvashirsha Path',
+        image: '/images/satyanarayan.jpg',
+        duration: '2 hours',
+        price: 5100,
+        rating: 4.9,
+        reviews: 80,
+        category: 'devotional',
+        occasions: ['ganesh', 'spiritual-growth'],
+        description: "The Ganapati Atharvashirsha, also called the Ganapati Upanishad, is a Sanskrit text dedicated to Lord Ganesha.",
+        longDescription: `Description: The Ganapati Atharvashirsha, also called the Ganapati Upanishad, is a Sanskrit text dedicated to Lord Ganesha, the remover of obstacles and a beloved deity in Hinduism. This hymn is revered as a part of the Atharva Veda tradition and is considered one of the foundational texts for Ganesha worship.
+  Book pandit online for Ganesh Atharvashirsha path at home | PujaKaro.in
 
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Nakshatra Jaap
-• Abhishek
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Ganesh Atharvashirsha Path
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
 
-Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
 
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-      requirements: [
-        'All Puja Samagri & Havan Samagri included',
-        'Clean site for puja setup'
-      ],
-      pandits: [2, 4],
-      availableTimeSlots: [
-        'Morning (6 AM - 8 AM)',
-        'Late Morning (8 AM - 10 AM)',
-        'Late Morning (10 AM - 12 PM)',
-        'Afternoon (12 PM - 2 PM)'
-      ]
-    },
-    {
-      id: 28,
-      name: 'Ganesh Atharvashirsha Path',
-      image: '/images/satyanarayan.jpg',
-      duration: '2 hours',
-      price: 5100,
-      rating: 4.9,
-      reviews: 80,
-      category: 'devotional',
-      occasions: ['ganesh', 'spiritual-growth'],
-      description: "The Ganapati Atharvashirsha, also called the Ganapati Upanishad, is a Sanskrit text dedicated to Lord Ganesha.",
-      longDescription: `Description: The Ganapati Atharvashirsha, also called the Ganapati Upanishad, is a Sanskrit text dedicated to Lord Ganesha, the remover of obstacles and a beloved deity in Hinduism. This hymn is revered as a part of the Atharva Veda tradition and is considered one of the foundational texts for Ganesha worship.
-Book pandit online for Ganesh Atharvashirsha path at home | PujaKaro.in
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+        requirements: [
+          'All Puja Samagri & Havan Samagri included',
+          'Clean site for puja setup'
+        ],
+        pandits: [1, 2],
+        availableTimeSlots: [
+          'Morning (6 AM - 8 AM)',
+          'Late Morning (8 AM - 10 AM)',
+          'Late Morning (10 AM - 12 PM)',
+          'Afternoon (12 PM - 2 PM)'
+        ]
+      },
+      {
+        id: 29,
+        name: 'Ganesh Sthapana',
+        image: '/images/satyanarayan.jpg',
+        duration: '2 hours',
+        price: 5100,
+        rating: 4.8,
+        reviews: 75,
+        category: 'traditional',
+        occasions: ['ganesh', 'festival'],
+        description: "'Sthapana' - establishment of Lord Ganesha at home. He who is Vighnaharta (Obstacle destroyer).",
+        longDescription: `Description: Lord Ganesh is said to have been born during Madhyana, making midday the most auspicious time for Ganesh puja, also known as Shodashhopachala Ganapati puja. On this day, Lord Ganesha idols are taken home for Ganesh's Sthapana, and people worship him every day for ten days. On Anant Chaturdashi, worshippers immerse an idol of Lord Ganesha in water.
+  The ritual is performed to represent Lord Ganesha's birth cycle; just as he was produced from clay and earth, so is his symbolic statue. The idol is immersed in water in order for Ganesha to return to his home after his "stay" at the devotees' home or temple, where the Ganesha Chaturthi rites are performed. Lord Ganesha is adored in all 16 ceremonies while Pranik's mantras are chanted.
+  Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
 
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Ganesh Atharvashirsha Path
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Ganesh Sthapana
 
-Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.`,
+        requirements: [
+          'All Puja Samagri & Havan Samagri included',
+          'Clean site for puja setup'
+        ],
+        pandits: [2, 3],
+        availableTimeSlots: [
+          'Morning (6 AM - 8 AM)',
+          'Late Morning (8 AM - 10 AM)',
+          'Late Morning (10 AM - 12 PM)',
+          'Afternoon (12 PM - 2 PM)'
+        ]
+      },
+      {
+        id: 30,
+        name: 'Ganesh Visarjan',
+        image: '/images/satyanarayan.jpg',
+        duration: '2 hours',
+        price: 5100,
+        rating: 4.9,
+        reviews: 90,
+        category: 'festival',
+        occasions: ['ganesh', 'moksha'],
+        description: "'Visarjan' is symbolic of immersion of all life obstacles along with the Ganpathi idol and depicts concept of 'Moksha'.",
+        longDescription: `Description: On the final day of the Ganesha Festival, the Ganesha Visarjan custom is carried out. An alternative name for the final day of the 10-day festival is Anant Chaturdashi. As the term 'Visarjan' indicates, on this day the idol of Lord Ganapati is immersed in a river, sea, or other body of water. On the first day of the festival, devotees mark the commencement of Ganesha's chaturthi by installing Ganesha statues in their homes, businesses, and public spaces. On the final day, worshippers carry their beloved God's idols in procession and immerse them. On the final day of the festival, Lord Ganesha is supposed to return to Mount Kailash to reunite with his parents, Lord Shiva and Goddess Parvati.
+  Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
 
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-      requirements: [
-        'All Puja Samagri & Havan Samagri included',
-        'Clean site for puja setup'
-      ],
-      pandits: [1, 2],
-      availableTimeSlots: [
-        'Morning (6 AM - 8 AM)',
-        'Late Morning (8 AM - 10 AM)',
-        'Late Morning (10 AM - 12 PM)',
-        'Afternoon (12 PM - 2 PM)'
-      ]
-    },
-    {
-      id: 29,
-      name: 'Ganesh Sthapana',
-      image: '/images/satyanarayan.jpg',
-      duration: '2 hours',
-      price: 5100,
-      rating: 4.8,
-      reviews: 75,
-      category: 'traditional',
-      occasions: ['ganesh', 'festival'],
-      description: "'Sthapana' - establishment of Lord Ganesha at home. He who is Vighnaharta (Obstacle destroyer).",
-      longDescription: `Description: Lord Ganesh is said to have been born during Madhyana, making midday the most auspicious time for Ganesh puja, also known as Shodashhopachala Ganapati puja. On this day, Lord Ganesha idols are taken home for Ganesh's Sthapana, and people worship him every day for ten days. On Anant Chaturdashi, worshippers immerse an idol of Lord Ganesha in water.
-The ritual is performed to represent Lord Ganesha's birth cycle; just as he was produced from clay and earth, so is his symbolic statue. The idol is immersed in water in order for Ganesha to return to his home after his "stay" at the devotees' home or temple, where the Ganesha Chaturthi rites are performed. Lord Ganesha is adored in all 16 ceremonies while Pranik's mantras are chanted.
-Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Ganapati Visarjan Puja
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
 
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Ganesh Sthapana
+  Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
 
-Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.`,
-      requirements: [
-        'All Puja Samagri & Havan Samagri included',
-        'Clean site for puja setup'
-      ],
-      pandits: [2, 3],
-      availableTimeSlots: [
-        'Morning (6 AM - 8 AM)',
-        'Late Morning (8 AM - 10 AM)',
-        'Late Morning (10 AM - 12 PM)',
-        'Afternoon (12 PM - 2 PM)'
-      ]
-    },
-    {
-      id: 30,
-      name: 'Ganesh Visarjan',
-      image: '/images/satyanarayan.jpg',
-      duration: '2 hours',
-      price: 5100,
-      rating: 4.9,
-      reviews: 90,
-      category: 'festival',
-      occasions: ['ganesh', 'moksha'],
-      description: "'Visarjan' is symbolic of immersion of all life obstacles along with the Ganpathi idol and depicts concept of 'Moksha'.",
-      longDescription: `Description: On the final day of the Ganesha Festival, the Ganesha Visarjan custom is carried out. An alternative name for the final day of the 10-day festival is Anant Chaturdashi. As the term 'Visarjan' indicates, on this day the idol of Lord Ganapati is immersed in a river, sea, or other body of water. On the first day of the festival, devotees mark the commencement of Ganesha's chaturthi by installing Ganesha statues in their homes, businesses, and public spaces. On the final day, worshippers carry their beloved God's idols in procession and immerse them. On the final day of the festival, Lord Ganesha is supposed to return to Mount Kailash to reunite with his parents, Lord Shiva and Goddess Parvati.
-Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+        requirements: [
+          'All Puja Samagri & Havan Samagri included',
+          'Clean site for puja setup'
+        ],
+        pandits: [1, 4],
+        availableTimeSlots: [
+          'Morning (6 AM - 8 AM)',
+          'Late Morning (8 AM - 10 AM)',
+          'Late Morning (10 AM - 12 PM)',
+          'Afternoon (12 PM - 2 PM)'
+        ]
+      },
+      {
+    id: 31,
+    name: 'Garud Puran Path',
+    image: '/images/garud-puran.jpg',
+    duration: '2 hours',
+    price: 4100,
+    rating: 4.8,
+    reviews: 40,
+    category: 'path',
+    occasions: ['ancestor', 'moksha'],
+    description: "Garud Puran Path is a sacred recitation believed to fulfill wishes, grant happiness, and provide moksha (liberation) to the departed souls of ancestors. This ancient scripture is recited during mourning periods to bring peace to the departed and solace to the living. The Garud Puran explores the journey of the soul after death, the importance of righteous living, and the rituals that help ensure a smooth transition for the soul. Performing this path is considered a sacred duty in Hindu tradition, connecting the material and spiritual worlds and offering blessings to both the deceased and their families.",
+    longDescription: `Garud Puran Path, an ancient Hindu scripture, holds significant cultural and spiritual importance. According to folklore, reciting or listening to its verses is believed to grant peace to the departed souls and solace to the living. The text delves into various aspects of life, death, and the afterlife, outlining rituals and customs to ensure the proper passage of the soul. Legends recount instances where the faithful conduct Garud Puran Path ceremonies during mourning periods, seeking divine guidance and blessings for the deceased. It's considered a sacred duty to perform this recitation, serving as a bridge between the material and spiritual realms in Hindu tradition.
+  Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
 
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Ganapati Visarjan Puja
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
+  Puja Vidhi:
+  • Garud Puran Path
+  • Aavahan
+  • Shuddhi
+  • Bhoga
+  • Ritual & Spiritual Fulfilment
 
-Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Puja Samagri: Only Paath, Aasan & Chawki`,
+    requirements: [
+      'Only Paath, Aasan & Chawki required',
+      'Clean site for puja setup'
+    ],
+    pandits: [1, 2],
+    availableTimeSlots: [
+      'Morning (6 AM - 8 AM)',
+      'Late Morning (8 AM - 10 AM)',
+      'Afternoon (12 PM - 2 PM)'
+    ]
+  },
+  {
+    id: 32,
+    name: 'Gayatri Havan',
+    image: '/images/gayatri-havan.jpg',
+    duration: '2 hours',
+    price: 5100,
+    rating: 4.9,
+    reviews: 60,
+    category: 'havan',
+    occasions: ['prosperity', 'spiritual-growth'],
+    description: "Gayatri Havan is a powerful Vedic ritual dedicated to Goddess Gayatri, the embodiment of the essence of the four Vedas and the trinity of senses, mind, and speech. This havan invokes the blessings of Gayatri, Savitri, and Saraswati for wisdom, clarity, and spiritual upliftment. The ritual is believed to purify the mind, remove obstacles, and bring prosperity, health, and success. Regular chanting of the Gayatri Mantra during the havan is said to bestow divine protection and fulfill all forms of prosperity in life.",
+    longDescription: `Gayatri Havan is a celebration held to honour the goddess Gayatri, which translates to "three deities: Gayatri, Savitri, and Saraswathi." Gayatri represents the senses; Savitri represents truth; and Saraswathi represents communication.
+  Lord Surya is linked to this havan. Gayatri is the conduit through which the sun's delicate shape transports power. Gayatri means "protection channel," because ga indicates movement and yatri represents protection.
+  She is also thought to be the feminine version of the sun goddess. Singing her Gayatri Mantra on a regular basis is said to bring numerous blessings into one's life. The Gayatri havan is the purest of all havans and shows how to achieve all forms of prosperity in life. This havan can also be used to purify a person's flaws by addressing their individual needs.
+  Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
 
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-      requirements: [
-        'All Puja Samagri & Havan Samagri included',
-        'Clean site for puja setup'
-      ],
-      pandits: [1, 4],
-      availableTimeSlots: [
-        'Morning (6 AM - 8 AM)',
-        'Late Morning (8 AM - 10 AM)',
-        'Late Morning (10 AM - 12 PM)',
-        'Afternoon (12 PM - 2 PM)'
-      ]
-    },
-    {
-  id: 31,
-  name: 'Garud Puran Path',
-  image: '/images/garud-puran.jpg',
-  duration: '2 hours',
-  price: 4100,
-  rating: 4.8,
-  reviews: 40,
-  category: 'path',
-  occasions: ['ancestor', 'moksha'],
-  description: "Garud Puran Path is a sacred recitation believed to fulfill wishes, grant happiness, and provide moksha (liberation) to the departed souls of ancestors. This ancient scripture is recited during mourning periods to bring peace to the departed and solace to the living. The Garud Puran explores the journey of the soul after death, the importance of righteous living, and the rituals that help ensure a smooth transition for the soul. Performing this path is considered a sacred duty in Hindu tradition, connecting the material and spiritual worlds and offering blessings to both the deceased and their families.",
-  longDescription: `Garud Puran Path, an ancient Hindu scripture, holds significant cultural and spiritual importance. According to folklore, reciting or listening to its verses is believed to grant peace to the departed souls and solace to the living. The text delves into various aspects of life, death, and the afterlife, outlining rituals and customs to ensure the proper passage of the soul. Legends recount instances where the faithful conduct Garud Puran Path ceremonies during mourning periods, seeking divine guidance and blessings for the deceased. It's considered a sacred duty to perform this recitation, serving as a bridge between the material and spiritual realms in Hindu tradition.
-Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Gayatri Mantra Jaap
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
 
-Puja Vidhi:
-• Garud Puran Path
-• Aavahan
-• Shuddhi
-• Bhoga
-• Ritual & Spiritual Fulfilment
+  Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+    requirements: [
+      'All Puja Samagri & Havan Samagri included',
+      'Clean site for puja setup'
+    ],
+    pandits: [2, 3],
+    availableTimeSlots: [
+      'Morning (6 AM - 8 AM)',
+      'Late Morning (8 AM - 10 AM)',
+      'Afternoon (12 PM - 2 PM)'
+    ]
+  },
+  {
+    id: 33,
+    name: 'God Bharai Puja',
+    image: '/images/godh-bharai.jpg',
+    duration: '2 hours',
+    price: 4100,
+    rating: 4.8,
+    reviews: 50,
+    category: 'sanskar',
+    occasions: ['pregnancy', 'child'],
+    description: "God Bharai Puja, also known as the Indian baby shower, is a joyful ceremony to celebrate the impending arrival of a new family member and to bless the expecting mother. Held during the third trimester, this ritual is filled with music, gifts, and prayers for the health and happiness of both mother and child. The ceremony marks an important milestone in the shodasha (16) sanskaras and is believed to bring prosperity, protection, and positive energy to the family.",
+    longDescription: `An Indian baby shower traditionally held in the third trimester to celebrate the impending arrival of the new member of the family and to bless the expecting mother.
+  Godh bharai begins with the expectant mother dressed as a bride. They have her take a seat of prominence afterwards. The pregnant woman then extends her saree's draped "palla." Guests give the expecting mother a blessing and place their gifts in her "godh," or lap. This is where the name for this practise during pregnancy comes from.
+  During this time, the expectant mother is showered with gifts, there is much singing and dancing, games, and special foods are prepared to make her feel special.
+  Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
 
-Puja Samagri: Only Paath, Aasan & Chawki`,
-  requirements: [
-    'Only Paath, Aasan & Chawki required',
-    'Clean site for puja setup'
-  ],
-  pandits: [1, 2],
-  availableTimeSlots: [
-    'Morning (6 AM - 8 AM)',
-    'Late Morning (8 AM - 10 AM)',
-    'Afternoon (12 PM - 2 PM)'
-  ]
-},
-{
-  id: 32,
-  name: 'Gayatri Havan',
-  image: '/images/gayatri-havan.jpg',
-  duration: '2 hours',
-  price: 5100,
-  rating: 4.9,
-  reviews: 60,
-  category: 'havan',
-  occasions: ['prosperity', 'spiritual-growth'],
-  description: "Gayatri Havan is a powerful Vedic ritual dedicated to Goddess Gayatri, the embodiment of the essence of the four Vedas and the trinity of senses, mind, and speech. This havan invokes the blessings of Gayatri, Savitri, and Saraswati for wisdom, clarity, and spiritual upliftment. The ritual is believed to purify the mind, remove obstacles, and bring prosperity, health, and success. Regular chanting of the Gayatri Mantra during the havan is said to bestow divine protection and fulfill all forms of prosperity in life.",
-  longDescription: `Gayatri Havan is a celebration held to honour the goddess Gayatri, which translates to "three deities: Gayatri, Savitri, and Saraswathi." Gayatri represents the senses; Savitri represents truth; and Saraswathi represents communication.
-Lord Surya is linked to this havan. Gayatri is the conduit through which the sun's delicate shape transports power. Gayatri means "protection channel," because ga indicates movement and yatri represents protection.
-She is also thought to be the feminine version of the sun goddess. Singing her Gayatri Mantra on a regular basis is said to bring numerous blessings into one's life. The Gayatri havan is the purest of all havans and shows how to achieve all forms of prosperity in life. This havan can also be used to purify a person's flaws by addressing their individual needs.
-Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Rudra Puja
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
 
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Gayatri Mantra Jaap
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
+  Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+    requirements: [
+      'Expecting mother present',
+      'All Puja Samagri & Havan Samagri included',
+      'Clean site for puja setup'
+    ],
+    pandits: [1, 3],
+    availableTimeSlots: [
+      'Morning (6 AM - 8 AM)',
+      'Late Morning (8 AM - 10 AM)',
+      'Afternoon (12 PM - 2 PM)'
+    ]
+  },
+  {
+    id: 34,
+    name: 'Griha Pravesh',
+    image: '/images/griha-pravesh.jpg',
+    duration: '3 hours',
+    price: 5100,
+    rating: 4.9,
+    reviews: 90,
+    category: 'house-warming',
+    occasions: ['house-warming', 'new-home'],
+    description: "Griha Pravesh Puja is a traditional housewarming ceremony performed before moving into a new home. This ritual removes dosha and negative energies, protects from evil eye, and brings positive energy, peace, and prosperity to the household. It is performed when entering a new house, after renovations, or before occupying a rented home, ensuring a harmonious and blessed living environment.",
+    longDescription: `Before settling into a new home, Hindus conduct a ritual called Griha Pravesh Puja. Dosh and other negative energy are banished with the help of this puja. It also increases the flow of positive energy. Household members benefit from Griha Pravesh's protective effects against natural disasters, as well as the serenity and wealth that come with living in a peaceful and prosperous home.
+  Dwar puja, Boiling Milk, Gauri-Ganesh, Kalash, Navgraha, Vastu puja, and a variety of havans (including Ganesh havan, Navagraha havan, Vastu havan, and Varun havan) are all part of the Griha Pravesh ritual.
+  The following are the times when you are required to perform Griha Pravesh:
+  The acquisition of a brand-new residence.
+  When the refurbishment of an older home is brought to a successful conclusion.
+  Before moving into a home that was rented.
+  Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
 
-Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-  requirements: [
-    'All Puja Samagri & Havan Samagri included',
-    'Clean site for puja setup'
-  ],
-  pandits: [2, 3],
-  availableTimeSlots: [
-    'Morning (6 AM - 8 AM)',
-    'Late Morning (8 AM - 10 AM)',
-    'Afternoon (12 PM - 2 PM)'
-  ]
-},
-{
-  id: 33,
-  name: 'God Bharai Puja',
-  image: '/images/godh-bharai.jpg',
-  duration: '2 hours',
-  price: 4100,
-  rating: 4.8,
-  reviews: 50,
-  category: 'sanskar',
-  occasions: ['pregnancy', 'child'],
-  description: "God Bharai Puja, also known as the Indian baby shower, is a joyful ceremony to celebrate the impending arrival of a new family member and to bless the expecting mother. Held during the third trimester, this ritual is filled with music, gifts, and prayers for the health and happiness of both mother and child. The ceremony marks an important milestone in the shodasha (16) sanskaras and is believed to bring prosperity, protection, and positive energy to the family.",
-  longDescription: `An Indian baby shower traditionally held in the third trimester to celebrate the impending arrival of the new member of the family and to bless the expecting mother.
-Godh bharai begins with the expectant mother dressed as a bride. They have her take a seat of prominence afterwards. The pregnant woman then extends her saree's draped "palla." Guests give the expecting mother a blessing and place their gifts in her "godh," or lap. This is where the name for this practise during pregnancy comes from.
-During this time, the expectant mother is showered with gifts, there is much singing and dancing, games, and special foods are prepared to make her feel special.
-Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Mool Shuddhi Havan
+  • Dvaar Puja & Griha Pravesh
+  • Kitchen Puja (Boiling Milk in new vessel)
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
 
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Rudra Puja
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
+  Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+    requirements: [
+      'All Puja Samagri & Havan Samagri included',
+      'Clean site for puja setup'
+    ],
+    pandits: [1, 2, 3],
+    availableTimeSlots: [
+      'Morning (6 AM - 8 AM)',
+      'Late Morning (8 AM - 10 AM)',
+      'Afternoon (12 PM - 2 PM)'
+    ]
+  },
+  {
+    id: 35,
+    name: 'Gupt Navratri',
+    image: '/images/gupt-navratri.jpg',
+    duration: '2 hours',
+    price: 5100,
+    rating: 4.8,
+    reviews: 55,
+    category: 'devi',
+    occasions: ['navratri', 'spiritual-growth'],
+    description: "Gupt Navratri Puja is a powerful ritual dedicated to the worship of Dus Mahavidya, the ten wisdom goddesses. This puja is believed to fulfill material desires (bhoga) and grant spiritual emancipation (moksha). The ceremony invokes the divine feminine energy to remove obstacles, bestow wisdom, and guide the seeker toward liberation.",
+    longDescription: `The Wisdom Goddesses are the ten Mahavidyas. The Brihat Dharma Purana tells the story of how the ten forms of Goddess materialized when Lord Shiva forbade Sati from participating in the Yajna that her father, Daksha Prajapati, had planned.
+  Sati's fury turned her into a terrifying Kali, who multiplied ten times and eventually defeated Shiva's resistance. As a result, Sati went on to participate in the sacrifice rite. To harness the Shiva within, one must realize the fundamental truths represented by each of the Devi's visible forms. They stand for many facets of divinity that aim to lead the seeker toward emancipation.
 
-Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-  requirements: [
-    'Expecting mother present',
-    'All Puja Samagri & Havan Samagri included',
-    'Clean site for puja setup'
-  ],
-  pandits: [1, 3],
-  availableTimeSlots: [
-    'Morning (6 AM - 8 AM)',
-    'Late Morning (8 AM - 10 AM)',
-    'Afternoon (12 PM - 2 PM)'
-  ]
-},
-{
-  id: 34,
-  name: 'Griha Pravesh',
-  image: '/images/griha-pravesh.jpg',
-  duration: '3 hours',
-  price: 5100,
-  rating: 4.9,
-  reviews: 90,
-  category: 'house-warming',
-  occasions: ['house-warming', 'new-home'],
-  description: "Griha Pravesh Puja is a traditional housewarming ceremony performed before moving into a new home. This ritual removes dosha and negative energies, protects from evil eye, and brings positive energy, peace, and prosperity to the household. It is performed when entering a new house, after renovations, or before occupying a rented home, ensuring a harmonious and blessed living environment.",
-  longDescription: `Before settling into a new home, Hindus conduct a ritual called Griha Pravesh Puja. Dosh and other negative energy are banished with the help of this puja. It also increases the flow of positive energy. Household members benefit from Griha Pravesh's protective effects against natural disasters, as well as the serenity and wealth that come with living in a peaceful and prosperous home.
-Dwar puja, Boiling Milk, Gauri-Ganesh, Kalash, Navgraha, Vastu puja, and a variety of havans (including Ganesh havan, Navagraha havan, Vastu havan, and Varun havan) are all part of the Griha Pravesh ritual.
-The following are the times when you are required to perform Griha Pravesh:
-The acquisition of a brand-new residence.
-When the refurbishment of an older home is brought to a successful conclusion.
-Before moving into a home that was rented.
-Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Mahavidya Mantra Pujan
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
 
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Mool Shuddhi Havan
-• Dvaar Puja & Griha Pravesh
-• Kitchen Puja (Boiling Milk in new vessel)
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
+  Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+    requirements: [
+      'All Puja Samagri & Havan Samagri included',
+      'Clean site for puja setup'
+    ],
+    pandits: [2, 4],
+    availableTimeSlots: [
+      'Morning (6 AM - 8 AM)',
+      'Late Morning (8 AM - 10 AM)',
+      'Afternoon (12 PM - 2 PM)'
+    ]
+  },
+  {
+    id: 36,
+    name: 'Guru Grah Shanti Puja',
+    image: '/images/guru-grah-shanti.jpg',
+    duration: '2 hours',
+    price: 5100,
+    rating: 4.7,
+    reviews: 48,
+    category: 'astrological',
+    occasions: ['jupiter', 'remedy'],
+    description: "Guru Grah Shanti Puja is performed to pacify the negative effects of Jupiter (Guru) in one's horoscope. Guru Dosha can cause problems with wealth, knowledge, finances, and education. This puja invokes the blessings of Brihaspati to remove obstacles, enhance wisdom, and bring prosperity and harmony in life.",
+    longDescription: `Jupiter is the planet of learning and knowledge, also known as Guru Graha, Guru, or Brihaspati. When this planet is put in a favourable position in the horoscope, it can have astoundingly positive consequences; nonetheless, when the Guru misplaces our horoscope, it will produce issues such as money problems, training problems, medical problems, and so on. A positive Jupiter can vanquish other harmful planets. Jupiter is the ruling planet of Sagittarius and Pisces in Hindu astrology. However, when it comes to Jupiter's favoured and waning signs, they are Cancer and Capricorn, respectively. To avert negative effects, guru grah shanti havan, traditional mantras sung 19000 times, and the Shodashopachara ceremony are conducted.
+  Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
 
-Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-  requirements: [
-    'All Puja Samagri & Havan Samagri included',
-    'Clean site for puja setup'
-  ],
-  pandits: [1, 2, 3],
-  availableTimeSlots: [
-    'Morning (6 AM - 8 AM)',
-    'Late Morning (8 AM - 10 AM)',
-    'Afternoon (12 PM - 2 PM)'
-  ]
-},
-{
-  id: 35,
-  name: 'Gupt Navratri',
-  image: '/images/gupt-navratri.jpg',
-  duration: '2 hours',
-  price: 5100,
-  rating: 4.8,
-  reviews: 55,
-  category: 'devi',
-  occasions: ['navratri', 'spiritual-growth'],
-  description: "Gupt Navratri Puja is a powerful ritual dedicated to the worship of Dus Mahavidya, the ten wisdom goddesses. This puja is believed to fulfill material desires (bhoga) and grant spiritual emancipation (moksha). The ceremony invokes the divine feminine energy to remove obstacles, bestow wisdom, and guide the seeker toward liberation.",
-  longDescription: `The Wisdom Goddesses are the ten Mahavidyas. The Brihat Dharma Purana tells the story of how the ten forms of Goddess materialized when Lord Shiva forbade Sati from participating in the Yajna that her father, Daksha Prajapati, had planned.
-Sati's fury turned her into a terrifying Kali, who multiplied ten times and eventually defeated Shiva's resistance. As a result, Sati went on to participate in the sacrifice rite. To harness the Shiva within, one must realize the fundamental truths represented by each of the Devi's visible forms. They stand for many facets of divinity that aim to lead the seeker toward emancipation.
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Sthapana Pujan
+  • Guru Grah Shaanti Jaap
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
 
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Mahavidya Mantra Pujan
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
+  Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+    requirements: [
+      'All Puja Samagri & Havan Samagri included',
+      'Clean site for puja setup'
+    ],
+    pandits: [1, 2],
+    availableTimeSlots: [
+      'Morning (6 AM - 8 AM)',
+      'Late Morning (8 AM - 10 AM)',
+      'Afternoon (12 PM - 2 PM)'
+    ]
+  },
+  {
+    id: 37,
+    name: 'Haldi Ceremony',
+    image: '/images/haldi-ceremony.jpg',
+    duration: '2 hours',
+    price: 4100,
+    rating: 4.8,
+    reviews: 52,
+    category: 'wedding',
+    occasions: ['marriage', 'haldi'],
+    description: "Haldi Ceremony is a vibrant pre-wedding ritual where turmeric paste is applied to the bride and groom. This ceremony is believed to purify the couple, ward off evil, and bring prosperity and happiness. The ritual is filled with joy, music, and blessings from family and friends, marking the beginning of the wedding festivities.",
+    longDescription: `Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Haldi Pujan
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
 
-Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-  requirements: [
-    'All Puja Samagri & Havan Samagri included',
-    'Clean site for puja setup'
-  ],
-  pandits: [2, 4],
-  availableTimeSlots: [
-    'Morning (6 AM - 8 AM)',
-    'Late Morning (8 AM - 10 AM)',
-    'Afternoon (12 PM - 2 PM)'
-  ]
-},
-{
-  id: 36,
-  name: 'Guru Grah Shanti Puja',
-  image: '/images/guru-grah-shanti.jpg',
-  duration: '2 hours',
-  price: 5100,
-  rating: 4.7,
-  reviews: 48,
-  category: 'astrological',
-  occasions: ['jupiter', 'remedy'],
-  description: "Guru Grah Shanti Puja is performed to pacify the negative effects of Jupiter (Guru) in one's horoscope. Guru Dosha can cause problems with wealth, knowledge, finances, and education. This puja invokes the blessings of Brihaspati to remove obstacles, enhance wisdom, and bring prosperity and harmony in life.",
-  longDescription: `Jupiter is the planet of learning and knowledge, also known as Guru Graha, Guru, or Brihaspati. When this planet is put in a favourable position in the horoscope, it can have astoundingly positive consequences; nonetheless, when the Guru misplaces our horoscope, it will produce issues such as money problems, training problems, medical problems, and so on. A positive Jupiter can vanquish other harmful planets. Jupiter is the ruling planet of Sagittarius and Pisces in Hindu astrology. However, when it comes to Jupiter's favoured and waning signs, they are Cancer and Capricorn, respectively. To avert negative effects, guru grah shanti havan, traditional mantras sung 19000 times, and the Shodashopachara ceremony are conducted.
-Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
+  Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+    requirements: [
+      'All Puja Samagri & Havan Samagri included',
+      'Clean site for puja setup'
+    ],
+    pandits: [2, 3],
+    availableTimeSlots: [
+      'Morning (6 AM - 8 AM)',
+      'Late Morning (8 AM - 10 AM)',
+      'Afternoon (12 PM - 2 PM)'
+    ]
+  },
+  {
+    id: 38,
+    name: 'Hanuman Chalisa Path',
+    image: '/images/hanuman-chalisa.jpg',
+    duration: '2 hours',
+    price: 4100,
+    rating: 4.9,
+    reviews: 70,
+    category: 'devotional',
+    occasions: ['hanuman', 'protection'],
+    description: "Hanuman Chalisa Path is a devotional recitation dedicated to Lord Hanuman, symbolizing faith, dedication, selflessness, and surrender. Chanting the 40 verses of Hanuman Chalisa is believed to bring strength, protection, and success, and to remove obstacles and negative influences from one's life.",
+    longDescription: `Hanuman Chalisa is a well-known Hindu devotional chant devoted to Lord Hanuman. The word Hanuman refers to Lord Hanuman's name, and the word Chalisa refers to the devotional hymn's 40 verses (excluding the opening and closing verses). This devotional poem to Lord Hanuman is thought to have been penned by Tulsidas, the 16th-century poet and saint best known for penning Ramcharitmanas.
+  The Hanuman Chalisa Path should be followed to gain physical and mental power, protection, and success. Hanuman is Lord Shiva's incarnation. He shields his devotees from diseases, disasters, and negative planetary influences. One of the most prevalent ways to please and worship Lord Hanuman is to chant the Hanuman Chalisa.
+  Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
 
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Sthapana Pujan
-• Guru Grah Shaanti Jaap
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Hanuman Chalisa Path (*11)
+  • Chola Sringaar Seva
+  • Havan Karyakram Sampannam
+  • Aarti & Prasad Vitaran
 
-Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-  requirements: [
-    'All Puja Samagri & Havan Samagri included',
-    'Clean site for puja setup'
-  ],
-  pandits: [1, 2],
-  availableTimeSlots: [
-    'Morning (6 AM - 8 AM)',
-    'Late Morning (8 AM - 10 AM)',
-    'Afternoon (12 PM - 2 PM)'
-  ]
-},
-{
-  id: 37,
-  name: 'Haldi Ceremony',
-  image: '/images/haldi-ceremony.jpg',
-  duration: '2 hours',
-  price: 4100,
-  rating: 4.8,
-  reviews: 52,
-  category: 'wedding',
-  occasions: ['marriage', 'haldi'],
-  description: "Haldi Ceremony is a vibrant pre-wedding ritual where turmeric paste is applied to the bride and groom. This ceremony is believed to purify the couple, ward off evil, and bring prosperity and happiness. The ritual is filled with joy, music, and blessings from family and friends, marking the beginning of the wedding festivities.",
-  longDescription: `Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Haldi Pujan
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
+  Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Vermilion (Sindoor), Chandi Wark Sheets, Yellow Vermilion (Pila Sindoor), Chameli Oil Bottle, Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
+  Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
+    requirements: [
+      'All Puja Samagri & Havan Samagri included',
+      'Clean site for puja setup'
+    ],
+    pandits: [1, 4],
+    availableTimeSlots: [
+      'Morning (6 AM - 8 AM)',
+      'Late Morning (8 AM - 10 AM)',
+      'Afternoon (12 PM - 2 PM)'
+    ]
+  },
+  {
+    id: 39,
+    name: 'Hartalika Teej Puja',
+    image: '/images/hartalika-teej.jpg',
+    duration: '2 hours',
+    price: 4100,
+    rating: 4.8,
+    reviews: 58,
+    category: 'festival',
+    occasions: ['teej', 'marriage'],
+    description: "Hartalika Teej Puja is performed to honor Lord Shiva and Goddess Parvati, seeking blessings for a happy married life or to find a suitable partner. Women observe nirjala (waterless) fasting and pray for the well-being and longevity of their husbands. The ritual is marked by devotion, traditional songs, and vibrant celebrations.",
+    longDescription: `The word Hartalika is a combination of the two words Harat and Aalika, which mean to kidnap a friend. Lord Shiva is said to have decided to marry Goddess Parvati on this day after 108 incarnations. As a result, it is regarded as one of the most auspicious occasions for a good marriage.
+  Single women desperately want to find a wonderful partner. This auspicious day is observed by newly married women wearing new attire, particularly green sarees, and visiting their parents' homes. They also do innovative swings and sing traditional songs about Lord Shiva and Goddess Parvati's love. Teej is also known as Teej Mata on this day since it commemorates the marriage of God Shiva and Goddess Parvati. Women pray for a happy marriage and the happiness of their family on this auspicious day.
+  Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
 
-Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-  requirements: [
-    'All Puja Samagri & Havan Samagri included',
-    'Clean site for puja setup'
-  ],
-  pandits: [2, 3],
-  availableTimeSlots: [
-    'Morning (6 AM - 8 AM)',
-    'Late Morning (8 AM - 10 AM)',
-    'Afternoon (12 PM - 2 PM)'
-  ]
-},
-{
-  id: 38,
-  name: 'Hanuman Chalisa Path',
-  image: '/images/hanuman-chalisa.jpg',
-  duration: '2 hours',
-  price: 4100,
-  rating: 4.9,
-  reviews: 70,
-  category: 'devotional',
-  occasions: ['hanuman', 'protection'],
-  description: "Hanuman Chalisa Path is a devotional recitation dedicated to Lord Hanuman, symbolizing faith, dedication, selflessness, and surrender. Chanting the 40 verses of Hanuman Chalisa is believed to bring strength, protection, and success, and to remove obstacles and negative influences from one's life.",
-  longDescription: `Hanuman Chalisa is a well-known Hindu devotional chant devoted to Lord Hanuman. The word Hanuman refers to Lord Hanuman's name, and the word Chalisa refers to the devotional hymn's 40 verses (excluding the opening and closing verses). This devotional poem to Lord Hanuman is thought to have been penned by Tulsidas, the 16th-century poet and saint best known for penning Ramcharitmanas.
-The Hanuman Chalisa Path should be followed to gain physical and mental power, protection, and success. Hanuman is Lord Shiva's incarnation. He shields his devotees from diseases, disasters, and negative planetary influences. One of the most prevalent ways to please and worship Lord Hanuman is to chant the Hanuman Chalisa.
-Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
+  Puja Vidhi:
+  • Swasti Vachnam
+  • Shodasha Upachara Puja
+  • Maha Sankalpam
+  • Gauri Ganesh Puja
+  • Kalash & Navgrah Puja
+  • Punyaha Vachnam
+  • Hartalika Teej Vrat Katha & Abhishek
+  • Aarti & Prasad Vitaran
 
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Hanuman Chalisa Path (*11)
-• Chola Sringaar Seva
-• Havan Karyakram Sampannam
-• Aarti & Prasad Vitaran
-
-Puja Samagri: Haldi, Kumkum, Akshata, Betel Nuts (Supari), Vermilion (Sindoor), Chandi Wark Sheets, Yellow Vermilion (Pila Sindoor), Chameli Oil Bottle, Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.
-Havan Samagri: Havan Kund, Mango Wood, Navgrah Wood, Desi Ghee, Havan Samagri, Dry Coconut.`,
-  requirements: [
-    'All Puja Samagri & Havan Samagri included',
-    'Clean site for puja setup'
-  ],
-  pandits: [1, 4],
-  availableTimeSlots: [
-    'Morning (6 AM - 8 AM)',
-    'Late Morning (8 AM - 10 AM)',
-    'Afternoon (12 PM - 2 PM)'
-  ]
-},
-{
-  id: 39,
-  name: 'Hartalika Teej Puja',
-  image: '/images/hartalika-teej.jpg',
-  duration: '2 hours',
-  price: 4100,
-  rating: 4.8,
-  reviews: 58,
-  category: 'festival',
-  occasions: ['teej', 'marriage'],
-  description: "Hartalika Teej Puja is performed to honor Lord Shiva and Goddess Parvati, seeking blessings for a happy married life or to find a suitable partner. Women observe nirjala (waterless) fasting and pray for the well-being and longevity of their husbands. The ritual is marked by devotion, traditional songs, and vibrant celebrations.",
-  longDescription: `The word Hartalika is a combination of the two words Harat and Aalika, which mean to kidnap a friend. Lord Shiva is said to have decided to marry Goddess Parvati on this day after 108 incarnations. As a result, it is regarded as one of the most auspicious occasions for a good marriage.
-Single women desperately want to find a wonderful partner. This auspicious day is observed by newly married women wearing new attire, particularly green sarees, and visiting their parents' homes. They also do innovative swings and sing traditional songs about Lord Shiva and Goddess Parvati's love. Teej is also known as Teej Mata on this day since it commemorates the marriage of God Shiva and Goddess Parvati. Women pray for a happy marriage and the happiness of their family on this auspicious day.
-Book online Pandit for Puja & Havan services with PujaKaro.in including all puja & havan samagri materials, at the cheapest price. Enjoy hassle free experience and attain spiritual & ritual divinity.
-
-Puja Vidhi:
-• Swasti Vachnam
-• Shodasha Upachara Puja
-• Maha Sankalpam
-• Gauri Ganesh Puja
-• Kalash & Navgrah Puja
-• Punyaha Vachnam
-• Hartalika Teej Vrat Katha & Abhishek
-• Aarti & Prasad Vitaran
-
-Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.`,
-  requirements: [
-    'All Puja Samagri included',
-    'Clean site for puja setup'
-  ],
-  pandits: [2, 3],
-  availableTimeSlots: [
-    'Morning (6 AM - 8 AM)',
-    'Late Morning (8 AM - 10 AM)',
-    'Afternoon (12 PM - 2 PM)'
-  ]
-},
+  Puja Samagri: Haldi, Kumkum, Akshata, Paan Patta, Chameli Oil Bottle, Chandi Wark Sheets, Betel Nuts (Supari), Desi Ghee, Mouli, Jaggery (Gud), Yagno-Paveetham (Janeu), Camphor (Kapur), Panchmeva, Red & White Cloth, Laung & Elaichi, Misri, Sandalwood Powder (Chandan Powder), Ashtagandha Powder, Honey, Ganga Jal, Dhoop, Yellow Mustard (Yellow Sarso), Black Sesame (Kaala Til), Durva Ghaas, Itra, Diya-Baati, Utensils, Dona (Disposable Bowl), Flowers Mala, Tulsi Leaves, Mango Leaves, Coconut, Curd, Milk, Mithaai, Fruits, Kalash, Chowki, Aasan.`,
+    requirements: [
+      'All Puja Samagri included',
+      'Clean site for puja setup'
+    ],
+    pandits: [2, 3],
+    availableTimeSlots: [
+      'Morning (6 AM - 8 AM)',
+      'Late Morning (8 AM - 10 AM)',
+      'Afternoon (12 PM - 2 PM)'
+    ]
+  },
   ]
   
   // Sample pandit data
