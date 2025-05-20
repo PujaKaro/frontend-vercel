@@ -245,7 +245,23 @@ import {
       throw error;
     }
   };
+  // Pincode validation function
+  export const validatePincode = async (pincode) => {
+    try {
+      const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+      const data = await response.json();
   
+      if (data[0].Status === 'Success') {
+        return { valid: true, location: data[0].PostOffice[0].District };
+      } else {
+        return { valid: false };
+      }
+    } catch (error) {
+      console.error('Error validating pincode:', error);
+      return { valid: false };
+    }
+  };
+
   // New order functions
   export const createOrder = async (orderData) => {
     try {
