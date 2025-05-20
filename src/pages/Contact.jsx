@@ -212,9 +212,9 @@ const Contact = () => {
               <ul className="space-y-2">
                 <li className="flex items-center gap-2 text-gray-400">
                   <FontAwesomeIcon icon={faPhone} />
-                  <span>+91 79825 45360</span>
+                  <span>+91 88006 27513</span>
                   <a 
-                    href="https://wa.me/917982545360" 
+                    href="https://wa.me/8800627513" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="ml-2 text-green-500 hover:text-green-700"

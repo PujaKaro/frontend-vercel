@@ -7,7 +7,7 @@ import {
   faSignOut, faCalendar, faClock, faRupeeSign,
   faBell, faHeart, faTicket, faGift, faCog,
   faStar, faQuestionCircle, faShare, faCheckCircle, faCreditCard,
-  faEye, faCopy, faTimes
+  faEye, faCopy, faTimes, faLock
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
@@ -476,6 +476,16 @@ const Profile = () => {
                   <FontAwesomeIcon icon={faCheckCircle} className="mr-2" />
                   Activated Services
                 </button>
+                 {/* Admin Dashboard button - only visible for admin users */}
+                 {userData.role === 'admin' && (
+                  <button
+                    onClick={() => navigate('/admin')}
+                    className="w-full text-left px-4 py-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100"
+                  >
+                    <FontAwesomeIcon icon={faLock} className="mr-2" />
+                    Admin Dashboard
+                  </button>
+                )}
               </nav>
             </div>
           </div>
