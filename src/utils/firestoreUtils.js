@@ -886,6 +886,50 @@ import {
 //   // Delete a product
 //   await deleteDocument('products', 'product123');
   
+  //ADDING PUJA
+
+  /**
+ * Add a new puja to the Firestore 'pujas' collection.
+ * Required fields: name, image, duration, price, rating, reviews, category, occasions, description, longDescription, requirements, pandits
+ * @param {Object} pujaData - The puja object
+ * @returns {Promise<string>} - The new puja's document ID
+ */
+export const addPuja = async (pujaData) => {
+  // List of required fields
+  const requiredFields = [
+    'name',
+    'image',
+    'duration',
+    'price',
+    'rating',
+    'reviews',
+    'category',
+    'occasions',
+    'description',
+    'longDescription',
+    'requirements',
+    'pandits'
+  ];
+
+  // Check for missing fields
+  const missing = requiredFields.filter(field => !(field in pujaData));
+  if (missing.length > 0) {
+    throw new Error('Missing required fields: ' + missing.join(', '));
+  }
+
+  try {
+    const pujasRef = collection(db, 'pujas');
+    const docRef = await addDoc(pujasRef, {
+      ...pujaData,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding puja:', error);
+    throw error;
+  }
+};
 //   // Query products by category
 //   const electronics = await queryDocuments('products', 'category', '==', 'electronics');
 //   */
@@ -921,4 +965,3 @@ export async function markUserDiscountUsed(userId) {
     console.error('Error marking discount as used:', error);
   }
 }
-
