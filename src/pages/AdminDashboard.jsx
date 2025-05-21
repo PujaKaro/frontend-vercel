@@ -36,7 +36,7 @@ import { toast } from 'react-hot-toast';
 import AdminCodesTabs from '../components/AdminCodesTabs';
 import AdminNotificationsTab from '../components/AdminNotificationsTab';
 
-
+import { addPuja } from '../utils/firestoreUtils';
 const AdminDashboard = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
@@ -85,6 +85,22 @@ const AdminDashboard = () => {
   const [isCreatingCoupon, setIsCreatingCoupon] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [showAddPujaModal, setShowAddPujaModal] = useState(false);
+  const [newPuja, setNewPuja] = useState({
+    name: '',
+    image: '',
+    duration: '',
+    price: '',
+    rating: '',
+    reviews: '',
+    category: '',
+    occasions: '',
+    description: '',
+    longDescription: '',
+    requirements: '',
+    pandits: ''
+  });
+  const [isAddingPuja, setIsAddingPuja] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -647,6 +663,17 @@ const AdminDashboard = () => {
                   <FontAwesomeIcon icon={faStar} className="mr-2" />
                   <span>Horoscope</span>
                 </button>
+                <button
+                  onClick={() => setShowAddPujaModal(true)}
+                  className={`w-full text-left px-4 py-2 rounded-lg ${
+                    showAddPujaModal
+                      ? 'bg-orange-50 text-orange-500'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  } mb-2`}
+                >
+                  <FontAwesomeIcon icon={faPlus} className="mr-2" />
+                  Add Puja
+                </button>
               </nav>
             </div>
           </div>
@@ -1148,6 +1175,80 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Add Puja Modal */}
+
+      
+     {showAddPujaModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-40 flex items-start justify-center z-50 pt-10">
+    <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg relative max-h-screen overflow-y-auto">
+      <button
+        className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl"
+        onClick={() => setShowAddPujaModal(false)}
+        aria-label="Close"
+      >
+        ×
+      </button>
+      <h2 className="text-xl font-semibold mb-4">Add New Puja</h2>
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setIsAddingPuja(true);
+          try {
+            await addPuja({
+              ...newPuja,
+              price: Number(newPuja.price),
+              rating: Number(newPuja.rating),
+              reviews: Number(newPuja.reviews),
+              occasions: newPuja.occasions.split(',').map(s => s.trim()),
+              requirements: newPuja.requirements.split(',').map(s => s.trim()),
+              pandits: newPuja.pandits.split(',').map(s => Number(s.trim()))
+            });
+            toast.success('Puja added!');
+            setShowAddPujaModal(false);
+            setNewPuja({
+              name: '',
+              image: '',
+              duration: '',
+              price: '',
+              rating: '',
+              reviews: '',
+              category: '',
+              occasions: '',
+              description: '',
+              longDescription: '',
+              requirements: '',
+              pandits: ''
+            });
+            fetchDashboardData();
+          } catch (err) {
+            toast.error('Failed to add puja');
+          } finally {
+            setIsAddingPuja(false);
+          }
+        }}
+        className="space-y-3"
+      >
+        <input className="w-full border rounded px-3 py-2" required placeholder="Name" value={newPuja.name} onChange={e => setNewPuja({ ...newPuja, name: e.target.value })} />
+        <input className="w-full border rounded px-3 py-2" required placeholder="Image URL" value={newPuja.image} onChange={e => setNewPuja({ ...newPuja, image: e.target.value })} />
+        <input className="w-full border rounded px-3 py-2" required placeholder="Duration" value={newPuja.duration} onChange={e => setNewPuja({ ...newPuja, duration: e.target.value })} />
+        <input className="w-full border rounded px-3 py-2" required type="number" placeholder="Price" value={newPuja.price} onChange={e => setNewPuja({ ...newPuja, price: e.target.value })} />
+        <input className="w-full border rounded px-3 py-2" required type="number" step="0.1" placeholder="Rating" value={newPuja.rating} onChange={e => setNewPuja({ ...newPuja, rating: e.target.value })} />
+        <input className="w-full border rounded px-3 py-2" required type="number" placeholder="Reviews" value={newPuja.reviews} onChange={e => setNewPuja({ ...newPuja, reviews: e.target.value })} />
+        <input className="w-full border rounded px-3 py-2" required placeholder="Category" value={newPuja.category} onChange={e => setNewPuja({ ...newPuja, category: e.target.value })} />
+        <input className="w-full border rounded px-3 py-2" required placeholder="Occasions (comma separated)" value={newPuja.occasions} onChange={e => setNewPuja({ ...newPuja, occasions: e.target.value })} />
+        <input className="w-full border rounded px-3 py-2" required placeholder="Requirements (comma separated)" value={newPuja.requirements} onChange={e => setNewPuja({ ...newPuja, requirements: e.target.value })} />
+        <input className="w-full border rounded px-3 py-2" required placeholder="Pandits (comma separated IDs)" value={newPuja.pandits} onChange={e => setNewPuja({ ...newPuja, pandits: e.target.value })} />
+        <textarea className="w-full border rounded px-3 py-2" required placeholder="Short Description" value={newPuja.description} onChange={e => setNewPuja({ ...newPuja, description: e.target.value })} />
+        <textarea className="w-full border rounded px-3 py-2" required placeholder="Long Description" value={newPuja.longDescription} onChange={e => setNewPuja({ ...newPuja, longDescription: e.target.value })} />
+        <button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 rounded transition" disabled={isAddingPuja}>
+          {isAddingPuja ? 'Adding...' : 'Add Puja'}
+        </button>
+      </form>
+    </div>
+  </div>
+)}
+      
     </div>
   );
 };
