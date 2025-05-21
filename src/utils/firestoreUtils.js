@@ -245,7 +245,23 @@ import {
       throw error;
     }
   };
+  // Pincode validation function
+  export const validatePincode = async (pincode) => {
+    try {
+      const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+      const data = await response.json();
   
+      if (data[0].Status === 'Success') {
+        return { valid: true, location: data[0].PostOffice[0].District };
+      } else {
+        return { valid: false };
+      }
+    } catch (error) {
+      console.error('Error validating pincode:', error);
+      return { valid: false };
+    }
+  };
+
   // New order functions
   export const createOrder = async (orderData) => {
     try {
@@ -847,34 +863,29 @@ import {
     }
   };
 
-  // Example usage:
-  /*
-  // Create a user
-  await createDocument('users', 'user123', {
-    name: 'John Doe',
-    email: 'john@example.com'
-  });
+  //  lEt it be coomment out as an example
+//   // Example usage:
+//   /*
+//   // Create a user
+//   await createDocument('users', 'user123', {
+//     name: 'John Doe',
+//     email: 'john@example.com'
+//   });
   
-  // Get a user
-  const user = await getDocument('users', 'user123');
+//   // Get a user
+//   const user = await getDocument('users', 'user123');
   
-  // Get all products
-  const products = await getAllDocuments('products');
+//   // Get all products
+//   const products = await getAllDocuments('products');
   
-  // Update a product
-  await updateDocument('products', 'product123', {
-    price: 99.99
-  });
+//   // Update a product
+//   await updateDocument('products', 'product123', {
+//     price: 99.99
+//   });
   
-  // Delete a product
-  await deleteDocument('products', 'product123');
+//   // Delete a product
+//   await deleteDocument('products', 'product123');
   
-  // Query products by category
-  const electronics = await queryDocuments('products', 'category', '==', 'electronics');
-  */
-
-
-
   //ADDING PUJA
 
   /**
@@ -919,3 +930,38 @@ export const addPuja = async (pujaData) => {
     throw error;
   }
 };
+//   // Query products by category
+//   const electronics = await queryDocuments('products', 'category', '==', 'electronics');
+//   */
+
+/**
+ * Check if a user has already used the PUJAKARO20 discount
+ * @param {string} userId
+ * @returns {Promise<boolean>}
+ */
+export async function hasUserUsedDiscount(userId) {
+  try {
+    const docRef = doc(db, 'discountsUsed', userId);
+    const docSnap = await getDoc(docRef);
+    return docSnap.exists();
+  } catch (error) {
+    console.error('Error checking discount usage:', error);
+    return false;
+  }
+}
+
+/**
+ * Mark that a user has used the PUJAKARO20 discount
+ * @param {string} userId
+ * @returns {Promise<void>}
+ */
+export async function markUserDiscountUsed(userId) {
+  try {
+    await setDoc(doc(db, 'discountsUsed', userId), {
+      used: true,
+      usedAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error('Error marking discount as used:', error);
+  }
+}

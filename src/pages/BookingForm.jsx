@@ -3,15 +3,22 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt, faClock, faUser, faMapMarkerAlt, faPhoneAlt, faEnvelope, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { pujaServices } from '../data/data';
-import { trackPujaBooking, trackPurchase } from '../utils/analytics';
+import { trackPujaBooking } from '../utils/analytics';
 import { useAuth } from '../contexts/AuthContext';
-import { saveFormData, getCurrentLocation, saveLocationToBooking } from '../utils/formUtils';
+import { getCurrentLocation } from '../utils/formUtils';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { doc, updateDoc, arrayUnion, Timestamp, addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import emailjs from 'emailjs-com';
-import { createBooking, validateReferralCode, updateReferralStats, validateCode, updateCouponStats } from '../utils/firestoreUtils';
+import {
+  validateReferralCode,
+  updateReferralStats,
+  validateCode,
+  updateCouponStats,
+  hasUserUsedDiscount,
+  markUserDiscountUsed
+} from '../utils/firestoreUtils';
 
 // EmailJS configuration from environment variables
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
@@ -23,7 +30,7 @@ const BookingForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { currentUser } = useAuth();
-  
+
   // State for form fields
   const [formData, setFormData] = useState({
     name: '',
@@ -39,7 +46,7 @@ const BookingForm = () => {
     specialInstructions: '',
     referralCode: ''
   });
-  
+
   const [puja, setPuja] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,27 +56,22 @@ const BookingForm = () => {
   const [validatedCodeData, setValidatedCodeData] = useState(null);
   const [codeError, setCodeError] = useState('');
   const [displayTimeSlot, setDisplayTimeSlot] = useState('');
-  
+
   useEffect(() => {
     // Initialize EmailJS
     emailjs.init(EMAILJS_PUBLIC_KEY);
-    
+
     // Get puja info from location state or fetch it based on ID
     if (location.state?.puja) {
       setPuja(location.state.puja);
-      // Set the date and time from location state if available
       if (location.state.date) {
-        // Extract the first time from the timeSlot if it contains a range
         let timeValue = location.state.timeSlot || '';
         let displayTime = timeValue;
-        
         if (timeValue.includes('(')) {
-          // Extract the first time from the range (e.g., "Evening (6 PM - 8 PM)" -> "6 PM")
           const timeMatch = timeValue.match(/\(([^)]+)\)/);
           if (timeMatch) {
             const timeRange = timeMatch[1];
             const firstTime = timeRange.split('-')[0].trim();
-            // Convert 6 PM to 18:00 format
             const [hours, period] = firstTime.split(' ');
             let hour = parseInt(hours);
             if (period === 'PM' && hour !== 12) {
@@ -80,7 +82,6 @@ const BookingForm = () => {
             timeValue = `${hour.toString().padStart(2, '0')}:00`;
           }
         }
-        
         setDisplayTimeSlot(displayTime);
         setFormData(prev => ({
           ...prev,
@@ -96,19 +97,14 @@ const BookingForm = () => {
         navigate('/puja-booking');
       }
     }
-    
-    // Track puja booking view in Google Analytics
+
     if (puja) {
       trackPujaBooking(puja);
     }
 
-    // Get user's current location
     getCurrentLocation()
-      .then(location => {
-        setUserLocation(location);
-      })
-      .catch(error => {
-        console.error('Error getting location:', error);
+      .then(location => setUserLocation(location))
+      .catch(() => {
         toast.warning('Could not get your location. Please enter your address manually.');
       });
 
@@ -117,7 +113,6 @@ const BookingForm = () => {
       return;
     }
 
-    // Set user data if available
     if (currentUser) {
       setFormData(prev => ({
         ...prev,
@@ -127,46 +122,42 @@ const BookingForm = () => {
         address: currentUser.address || ''
       }));
     }
-  }, [id, location, navigate, currentUser]);
-  
+  }, [id, location, navigate, currentUser, puja]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value
     });
-    
-    // Clear error for this field when user types
+
     if (errors[name]) {
       setErrors({
         ...errors,
         [name]: ''
       });
     }
-    
-    // Clear coupon/referral code error when user changes the code
+
     if (name === 'referralCode') {
       setCodeError('');
       setValidatedCodeData(null);
+      setDiscountApplied(0);
     }
   };
-  
+
   const validateForm = () => {
     const newErrors = {};
-    
     if (!formData.name.trim()) newErrors.name = 'Name is required';
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
     }
-    
     if (!formData.phone.trim()) {
       newErrors.phone = 'Phone number is required';
     } else if (!/^\d{10}$/.test(formData.phone.replace(/\D/g, ''))) {
       newErrors.phone = 'Phone number must be 10 digits';
     }
-    
     if (!formData.address.trim()) newErrors.address = 'Address is required';
     if (!formData.city.trim()) newErrors.city = 'City is required';
     if (!formData.state.trim()) newErrors.state = 'State is required';
@@ -175,26 +166,37 @@ const BookingForm = () => {
     } else if (!/^\d{6}$/.test(formData.pincode.replace(/\D/g, ''))) {
       newErrors.pincode = 'Pincode must be 6 digits';
     }
-
     if (!formData.date.trim()) newErrors.date = 'Date is required';
     if (!formData.time.trim()) newErrors.time = 'Time is required';
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  // --- PUJAKARO20 and code validation logic ---
   const handleCodeValidation = async () => {
     if (!formData.referralCode) return;
-    
     setIsValidatingCode(true);
     setCodeError('');
     try {
+      // Special logic for PUJAKARO20 (one-time per user)
+      if (formData.referralCode.trim().toUpperCase() === 'PUJAKARO20') {
+        const alreadyUsed = await hasUserUsedDiscount(currentUser.uid);
+        if (alreadyUsed) {
+          setDiscountApplied(0);
+          setCodeError('You have already used this discount code.');
+          setValidatedCodeData(null);
+          return;
+        }
+        setDiscountApplied(20);
+        setValidatedCodeData({ discountPercentage: 20, isCoupon: false, isSpecial: true });
+        toast.success('20% discount applied!');
+        return;
+      }
+
       const result = await validateCode(formData.referralCode);
-      
+
       if (result.valid) {
-        // For coupon codes that are assigned to specific users
         if (result.isCoupon && result.assignedUsers) {
-          // Check if current user is in the assigned users list
           if (!result.assignedUsers.includes(currentUser.uid)) {
             setDiscountApplied(0);
             setCodeError('This coupon code is not valid for your account');
@@ -202,7 +204,6 @@ const BookingForm = () => {
             return;
           }
         }
-        
         setDiscountApplied(result.discountPercentage);
         setValidatedCodeData(result);
         toast.success(`${result.discountPercentage}% discount applied!`);
@@ -212,17 +213,17 @@ const BookingForm = () => {
         setValidatedCodeData(null);
       }
     } catch (error) {
-      console.error('Error validating code:', error);
       setCodeError('Error validating code');
       setValidatedCodeData(null);
     } finally {
       setIsValidatingCode(false);
     }
   };
-  
+
+  // --- Booking submit logic with PUJAKARO20 ---
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!currentUser) {
       toast.error('Please sign in to book a puja');
       navigate('/login');
@@ -231,19 +232,43 @@ const BookingForm = () => {
 
     if (validateForm()) {
       setIsSubmitting(true);
-      
+
       try {
-        // Validate code one more time if it exists but hasn't been validated
-        if (formData.referralCode && !validatedCodeData) {
+        let discount = 0;
+        let discountType = '';
+        let specialDiscountUsed = false;
+
+        // Special logic for PUJAKARO20 (one-time per user)
+        if (
+          formData.referralCode &&
+          formData.referralCode.trim().toUpperCase() === 'PUJAKARO20'
+        ) {
+          const alreadyUsed = await hasUserUsedDiscount(currentUser.uid);
+          if (alreadyUsed) {
+            toast.error('You have already used this discount code.');
+            setIsSubmitting(false);
+            return;
+          }
+          discount = 20;
+          discountType = 'special';
+          specialDiscountUsed = true;
+        } else if (formData.referralCode && !validatedCodeData) {
           await handleCodeValidation();
           if (codeError) {
             setIsSubmitting(false);
             return;
           }
+          if (validatedCodeData && validatedCodeData.discountPercentage) {
+            discount = validatedCodeData.discountPercentage;
+            discountType = validatedCodeData.isCoupon ? 'coupon' : 'referral';
+          }
+        } else if (validatedCodeData && validatedCodeData.discountPercentage) {
+          discount = validatedCodeData.discountPercentage;
+          discountType = validatedCodeData.isCoupon ? 'coupon' : 'referral';
         }
-        
-        const finalPrice = puja.price * (1 - discountApplied / 100);
-        
+
+        const finalPrice = puja.price * (1 - discount / 100);
+
         const bookingData = {
           userId: currentUser.uid,
           userEmail: currentUser.email,
@@ -252,9 +277,9 @@ const BookingForm = () => {
           pujaName: puja.name,
           price: puja.price,
           finalPrice: finalPrice,
-          discountApplied: discountApplied,
+          discountApplied: discount,
           referralCode: formData.referralCode || null,
-          discountType: validatedCodeData?.isCoupon ? 'coupon' : 'referral',
+          discountType: discountType,
           date: formData.date,
           time: formData.time,
           address: formData.address,
@@ -275,15 +300,19 @@ const BookingForm = () => {
           status: 'pending'
         });
 
-        // Update stats based on code type
-        if (formData.referralCode && validatedCodeData) {
+        // Update stats for referral/coupon codes
+        if (formData.referralCode && validatedCodeData && !specialDiscountUsed) {
           const discountAmount = puja.price - finalPrice;
-          
           if (validatedCodeData.isCoupon) {
             await updateCouponStats(formData.referralCode, finalPrice, discountAmount);
           } else {
             await updateReferralStats(formData.referralCode, finalPrice, discountAmount);
           }
+        }
+
+        // Mark PUJAKARO20 as used if applied
+        if (specialDiscountUsed) {
+          await markUserDiscountUsed(currentUser.uid);
         }
 
         // Send email notification about the new booking
@@ -326,17 +355,16 @@ const BookingForm = () => {
             }
           }
         });
-        
+
         toast.success('Puja booking successful!');
       } catch (error) {
-        console.error('Error saving booking:', error);
         toast.error(`Failed to book puja: ${error.text || error.message || 'Please try again'}`);
       } finally {
         setIsSubmitting(false);
       }
     }
   };
-  
+
   if (!puja) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -344,24 +372,24 @@ const BookingForm = () => {
       </div>
     );
   }
-  
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
-        <button 
+        <button
           onClick={() => navigate(-1)}
           className="mb-6 flex items-center text-blue-600 hover:text-blue-800"
         >
           <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
           <span>Back</span>
         </button>
-        
+
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-[#fb9548] to-[#ffb677]">
             <h1 className="text-2xl font-bold text-white">Booking Details</h1>
             <p className="text-white text-opacity-90 mt-1">Please provide your details to complete the booking</p>
           </div>
-          
+
           <div className="p-6">
             {/* Puja Summary */}
             <div className="bg-blue-50 p-4 rounded-lg mb-6">
@@ -395,11 +423,11 @@ const BookingForm = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Booking Form */}
             <form onSubmit={handleSubmit}>
+              {/* Personal Details */}
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Personal Details</h2>
-              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="name">
@@ -421,7 +449,6 @@ const BookingForm = () => {
                   </div>
                   {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name}</p>}
                 </div>
-                
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="email">
                     Email Address*
@@ -465,7 +492,6 @@ const BookingForm = () => {
                   </div>
                   {errors.date && <p className="mt-1 text-sm text-red-500">{errors.date}</p>}
                 </div>
-                
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="time">
                     Time*
@@ -486,7 +512,7 @@ const BookingForm = () => {
                   {errors.time && <p className="mt-1 text-sm text-red-500">{errors.time}</p>}
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="phone">
@@ -509,9 +535,9 @@ const BookingForm = () => {
                   {errors.phone && <p className="mt-1 text-sm text-red-500">{errors.phone}</p>}
                 </div>
               </div>
-              
+
+              {/* Address Details */}
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Address Details</h2>
-              
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="address">
                   Address*
@@ -532,7 +558,7 @@ const BookingForm = () => {
                 </div>
                 {errors.address && <p className="mt-1 text-sm text-red-500">{errors.address}</p>}
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="city">
@@ -549,7 +575,6 @@ const BookingForm = () => {
                   />
                   {errors.city && <p className="mt-1 text-sm text-red-500">{errors.city}</p>}
                 </div>
-                
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="state">
                     State*
@@ -565,7 +590,6 @@ const BookingForm = () => {
                   />
                   {errors.state && <p className="mt-1 text-sm text-red-500">{errors.state}</p>}
                 </div>
-                
                 <div>
                   <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="pincode">
                     Pincode*
@@ -582,7 +606,7 @@ const BookingForm = () => {
                   {errors.pincode && <p className="mt-1 text-sm text-red-500">{errors.pincode}</p>}
                 </div>
               </div>
-              
+
               <div className="mb-6">
                 <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="additionalInfo">
                   Additional Information (Optional)
@@ -598,6 +622,7 @@ const BookingForm = () => {
                 ></textarea>
               </div>
 
+              {/* Coupon/Referral Code Field */}
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="referralCode">
                   Referral or Coupon Code (Optional)
@@ -624,7 +649,7 @@ const BookingForm = () => {
                 {codeError && <p className="text-red-500 text-xs italic mt-1">{codeError}</p>}
                 {validatedCodeData && (
                   <div className="mt-2 p-2 bg-green-50 text-green-700 text-sm rounded">
-                    {validatedCodeData.isCoupon ? 'Coupon' : 'Referral'} code applied: {discountApplied}% discount
+                    {validatedCodeData.isCoupon ? 'Coupon' : validatedCodeData.isSpecial ? 'Special' : 'Referral'} code applied: {discountApplied}% discount
                   </div>
                 )}
               </div>
@@ -648,7 +673,7 @@ const BookingForm = () => {
                   </div>
                 </div>
               )}
-              
+
               <div className="mt-8">
                 <button
                   type="submit"
