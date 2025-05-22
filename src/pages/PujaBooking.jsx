@@ -47,7 +47,6 @@ const PujaBooking = () => {
   const [showPanditModal, setShowPanditModal] = useState(false);
   const [selectedPuja, setSelectedPuja] = useState(null);
   const [selectedPandit, setSelectedPandit] = useState(null);
-  const [expandedPujaId, setExpandedPujaId] = useState(null);
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   
