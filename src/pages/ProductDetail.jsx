@@ -3,13 +3,19 @@ import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar, faHeart, faShoppingCart, faClock, faCalendarAlt, faArrowLeft, faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
-import { products, pujaServices, getSuggestedPujas, pandits, getPanditById } from '../data/data';
 import { useAuth } from '../contexts/AuthContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SEO from '../components/SEO';
 import { trackProductView, trackAddToCart } from '../utils/analytics';
 import useNavigationTracker from '../hooks/useNavigationTracker';
+import { 
+  getProductById, 
+  getPujaById, 
+  getSuggestedProducts, 
+  getSuggestedPujas, 
+  getPanditById 
+} from '../utils/dataUtils';
 
 const ProductDetail = () => {
   // Use the navigation tracker hook to enable page navigation notifications
@@ -33,72 +39,73 @@ const ProductDetail = () => {
   // Mock additional images for all products
   const [additionalImages, setAdditionalImages] = useState([]);
   
+  // Add a loading state to manage the data fetching process
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
   useEffect(() => {
     // Determine if this is a product or puja service
     const typeFromPath = location.pathname.includes('/product/') ? 'product' : 'puja';
     setItemType(typeFromPath);
     
-    let foundItem;
-    
-    // Find the appropriate item based on the path type
-    if (typeFromPath === 'product') {
-      foundItem = products.find(product => product.id === parseInt(id));
-    } else {
-      foundItem = pujaServices.find(puja => puja.id === parseInt(id));
-    }
-    
-    // Only proceed if we found a valid item
-    if (foundItem) {
-      setItem(foundItem);
-      
-      // Get related items
-      let suggestions = [];
-      if (typeFromPath === 'product') {
-        // Get similar products from the same category
-        suggestions = products
-          .filter(product => 
-            product.id !== foundItem.id && 
-            product.category === foundItem.category
-          )
-          .slice(0, 3);
-          
-        // If not enough, add random products
-        if (suggestions.length < 3) {
-          const randomProducts = products
-            .filter(product => 
-              product.id !== foundItem.id && 
-              !suggestions.some(s => s.id === product.id)
-            )
-            .sort(() => 0.5 - Math.random())
-            .slice(0, 3 - suggestions.length);
-          
-          suggestions = [...suggestions, ...randomProducts];
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        let foundItem;
+        
+        // Fetch the appropriate item based on the path type
+        if (typeFromPath === 'product') {
+          foundItem = await getProductById(id);
+        } else {
+          foundItem = await getPujaById(id);
         }
-      } else {
-        suggestions = getSuggestedPujas(id);
+        
+        // Only proceed if we found a valid item
+        if (foundItem) {
+          setItem(foundItem);
+          
+          // Get related items
+          let suggestions = [];
+          if (typeFromPath === 'product') {
+            // Get similar products from the same category
+            suggestions = await getSuggestedProducts(id, 3);
+          } else {
+            // Get suggested pujas
+            suggestions = await getSuggestedPujas(id, 3);
+          }
+          setSuggestedItems(suggestions || []);
+          
+          // Generate additional mock images
+          const mockImages = [
+            foundItem.image || '/images/featuredPuja.jpg',
+          ];
+          setAdditionalImages(mockImages);
+          setActiveImage(0);
+          
+          // Generate SEO data based on item type
+          if (typeFromPath === 'product' && foundItem.category) {
+            generateProductSEO(foundItem);
+          } else if (typeFromPath === 'puja') {
+            generatePujaSEO(foundItem);
+          }
+          
+          // Track product view in Google Analytics when product is loaded
+          trackProductView(foundItem);
+        } else {
+          setError('Item not found');
+          toast.error('Item not found');
+        }
+      } catch (error) {
+        console.error('Error fetching item details:', error);
+        setError('Failed to load item details');
+        toast.error('Failed to load item details. Please try again later.');
+      } finally {
+        setLoading(false);
       }
-      setSuggestedItems(suggestions || []);
-      
-      // Generate additional mock images
-      const mockImages = [
-        foundItem.image || '/images/featuredPuja.jpg',
-        // '/images/ganesh.jpg',
-        // '/images/featuredPuja.jpg',
-        // '/images/ganesh.jpg',
-      ];
-      setAdditionalImages(mockImages);
-      setActiveImage(0);
-      
-      // Generate SEO data based on item type
-      if (typeFromPath === 'product' && foundItem.category) {
-        generateProductSEO(foundItem);
-      } else if (typeFromPath === 'puja') {
-        generatePujaSEO(foundItem);
-      }
-      
-      // Track product view in Google Analytics when product is loaded
-      trackProductView(foundItem);
-    }
+    };
+    
+    fetchData();
   }, [id, location.pathname]);
   
   // Generate SEO data for products
@@ -376,10 +383,32 @@ const ProductDetail = () => {
     return text.slice(0, maxLength) + '...';
   };
   
-  if (!item) {
+  // Update the loading and error states
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-xl text-gray-600">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+          <p className="text-xl text-gray-600">Loading item details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !item) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center p-8 bg-white rounded-lg shadow-md max-w-md">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Item Not Found</h2>
+          <p className="text-gray-600 mb-6">{error || "We couldn't find the item you're looking for."}</p>
+          <button 
+            onClick={() => navigate(-1)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+          >
+            <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
+            Go Back
+          </button>
+        </div>
       </div>
     );
   }
@@ -614,28 +643,24 @@ const ProductDetail = () => {
                     </p>
                   </div>
                   
-                  {/* <div className="mb-6">
-                    <h2 className="text-lg font-semibold mb-2">Available Pandits</h2>
-                    <div className="space-y-3">
-                      {item.pandits.map(panditId => {
-                        const pandit = getPanditById(panditId);
-                        return (
-                          <div key={panditId} className="flex items-center">
-                            <img 
-                              src={pandit.image} 
-                              alt={pandit.name}
-                              className="w-10 h-10 rounded-full object-cover mr-3"
-                            />
+                  {itemType === 'puja' && item.pandits && item.pandits.length > 0 && (
+                    <div className="mb-6">
+                      <h2 className="text-lg font-semibold mb-2">Available Pandits</h2>
+                      <div className="space-y-3">
+                        {item.pandits.map((panditId, index) => (
+                          <div key={`pandit-${index}-${panditId}`} className="flex items-center">
+                            <div className="w-10 h-10 rounded-full bg-gray-200 mr-3 flex items-center justify-center">
+                              <span className="text-gray-500">{typeof panditId === 'string' ? panditId.charAt(0).toUpperCase() : 'P'}</span>
+                            </div>
                             <div>
-                              <p className="font-medium">{pandit.name}</p>
-                              <p className="text-sm text-gray-600">{pandit.specialization}</p>
+                              <p className="font-medium">Pandit {panditId}</p>
+                              <p className="text-sm text-gray-600">Ritual Specialist</p>
                             </div>
                           </div>
-                        );
-                      })}
+                        ))}
+                      </div>
                     </div>
-                  </div> */}
-                  
+                  )}
                   
                 </>
               )}

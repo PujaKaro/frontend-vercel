@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter, faStar, faSearch, faHeart, faShoppingCart, faChevronDown, faChevronUp, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
-import { products } from '../data/data';
+import { getAllProducts } from '../utils/dataUtils';
 import { useAuth } from '../contexts/AuthContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -20,26 +20,44 @@ const Shop = () => {
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
   const { currentUser, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    // Set initial products from data file
-    const productsWithWishlist = products.map(product => ({
-      ...product,
-      isWishlisted: false
-    }));
-    setProductList(productsWithWishlist);
-    setFilteredProducts(productsWithWishlist);
-
-    // Check for search query in URL
-    const searchParams = new URLSearchParams(location.search);
-    const searchQuery = searchParams.get('search');
-    if (searchQuery) {
-      setSearchTerm(searchQuery);
-      applyFilters(productsWithWishlist, { ...filters }, searchQuery);
-    }
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        // Fetch products from Firestore
+        const productsData = await getAllProducts();
+        
+        // Transform products data
+        const productsWithWishlist = productsData.map(product => ({
+          ...product,
+          isWishlisted: false
+        }));
+        
+        setProductList(productsWithWishlist);
+        setFilteredProducts(productsWithWishlist);
+        
+        // Check for search query in URL
+        const searchParams = new URLSearchParams(location.search);
+        const searchQuery = searchParams.get('search');
+        if (searchQuery) {
+          setSearchTerm(searchQuery);
+          applyFilters(productsWithWishlist, { ...filters }, searchQuery);
+        }
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setLoading(false);
+        toast.error('Failed to load products. Please try again later.');
+      }
+    };
+    
+    fetchProducts();
   }, [location.search]);
 
   const applyFilters = (products, currentFilters, search = searchTerm) => {
