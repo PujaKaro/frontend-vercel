@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -15,19 +15,23 @@ import {
   faUser,
   faPhoneAlt,
   faCheckCircle,
-  faLanguage
+  faLanguage,
+  faSpinner
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import useNavigationTracker from '../hooks/useNavigationTracker';
-import { pujaServices, pandits } from '../data/data';
+import { getAllPujas, getAllPandits } from '../utils/dataUtils';
+import MigrateDataButton from '../components/MigrateDataButton';
 
 const PujaBooking = () => {
   // Use the navigation tracker hook to enable page navigation notifications
   useNavigationTracker();
   
-  const [pujas, setPujas] = useState(pujaServices); // Use imported pujaServices
+  const [pujas, setPujas] = useState([]);
+  const [pandits, setPandits] = useState([]);
+  const [loading, setLoading] = useState(true);
   
   const [filters, setFilters] = useState({
     searchTerm: '',
@@ -46,6 +50,29 @@ const PujaBooking = () => {
   const [expandedPujaId, setExpandedPujaId] = useState(null);
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // Fetch pujas and pandits from Firestore
+        const [pujasData, panditsData] = await Promise.all([
+          getAllPujas(),
+          getAllPandits()
+        ]);
+        
+        setPujas(pujasData);
+        setPandits(panditsData);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        toast.error('Failed to load data. Please try again later.');
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, []);
   
   const handleFilterChange = (filterType, value) => {
     setFilters(prev => ({ ...prev, [filterType]: value }));
@@ -79,7 +106,7 @@ const PujaBooking = () => {
 
     if (filters.occasion !== 'all') {
       filtered = filtered.filter(p => 
-        p.occasions.includes(filters.occasion)
+        p.occasions && p.occasions.includes(filters.occasion)
       );
     }
 
@@ -129,6 +156,21 @@ const PujaBooking = () => {
     }
   };
   
+  const handleDataMigrationSuccess = async () => {
+    // Refresh data after successful migration
+    try {
+      const [pujasData, panditsData] = await Promise.all([
+        getAllPujas(),
+        getAllPandits()
+      ]);
+      
+      setPujas(pujasData);
+      setPandits(panditsData);
+    } catch (error) {
+      console.error('Error fetching data after migration:', error);
+    }
+  };
+  
   const filteredPujas = filterPujas();
   
   // FAQ data
@@ -152,54 +194,6 @@ const PujaBooking = () => {
     {
       question: "How experienced are your pandits?",
       answer: "All our pandits have a minimum of 10 years of experience performing various Vedic rituals and are well-versed in Sanskrit mantras and traditional procedures. They are carefully vetted for their knowledge, authenticity, and ability to explain the significance of each ritual."
-    }
-  ];
-  
-  // Sample pandit data
-  const pandits = [
-    {
-      id: 1,
-      name: "Pandit Ramesh Sharma",
-      image: "/images/ganesh.jpg",
-      experience: "15+ years",
-      specialization: "Satyanarayan Puja, Griha Pravesh",
-      rating: 4.9,
-      reviews: 132,
-      languages: ["Hindi", "Sanskrit", "English"],
-      availability: true
-    },
-    {
-      id: 2,
-      name: "Pandit Suresh Joshi",
-      image: "/images/featuredPuja.jpg",
-      experience: "20+ years",
-      specialization: "Navgraha Puja, Rudrabhishek",
-      rating: 4.8,
-      reviews: 98,
-      languages: ["Hindi", "Sanskrit", "Gujarati"],
-      availability: true
-    },
-    {
-      id: 3,
-      name: "Pandit Vijay Trivedi",
-      image: "/images/ganesh.jpg",
-      experience: "12+ years",
-      specialization: "Ganesh Puja, Lakshmi Puja",
-      rating: 4.7,
-      reviews: 85,
-      languages: ["Hindi", "Sanskrit", "English", "Marathi"],
-      availability: true
-    },
-    {
-      id: 4,
-      name: "Pandit Karan Shastri",
-      image: "/images/featuredPuja.jpg",
-      experience: "18+ years",
-      specialization: "Kaal Sarp Dosh Nivaran, Maha Mrityunjaya Japa",
-      rating: 4.9,
-      reviews: 115,
-      languages: ["Hindi", "Sanskrit", "Bengali"],
-      availability: false
     }
   ];
   
@@ -349,89 +343,118 @@ const PujaBooking = () => {
           </div>
         </div>
         
-        {/* Puja Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filterPujas().map((puja) => (
-            <div 
-              key={puja.id} 
-              className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300 cursor-pointer"
-              onClick={() => navigate(`/puja-booking/${puja.id}`)}
-            >
-              <div className="h-48 overflow-hidden">
-                <img
-                  src={puja.image}
-                  alt={puja.name}
-                  className="w-full h-full object-cover"
+        {/* Main Content */}
+        {loading ? (
+          <div className="flex flex-col items-center justify-center h-64">
+            <FontAwesomeIcon icon={faSpinner} className="text-blue-500 text-4xl animate-spin mb-4" />
+            <p className="text-gray-600">Loading puja services...</p>
+          </div>
+        ) : filteredPujas.length === 0 ? (
+          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No puja services found</h3>
+            <p className="text-gray-600 mb-6">
+              {pujas.length === 0 
+                ? "It looks like our puja database is empty. Please initialize the data to get started."
+                : "No pujas match your current filters. Try adjusting your search criteria."}
+            </p>
+            
+            {pujas.length === 0 && (
+              <div className="flex justify-center">
+                <MigrateDataButton
+                  onSuccess={handleDataMigrationSuccess}
+                  buttonText="Initialize Puja Database"
+                  className="px-6 py-3 text-lg"
                 />
               </div>
-              
-              <div className="p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg font-bold text-gray-900">{puja.name}</h3>
-                  <div className="flex items-center">
-                    <FontAwesomeIcon icon={faStar} className="text-yellow-400 mr-1" />
-                    <span className="text-gray-700">{puja.rating}</span>
-                    <span className="text-gray-500 text-xs ml-1">({puja.reviews})</span>
+            )}
+          </div>
+        ) : (
+          <>
+            {/* Pujas List */}
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {filteredPujas.map((puja, index) => (
+                <div 
+                  key={`puja-${puja.id}-${index}`} 
+                  className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300 cursor-pointer"
+                  onClick={() => navigate(`/puja-booking/${puja.id}`)}
+                >
+                  <div className="h-48 overflow-hidden">
+                    <img
+                      src={puja.image}
+                      alt={puja.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-lg font-bold text-gray-900">{puja.name}</h3>
+                      <div className="flex items-center">
+                        <FontAwesomeIcon icon={faStar} className="text-yellow-400 mr-1" />
+                        <span className="text-gray-700">{puja.rating}</span>
+                        <span className="text-gray-500 text-xs ml-1">({puja.reviews})</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center text-gray-600 text-sm mb-3">
+                      <FontAwesomeIcon icon={faClock} className="mr-1" />
+                      <span>{puja.duration}</span>
+                    </div>
+                    
+                    <p className="text-gray-600 text-sm mb-4">{puja.description.length > 120 ? `${puja.description.substring(0, 120)}...` : puja.description}</p>
+                    
+                    {expandedPujaId === puja.id ? (
+                      <>
+                        <p className="text-gray-700 whitespace-pre-line mb-2">{puja.longDescription}</p>
+                        <button
+                          className="text-blue-600 text-sm underline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setExpandedPujaId(null);
+                          }}
+                        >
+                          Read Less
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-gray-700 whitespace-pre-line mb-2">
+                          {puja.longDescription.length > 180
+                            ? `${puja.longDescription.substring(0, 180)}...`
+                            : puja.longDescription}
+                        </p>
+                        {puja.longDescription.length > 180 && (
+                          <button
+                            className="text-blue-600 text-sm underline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setExpandedPujaId(puja.id);
+                            }}
+                          >
+                            Read More
+                          </button>
+                        )}
+                      </>
+                    )}
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="text-blue-600 font-bold">₹{puja.price.toLocaleString()}</div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent navigation to detail page
+                          handleBookPuja(puja);
+                        }}
+                        className="px-4 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors"
+                      >
+                        Book Now
+                      </button>
+                    </div>
                   </div>
                 </div>
-                
-                <div className="flex items-center text-gray-600 text-sm mb-3">
-                  <FontAwesomeIcon icon={faClock} className="mr-1" />
-                  <span>{puja.duration}</span>
-                </div>
-                
-                <p className="text-gray-600 text-sm mb-4">{puja.description.length > 120 ? `${puja.description.substring(0, 120)}...` : puja.description}</p>
-                
-                {expandedPujaId === puja.id ? (
-                  <>
-                    <p className="text-gray-700 whitespace-pre-line mb-2">{puja.longDescription}</p>
-                    <button
-                      className="text-blue-600 text-sm underline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setExpandedPujaId(null);
-                      }}
-                    >
-                      Read Less
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-gray-700 whitespace-pre-line mb-2">
-                      {puja.longDescription.length > 180
-                        ? `${puja.longDescription.substring(0, 180)}...`
-                        : puja.longDescription}
-                    </p>
-                    {puja.longDescription.length > 180 && (
-                      <button
-                        className="text-blue-600 text-sm underline"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setExpandedPujaId(puja.id);
-                        }}
-                      >
-                        Read More
-                      </button>
-                    )}
-                  </>
-                )}
-                
-                <div className="flex items-center justify-between">
-                  <div className="text-blue-600 font-bold">₹{puja.price.toLocaleString()}</div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent navigation to detail page
-                      handleBookPuja(puja);
-                    }}
-                    className="px-4 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors"
-                  >
-                    Book Now
-                  </button>
-                </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </>
+        )}
         
         {/* FAQs Section */}
         <div className="bg-white rounded-lg shadow-sm mt-12 mb-8">
@@ -440,7 +463,7 @@ const PujaBooking = () => {
             
             <div className="space-y-4">
               {faqs.map((faq, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg overflow-hidden">
+                <div key={`faq-${index}-${faq.question.substring(0, 10)}`} className="border border-gray-200 rounded-lg overflow-hidden">
                   <button
                     className="w-full flex justify-between items-center p-4 bg-gray-50 text-left"
                     onClick={() => handleFaqToggle(index)}
@@ -532,7 +555,7 @@ const PujaBooking = () => {
                   <div className="space-y-4">
                     {pandits.map(pandit => (
                       <div 
-                        key={pandit.id} 
+                        key={`pandit-${pandit.id}`} 
                         className={`border rounded-lg p-4 ${selectedPandit?.id === pandit.id ? 'border-blue-600 bg-blue-50' : 'border-gray-200'} ${!pandit.availability ? 'opacity-50' : ''}`}
                       >
                         <div className="flex flex-col md:flex-row">

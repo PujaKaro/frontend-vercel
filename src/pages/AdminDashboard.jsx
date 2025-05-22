@@ -14,7 +14,9 @@ import {
   faPlus,
   faGift,
   faBell,
-  faStar
+  faStar,
+  faPray,
+  faDatabase
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../config/firebase';
@@ -35,6 +37,13 @@ import { createReferralCode, getAllReferralCodes, updateDocument, createCouponCo
 import { toast } from 'react-hot-toast';
 import AdminCodesTabs from '../components/AdminCodesTabs';
 import AdminNotificationsTab from '../components/AdminNotificationsTab';
+import { 
+  migrateDataToFirestore, 
+  getAllPujas, 
+  addPuja, 
+  updatePuja, 
+  deletePuja 
+} from '../utils/dataUtils';
 
 
 const AdminDashboard = () => {
@@ -85,6 +94,27 @@ const AdminDashboard = () => {
   const [isCreatingCoupon, setIsCreatingCoupon] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [pujas, setPujas] = useState([]);
+  const [editingPuja, setEditingPuja] = useState(null);
+  const [showPujaModal, setShowPujaModal] = useState(false);
+  const [pujaForm, setPujaForm] = useState({
+    id: '',
+    name: '',
+    description: '',
+    longDescription: '',
+    price: 0,
+    duration: '',
+    category: '',
+    image: '',
+    requirements: [],
+    availableTimeSlots: []
+  });
+  const [isMigratingData, setIsMigratingData] = useState(false);
+  const [filterName, setFilterName] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
+  const [uniqueCategories, setUniqueCategories] = useState([]);
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
 
   useEffect(() => {
     fetchDashboardData();
@@ -92,6 +122,13 @@ const AdminDashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
+      setLoading(true);
+      
+      // Fetch pujas if on pujas tab
+      if (activeTab === 'pujas') {
+        await fetchPujas();
+      }
+      
       const [users, bookings, orders, blogs, referrals, coupons] = await Promise.all([
         getDocs(collection(db, 'users')),
         getDocs(collection(db, 'bookings')),
@@ -529,6 +566,582 @@ const AdminDashboard = () => {
     }));
   };
 
+  const fetchPujas = async () => {
+    try {
+      console.log('Fetching pujas data from Firestore...');
+      setLoading(true);
+      const pujasData = await getAllPujas();
+      console.log('Pujas data retrieved:', pujasData);
+      setPujas(pujasData);
+      
+      // Extract unique categories for the filter dropdown
+      const categories = [...new Set(pujasData.map(puja => puja.category).filter(Boolean))];
+      setUniqueCategories(categories);
+      
+      console.log(`Successfully retrieved ${pujasData.length} pujas`);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching pujas:', error);
+      setLoading(false);
+    }
+  };
+
+  const handleMigrateData = async () => {
+    try {
+      setIsMigratingData(true);
+      const result = await migrateDataToFirestore();
+      
+      if (result.success) {
+        toast.success(result.message);
+        // Refresh pujas data after migration
+        if (activeTab === 'pujas') {
+          await fetchPujas();
+        }
+      } else {
+        toast.error(result.message);
+      }
+      
+      setIsMigratingData(false);
+    } catch (error) {
+      console.error('Migration failed:', error);
+      toast.error(`Migration failed: ${error.message}`);
+      setIsMigratingData(false);
+    }
+  };
+
+  const handleOpenPujaModal = (puja = null) => {
+    if (puja) {
+      console.log('Opening modal to edit puja:', puja);
+      
+      // Ensure ID is a string but keep the original ID value
+      setEditingPuja({
+        ...puja,
+        id: String(puja.id) // Convert ID to string without changing its format
+      });
+      
+      setPujaForm({
+        id: String(puja.id),
+        name: puja.name || '',
+        description: puja.description || '',
+        longDescription: puja.longDescription || '',
+        price: puja.price || 0,
+        duration: puja.duration || '',
+        category: puja.category || '',
+        image: puja.image || '',
+        requirements: puja.requirements || [],
+        availableTimeSlots: puja.availableTimeSlots || []
+      });
+    } else {
+      setEditingPuja(null);
+      setPujaForm({
+        id: '',
+        name: '',
+        description: '',
+        longDescription: '',
+        price: 0,
+        duration: '',
+        category: '',
+        image: '',
+        requirements: [],
+        availableTimeSlots: []
+      });
+    }
+    
+    setShowPujaModal(true);
+  };
+
+  const handleClosePujaModal = () => {
+    setShowPujaModal(false);
+    setEditingPuja(null);
+  };
+
+  const handlePujaFormChange = (e) => {
+    const { name, value } = e.target;
+    
+    if (name === 'requirements' || name === 'availableTimeSlots') {
+      // Handle arrays by splitting the comma-separated string
+      setPujaForm({
+        ...pujaForm,
+        [name]: value.split(',').map(item => item.trim())
+      });
+    } else if (name === 'price') {
+      // Handle price as a number
+      setPujaForm({
+        ...pujaForm,
+        [name]: parseFloat(value) || 0
+      });
+    } else {
+      // Handle other fields
+      setPujaForm({
+        ...pujaForm,
+        [name]: value
+      });
+    }
+  };
+
+  const handleSavePuja = async (e) => {
+    e.preventDefault();
+    
+    try {
+      setLoading(true);
+      
+      // Make sure required fields are filled
+      if (!pujaForm.name || !pujaForm.description || !pujaForm.price) {
+        toast.error('Please fill all required fields');
+        setLoading(false);
+        return;
+      }
+      
+      // Prepare puja data - include all fields
+      const pujaData = {
+        ...pujaForm,
+        rating: editingPuja?.rating || 4.5,
+        reviews: editingPuja?.reviews || 0,
+        occasions: editingPuja?.occasions || [],
+        pandits: editingPuja?.pandits || []
+      };
+      
+      if (editingPuja) {
+        console.log('Updating existing puja with ID:', editingPuja.id);
+        
+        // Update existing puja
+        await updatePuja(editingPuja.id, pujaData);
+        toast.success('Puja updated successfully');
+      } else {
+        console.log('Adding new puja with internal ID field:', pujaForm.id);
+        
+        // Add new puja with all fields including id
+        const newPuja = await addPuja(pujaData);
+        console.log('New puja created with Firestore document ID:', newPuja.id);
+        toast.success('Puja added successfully');
+      }
+      
+      // Close modal and refresh pujas
+      handleClosePujaModal();
+      await fetchPujas();
+      setLoading(false);
+    } catch (error) {
+      console.error('Error saving puja:', error);
+      toast.error(`Failed to save puja: ${error.message}`);
+      setLoading(false);
+    }
+  };
+
+  const handleDeletePuja = async (pujaId) => {
+    if (window.confirm('Are you sure you want to delete this puja? This action cannot be undone.')) {
+      try {
+        setLoading(true);
+        
+        // Ensure ID is a string but keep the original ID value
+        const stringId = String(pujaId);
+        console.log(`Deleting puja with ID: ${stringId}`);
+        
+        await deletePuja(stringId);
+        toast.success('Puja deleted successfully');
+        await fetchPujas();
+        setLoading(false);
+      } catch (error) {
+        console.error('Error deleting puja:', error);
+        toast.error(`Failed to delete puja: ${error.message}`);
+        setLoading(false);
+      }
+    }
+  };
+
+  const renderPujasTab = () => {
+    // Filter pujas based on the current filter settings
+    const filteredPujas = pujas.filter(puja => {
+      const nameMatch = puja.name?.toLowerCase().includes(filterName.toLowerCase()) || filterName === '';
+      const categoryMatch = puja.category === filterCategory || filterCategory === '';
+      
+      // Price range filtering
+      const priceMatch = (
+        (minPrice === '' || puja.price >= parseInt(minPrice)) &&
+        (maxPrice === '' || puja.price <= parseInt(maxPrice))
+      );
+      
+      return nameMatch && categoryMatch && priceMatch;
+    });
+
+    // Determine if filters are active
+    const isFiltering = filterName !== '' || filterCategory !== '' || minPrice !== '' || maxPrice !== '';
+
+    return (
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold">Manage Pujas</h2>
+          <div className="flex space-x-2">
+            <button
+              onClick={() => handleOpenPujaModal()}
+              className="bg-green-600 text-white px-4 py-2 rounded-md flex items-center"
+            >
+              <FontAwesomeIcon icon={faPlus} className="mr-2" />
+              Add New Puja
+            </button>
+          </div>
+        </div>
+
+        {/* Filter section */}
+        <div className="mb-6 flex flex-wrap gap-4">
+          <div className="flex-1 min-w-[200px]">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Search by Name
+            </label>
+            <input
+              type="text"
+              value={filterName}
+              onChange={(e) => setFilterName(e.target.value)}
+              placeholder="Search pujas..."
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            />
+          </div>
+          <div className="flex-1 min-w-[200px]">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Filter by Category
+            </label>
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            >
+              <option value="">All Categories</option>
+              {uniqueCategories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex-1 min-w-[200px]">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Price Range (₹)
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                value={minPrice}
+                onChange={(e) => setMinPrice(e.target.value)}
+                placeholder="Min"
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                min="0"
+              />
+              <span className="flex items-center">-</span>
+              <input
+                type="number"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+                placeholder="Max"
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                min="0"
+              />
+            </div>
+          </div>
+          <div className="flex items-end">
+            <button
+              onClick={() => {
+                setFilterName('');
+                setFilterCategory('');
+                setMinPrice('');
+                setMaxPrice('');
+              }}
+              className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md"
+            >
+              Clear Filters
+            </button>
+          </div>
+        </div>
+
+        {/* Results count display */}
+        {!loading && (
+          <div className="mb-2 text-sm text-gray-500">
+            {isFiltering ? (
+              <>
+                Showing <span className="font-semibold">{filteredPujas.length}</span> of <span className="font-semibold">{pujas.length}</span> pujas
+                {filterCategory && <span> in category <span className="font-semibold">{filterCategory}</span></span>}
+                {filterName && <span> matching "<span className="font-semibold">{filterName}</span>"</span>}
+                {(minPrice || maxPrice) && (
+                  <span>
+                    {' '}with price {minPrice && <span>from <span className="font-semibold">₹{minPrice}</span></span>}
+                    {minPrice && maxPrice && ' '}
+                    {maxPrice && <span>up to <span className="font-semibold">₹{maxPrice}</span></span>}
+                  </span>
+                )}
+              </>
+            ) : (
+              <>
+                Showing all <span className="font-semibold">{pujas.length}</span> pujas
+              </>
+            )}
+          </div>
+        )}
+
+        {loading ? (
+          <div className="text-center py-10">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+            <p className="mt-2">Loading pujas...</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Category
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Price
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Duration
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Rating
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredPujas.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="text-center py-4 text-gray-500">
+                      {pujas.length === 0 ? 
+                        "No pujas found. Click \"Add New Puja\" to create one." : 
+                        "No pujas match the current filters."}
+                    </td>
+                  </tr>
+                ) : (
+                  filteredPujas.map((puja, index) => (
+                    <tr key={`puja-${puja.id}-${index}`}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10">
+                            <img className="h-10 w-10 rounded-full object-cover" src={puja.image || '/images/placeholder.jpg'} alt={puja.name} />
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">{puja.name}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{puja.category}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">₹{puja.price}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{puja.duration}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900 flex items-center">
+                          {puja.rating}
+                          <FontAwesomeIcon icon={faStar} className="ml-1 text-yellow-400" />
+                          <span className="ml-1 text-gray-500">({puja.reviews})</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button
+                          onClick={() => handleOpenPujaModal(puja)}
+                          className="text-blue-600 hover:text-blue-900 mr-3"
+                        >
+                          <FontAwesomeIcon icon={faEdit} />
+                        </button>
+                        <button
+                          onClick={() => handleDeletePuja(puja.id)}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Puja Edit/Add Modal */}
+        {showPujaModal && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+              <div className="border-b px-6 py-4 flex justify-between items-center">
+                <h3 className="text-lg font-semibold">
+                  {editingPuja ? 'Edit Puja' : 'Add New Puja'}
+                </h3>
+                <button
+                  onClick={handleClosePujaModal}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  &times;
+                </button>
+              </div>
+              <div className="p-6 overflow-y-auto">
+                <form onSubmit={handleSavePuja}>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      ID (Internal Reference)
+                    </label>
+                    <input
+                      type="text"
+                      name="id"
+                      value={pujaForm.id}
+                      onChange={handlePujaFormChange}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      placeholder="e.g. 1, 2, 101"
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      This is saved as a field in the document, not as the document ID.
+                    </p>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Name*
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={pujaForm.name}
+                      onChange={handlePujaFormChange}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      required
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Description*
+                    </label>
+                    <textarea
+                      name="description"
+                      value={pujaForm.description}
+                      onChange={handlePujaFormChange}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      required
+                      rows="3"
+                    ></textarea>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Long Description
+                    </label>
+                    <textarea
+                      name="longDescription"
+                      value={pujaForm.longDescription}
+                      onChange={handlePujaFormChange}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      rows="6"
+                    ></textarea>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="mb-4">
+                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                        Price (₹)*
+                      </label>
+                      <input
+                        type="number"
+                        name="price"
+                        value={pujaForm.price}
+                        onChange={handlePujaFormChange}
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        required
+                        min="0"
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                        Duration
+                      </label>
+                      <input
+                        type="text"
+                        name="duration"
+                        value={pujaForm.duration}
+                        onChange={handlePujaFormChange}
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        placeholder="e.g. 2 hours"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="mb-4">
+                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                        Category
+                      </label>
+                      <input
+                        type="text"
+                        name="category"
+                        value={pujaForm.category}
+                        onChange={handlePujaFormChange}
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                        Image URL
+                      </label>
+                      <input
+                        type="text"
+                        name="image"
+                        value={pujaForm.image}
+                        onChange={handlePujaFormChange}
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      />
+                    </div>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Requirements (comma-separated)
+                    </label>
+                    <textarea
+                      name="requirements"
+                      value={pujaForm.requirements.join(', ')}
+                      onChange={handlePujaFormChange}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      rows="3"
+                      placeholder="e.g. Fresh flowers, Incense sticks, Ghee"
+                    ></textarea>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Available Time Slots (comma-separated)
+                    </label>
+                    <textarea
+                      name="availableTimeSlots"
+                      value={pujaForm.availableTimeSlots.join(', ')}
+                      onChange={handlePujaFormChange}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      rows="3"
+                      placeholder="e.g. Morning (6 AM - 8 AM), Evening (4 PM - 6 PM)"
+                    ></textarea>
+                  </div>
+                  <div className="flex justify-end mt-6 sticky bottom-0 bg-white py-3 border-t border-gray-200">
+                    <button
+                      type="button"
+                      onClick={handleClosePujaModal}
+                      className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                      disabled={loading}
+                    >
+                      {loading ? 'Saving...' : 'Save'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -602,6 +1215,21 @@ const AdminDashboard = () => {
                 >
                   <FontAwesomeIcon icon={faBlog} className="mr-2" />
                   Blogs
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveTab('pujas');
+                    // Immediately try to load pujas data when tab is clicked
+                    fetchPujas();
+                  }}
+                  className={`w-full text-left px-4 py-2 rounded-lg ${
+                    activeTab === 'pujas'
+                      ? 'bg-orange-50 text-orange-500'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faPray} className="mr-2" />
+                  Pujas
                 </button>
                 <button
                   onClick={() => setActiveTab('analytics')}
@@ -1051,6 +1679,8 @@ const AdminDashboard = () => {
                 </div>
               </div>
             )}
+
+            {activeTab === 'pujas' && renderPujasTab()}
 
             {activeTab === 'analytics' && (
               <div className="space-y-6">
