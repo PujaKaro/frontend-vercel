@@ -47,7 +47,9 @@ import {
 
 
 const AdminDashboard = () => {
-  const { currentUser } = useAuth();
+  const { promoteToAdmin, demoteFromAdmin, currentUser } = useAuth();
+  const [adminFilter, setAdminFilter] = useState('all'); // 'all', 'admin', 'user'
+  const [adminSearch, setAdminSearch] = useState('');
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('users');
   const [activeCodesTab, setActiveCodesTab] = useState('referrals');
@@ -218,11 +220,12 @@ const AdminDashboard = () => {
         ? Math.round(((thisMonthUsers - lastMonthUsers) / lastMonthUsers) * 100) 
         : thisMonthUsers > 0 ? 100 : 0;
 
-      // Extract user data for coupon assignment
+      // Extract user data for coupon assignment / fetchdashboardData
       const userData = users.docs.map(doc => ({
         id: doc.id,
         name: doc.data().name || doc.data().displayName || 'User',
-        email: doc.data().email || 'No email'
+        email: doc.data().email || 'No email',
+        role: doc.data().role || 'user' // <-- Add this line
       }));
       setAllUsers(userData);
       
@@ -1275,6 +1278,17 @@ const AdminDashboard = () => {
                   <FontAwesomeIcon icon={faStar} className="mr-2" />
                   <span>Horoscope</span>
                 </button>
+                <button
+                  onClick={() => setActiveTab('admins')}
+                  className={`w-full text-left px-4 py-2 rounded-lg ${
+                    activeTab === 'admins'
+                      ? 'bg-orange-50 text-orange-500'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faUsers} className="mr-2" />
+                  Manage Admins
+                </button>
               </nav>
             </div>
           </div>
@@ -1749,7 +1763,111 @@ const AdminDashboard = () => {
                 </div>
               </div>
             )}
+            {activeTab === 'admins' && (
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h2 className="text-xl font-semibold mb-4">Manage Admins</h2>
+            
+<div className="mb-4 flex flex-col md:flex-row md:items-center gap-2">
+  <div className="flex gap-2">
+    <button
+      className={`px-3 py-1 rounded ${adminFilter === 'all' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+      onClick={() => setAdminFilter('all')}
+    >
+      All
+    </button>
+    <button
+      className={`px-3 py-1 rounded ${adminFilter === 'admin' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+      onClick={() => setAdminFilter('admin')}
+    >
+      Admins
+    </button>
+    <button
+      className={`px-3 py-1 rounded ${adminFilter === 'user' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+      onClick={() => setAdminFilter('user')}
+    >
+      Non-admins
+    </button>
+  </div>
+    <input
+    type="text"
+    value={adminSearch}
+    onChange={e => setAdminSearch(e.target.value)}
+    placeholder="Search by name or email"
+    className="px-3 py-1 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-400"
+    style={{ maxWidth: 300 }}
+  />
+</div>
 
+                <table className="min-w-full divide-y divide-gray-200 mb-6">
+                  <thead>
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                  {allUsers
+                    .filter(user => {
+                      if (adminFilter === 'admin') return user.role === 'admin';
+                      if (adminFilter === 'user') return user.role !== 'admin';
+                      return true;
+                    })
+                    .filter(user => {
+                      if (!adminSearch.trim()) return true;
+                      const search = adminSearch.trim().toLowerCase();
+                      return (
+                        user.name?.toLowerCase().includes(search) ||
+                        user.email?.toLowerCase().includes(search)
+                      );
+                    })
+                    .map(user => (
+                      <tr key={user.id}>
+                        <td className="px-6 py-4">{user.name}</td>
+                        <td className="px-6 py-4">{user.email}</td>
+                        <td className="px-6 py-4">{user.role === 'admin' ? 'Admin' : 'User'}</td>
+                        <td className="px-6 py-4">
+                          {user.role === 'admin' ? (
+                            <button
+                              className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                              onClick={async () => {
+                                try {
+                                  await demoteFromAdmin(user.id);
+                                  toast.success('Admin rights removed');
+                                  fetchDashboardData();
+                                } catch (err) {
+                                  toast.error('Failed to remove admin');
+                                }
+                              }}
+                              disabled={user.id === currentUser?.uid}
+                              title={user.id === currentUser?.uid ? "You can't remove yourself" : ""}
+                            >
+                              Remove Admin
+                            </button>
+                          ) : (
+                            <button
+                              className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                              onClick={async () => {
+                                try {
+                                  await promoteToAdmin(user.id);
+                                  toast.success('User promoted to admin');
+                                  fetchDashboardData();
+                                } catch (err) {
+                                  toast.error('Failed to promote user');
+                                }
+                              }}
+                            >
+                              Make Admin
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
             {activeTab === 'codes' && (
               <AdminCodesTabs 
                 activeCodesTab={activeCodesTab}
