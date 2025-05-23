@@ -18,6 +18,33 @@ const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
 const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_BOOKING_TEMPLATE_ID;
 const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
+// Check if pincode exists using India Post API
+const checkPincodeExists = async (pincode) => {
+  try {
+    const res = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+    const data = await res.json();
+    return data[0].Status === 'Success';
+  } catch {
+    return false;
+  }
+};
+// Check if city lies in state for the given pincode
+const checkCityInState = async (city, state, pincode) => {
+  try {
+    const res = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+    const data = await res.json();
+    if (data[0].Status !== 'Success') return false;
+    const postOffices = data[0].PostOffice || [];
+    return postOffices.some(
+      po =>
+        po.District.toLowerCase() === city.trim().toLowerCase() &&
+        po.State.toLowerCase() === state.trim().toLowerCase()
+    );
+  } catch {
+    return false;
+  }
+};
+
 const BookingForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -151,38 +178,61 @@ const BookingForm = () => {
     }
   };
   
-  const validateForm = () => {
+  const validateForm = async () => {
     const newErrors = {};
-    
+
     if (!formData.name.trim()) newErrors.name = 'Name is required';
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
     }
-    
+
     if (!formData.phone.trim()) {
       newErrors.phone = 'Phone number is required';
     } else if (!/^\d{10}$/.test(formData.phone.replace(/\D/g, ''))) {
       newErrors.phone = 'Phone number must be 10 digits';
     }
-    
+
     if (!formData.address.trim()) newErrors.address = 'Address is required';
-    if (!formData.city.trim()) newErrors.city = 'City is required';
-    if (!formData.state.trim()) newErrors.state = 'State is required';
+        if (!formData.city.trim()) {
+      newErrors.city = 'City is required';
+    }
+    if (!formData.state.trim()) {
+      newErrors.state = 'State is required';
+    }
+    // Only check if all three fields are filled and pincode is valid
+    if (
+      formData.city.trim() &&
+      formData.state.trim() &&
+      formData.pincode.trim() &&
+      /^\d{6}$/.test(formData.pincode.replace(/\D/g, ''))
+    ) {
+      const isValidCityState = await checkCityInState(formData.city, formData.state, formData.pincode);
+      if (!isValidCityState) {
+        newErrors.city = 'City does not match the state for this pincode';
+        newErrors.state = 'State does not match the city for this pincode';
+      }
+    }
+
     if (!formData.pincode.trim()) {
       newErrors.pincode = 'Pincode is required';
     } else if (!/^\d{6}$/.test(formData.pincode.replace(/\D/g, ''))) {
       newErrors.pincode = 'Pincode must be 6 digits';
+    } else {
+      const exists = await checkPincodeExists(formData.pincode);
+      if (!exists) {
+        newErrors.pincode = 'Pincode does not exist';
+      }
     }
 
     if (!formData.date.trim()) newErrors.date = 'Date is required';
     if (!formData.time.trim()) newErrors.time = 'Time is required';
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
+  
   const handleCodeValidation = async () => {
     if (!formData.referralCode) return;
     
@@ -229,7 +279,7 @@ const BookingForm = () => {
       return;
     }
 
-    if (validateForm()) {
+    if (await validateForm()) {
       setIsSubmitting(true);
       
       try {
