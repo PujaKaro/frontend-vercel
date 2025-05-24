@@ -109,7 +109,11 @@ const AdminDashboard = () => {
     category: '',
     image: '',
     requirements: [],
-    availableTimeSlots: []
+    availableTimeSlots: [],
+    rating: 4.5,
+    reviews: 0,
+    occasions: [],
+    pandits: []
   });
   const [isMigratingData, setIsMigratingData] = useState(false);
   const [filterName, setFilterName] = useState('');
@@ -120,6 +124,9 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     fetchDashboardData();
+    
+    // Fetch pujas data on component mount
+    fetchPujas();
   }, []);
 
   const fetchDashboardData = async () => {
@@ -632,21 +639,73 @@ const AdminDashboard = () => {
         category: puja.category || '',
         image: puja.image || '',
         requirements: puja.requirements || [],
-        availableTimeSlots: puja.availableTimeSlots || []
+        availableTimeSlots: puja.availableTimeSlots || [],
+        rating: puja.rating || 4.5,
+        reviews: puja.reviews || 0,
+        occasions: puja.occasions || [],
+        pandits: puja.pandits || []
       });
     } else {
-      setEditingPuja(null);
-      setPujaForm({
-        id: '',
-        name: '',
-        description: '',
-        longDescription: '',
-        price: 0,
-        duration: '',
-        category: '',
-        image: '',
-        requirements: [],
-        availableTimeSlots: []
+      // Find the highest ID value and add 1 for new puja
+      console.log('Creating new puja, calculating next ID...');
+      console.log('Current pujas data:', pujas);
+      
+      let nextId = 1;
+      
+      // Refresh pujas data to ensure we have the latest
+      fetchPujas().then(() => {
+        if (pujas && pujas.length > 0) {
+          console.log(`Found ${pujas.length} pujas to analyze for ID generation`);
+          
+          // Extract all ID values and convert to numbers where possible
+          const idValues = [];
+          
+          pujas.forEach((puja, index) => {
+            // Get values from both id and internalId fields
+            const id = puja.id;
+            const internalId = puja.internalId;
+            
+            console.log(`Puja ${index}: id=${id}, internalId=${internalId}`);
+            
+            // Convert to numbers if possible
+            if (id && !isNaN(Number(id))) {
+              idValues.push(Number(id));
+            }
+            
+            if (internalId && !isNaN(Number(internalId))) {
+              idValues.push(Number(internalId));
+            }
+          });
+          
+          // Find the maximum ID value
+          if (idValues.length > 0) {
+            nextId = Math.max(...idValues) + 1;
+          }
+          
+          console.log('Collected ID values:', idValues);
+          console.log(`Calculated next ID: ${nextId}`);
+        } else {
+          console.log('No existing pujas found, using default ID: 1');
+        }
+        
+        // Set form with the calculated ID
+        setEditingPuja(null);
+        setPujaForm({
+          id: String(nextId),
+          name: '',
+          description: '',
+          longDescription: '',
+          price: 0,
+          duration: '',
+          category: '',
+          image: '',
+          requirements: [],
+          availableTimeSlots: [],
+          rating: 4.5,
+          reviews: 0,
+          occasions: [],
+          pandits: []
+        });
       });
     }
     
@@ -661,14 +720,14 @@ const AdminDashboard = () => {
   const handlePujaFormChange = (e) => {
     const { name, value } = e.target;
     
-    if (name === 'requirements' || name === 'availableTimeSlots') {
+    if (name === 'requirements' || name === 'availableTimeSlots' ) {
       // Handle arrays by splitting the comma-separated string
       setPujaForm({
         ...pujaForm,
-        [name]: value.split(',').map(item => item.trim())
+        [name]: value.split(',').map(item => item.trim()).filter(item => item !== '')
       });
-    } else if (name === 'price') {
-      // Handle price as a number
+    } else if (name === 'price' || name === 'rating' || name === 'reviews') {
+      // Handle numeric fields
       setPujaForm({
         ...pujaForm,
         [name]: parseFloat(value) || 0
@@ -688,20 +747,15 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       
-      // Prepare puja data for submission
+      // Use the form data directly
       const pujaData = {
-        ...pujaForm,
-        rating: editingPuja?.rating || 4.5,
-        reviews: editingPuja?.reviews || 0,
-        occasions: editingPuja?.occasions || [],
-        pandits: editingPuja?.pandits || []
+        ...pujaForm
       };
       
       if (editingPuja) {
         console.log('Updating existing puja with ID:', editingPuja.id);
         
-        // Pass the original name when updating to handle name changes properly
-        await updatePuja(editingPuja.id, pujaData, editingPuja.name);
+        await updatePuja(editingPuja.id, pujaData);
         toast.success('Puja updated successfully');
       } else {
         console.log('Adding new puja with internal ID field:', pujaForm.id);
@@ -983,9 +1037,9 @@ const AdminDashboard = () => {
                       type="text"
                       name="id"
                       value={pujaForm.id}
-                      onChange={handlePujaFormChange}
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      placeholder="e.g. 1, 2, 101"
+                      className="bg-gray-100 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline cursor-not-allowed"
+                      placeholder="Auto-generated ID"
+                      readOnly
                     />
                     <p className="mt-1 text-xs text-gray-500">
                       This is saved as a field in the document, not as the document ID.
@@ -1108,6 +1162,89 @@ const AdminDashboard = () => {
                       className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       rows="3"
                       placeholder="e.g. Morning (6 AM - 8 AM), Evening (4 PM - 6 PM)"
+                    ></textarea>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="mb-4">
+                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                        Rating (0-5)
+                      </label>
+                      <input
+                        type="number"
+                        name="rating"
+                        value={pujaForm.rating}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value) || 0;
+                          setPujaForm(prev => ({
+                            ...prev,
+                            rating: value
+                          }));
+                        }}
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        min="0"
+                        max="5"
+                        step="0.1"
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                        Reviews Count
+                      </label>
+                      <input
+                        type="number"
+                        name="reviews"
+                        value={pujaForm.reviews}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value) || 0;
+                          setPujaForm(prev => ({
+                            ...prev,
+                            reviews: value
+                          }));
+                        }}
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        min="0"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Occasions (comma-separated)
+                    </label>
+                    <textarea
+                      name="occasions"
+                      value={pujaForm.occasions.join(', ')}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setPujaForm(prev => ({
+                          ...prev,
+                          occasions: value.split(',').map(item => item.trim()).filter(item => item !== '')
+                        }));
+                      }}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      rows="3"
+                      placeholder="e.g. Wedding, Housewarming, Birthday"
+                    ></textarea>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Pandits (comma-separated IDs)
+                    </label>
+                    <textarea
+                      name="pandits"
+                      value={pujaForm.pandits.join(', ')}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setPujaForm(prev => ({
+                          ...prev,
+                          pandits: value.split(',').map(item => item.trim()).filter(item => item !== '')
+                        }));
+                      }}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      rows="3"
+                      placeholder="e.g. pandit1, pandit2, pandit3"
                     ></textarea>
                   </div>
                   <div className="flex justify-end mt-6 sticky bottom-0 bg-white py-3 border-t border-gray-200">
