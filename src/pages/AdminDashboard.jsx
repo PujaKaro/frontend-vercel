@@ -688,14 +688,7 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       
-      // Make sure required fields are filled
-      if (!pujaForm.name || !pujaForm.description || !pujaForm.price) {
-        toast.error('Please fill all required fields');
-        setLoading(false);
-        return;
-      }
-      
-      // Prepare puja data - include all fields
+      // Prepare puja data for submission
       const pujaData = {
         ...pujaForm,
         rating: editingPuja?.rating || 4.5,
@@ -707,8 +700,8 @@ const AdminDashboard = () => {
       if (editingPuja) {
         console.log('Updating existing puja with ID:', editingPuja.id);
         
-        // Update existing puja
-        await updatePuja(editingPuja.id, pujaData);
+        // Pass the original name when updating to handle name changes properly
+        await updatePuja(editingPuja.id, pujaData, editingPuja.name);
         toast.success('Puja updated successfully');
       } else {
         console.log('Adding new puja with internal ID field:', pujaForm.id);
@@ -734,12 +727,9 @@ const AdminDashboard = () => {
     if (window.confirm('Are you sure you want to delete this puja? This action cannot be undone.')) {
       try {
         setLoading(true);
+        console.log(`Deleting puja with ID: ${pujaId}`);
         
-        // Ensure ID is a string but keep the original ID value
-        const stringId = String(pujaId);
-        console.log(`Deleting puja with ID: ${stringId}`);
-        
-        await deletePuja(stringId);
+        await deletePuja(pujaId);
         toast.success('Puja deleted successfully');
         await fetchPujas();
         setLoading(false);
