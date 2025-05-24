@@ -265,49 +265,129 @@ export const addPuja = async (pujaData) => {
 
 export const updatePuja = async (id, pujaData) => {
   try {
-    console.log('Updating puja with ID:', id, 'Type:', typeof id);
+    console.log('Updating puja with ID:', id);
     
-    // Convert ID to string if it's not already
-    const stringId = String(id);
-    
-    // Create a new object omitting the id to avoid Firebase errors
-    const { id: docId, ...dataToUpdate } = pujaData;
-    
-    // First, try to find the document with the exact ID
-    const docRef = doc(db, 'pujas', stringId);
+    // First, try to find the document by its Firestore ID
+    const docRef = doc(db, 'pujas', id);
     const docSnap = await getDoc(docRef);
     
     if (docSnap.exists()) {
-      // Document exists with the exact ID, update it
-      console.log(`Document with ID ${stringId} found. Updating...`);
+      // Remove id field from data to avoid errors
+      const { id: docId, ...dataToUpdate } = pujaData;
+      
+      // Update the document
       await updateDoc(docRef, dataToUpdate);
-      console.log('Document updated successfully.');
-      return { id: stringId, ...dataToUpdate };
+      console.log('Document updated successfully');
+      return { id, ...dataToUpdate };
     } else {
-      // Document with exact ID doesn't exist, try to find by internal ID
-      console.log(`Document with ID ${stringId} not found. Attempting to find by name...`);
+      // If not found by Firestore ID, try to find by internal ID
+      console.log(`Document with ID ${id} not found, searching by internal ID...`);
       
-      // Query Firestore to find the document with matching name (or other unique identifier)
-      const q = query(pujasCollection, where("name", "==", pujaData.name));
-      const querySnapshot = await getDocs(q);
+      // Get all pujas to examine their structure (only in case of error)
+      const allPujasSnapshot = await getDocs(pujasCollection);
+      console.log(`Total pujas in collection: ${allPujasSnapshot.docs.length}`);
       
-      if (!querySnapshot.empty) {
-        // Found a document with matching name
-        const firestoreDoc = querySnapshot.docs[0];
-        const firestoreId = firestoreDoc.id;
+      // Try as both string and number since we don't know how it's stored
+      const numericId = !isNaN(id) ? Number(id) : null;
+      const stringId = String(id);
+      
+      // Log potential matches to debug
+      const potentialMatches = [];
+      allPujasSnapshot.docs.forEach(doc => {
+        const data = doc.data();
+        if (
+          (data.id !== undefined && (data.id === numericId || data.id === stringId)) ||
+          (data.internalId !== undefined && (data.internalId === numericId || data.internalId === stringId))
+        ) {
+          potentialMatches.push({
+            docId: doc.id,
+            data: { id: data.id, internalId: data.internalId, name: data.name }
+          });
+        }
+      });
+      
+      // Log potential matches for debugging
+      if (potentialMatches.length > 0) {
+        console.log('Found potential matches:', potentialMatches);
+      } else {
+        console.log('No potential matches found for ID', id);
         
-        console.log(`Found document with name "${pujaData.name}" - Firestore ID: ${firestoreId}`);
+        // Log a sample of documents to see their structure
+        console.log('Sample document structure:', 
+          allPujasSnapshot.docs.slice(0, 3).map(doc => ({
+            id: doc.id,
+            data: {
+              id: doc.data().id,
+              internalId: doc.data().internalId,
+              name: doc.data().name
+            }
+          }))
+        );
+      }
+      
+      // First, try a direct query for internal ID as number
+      let querySnapshot = null;
+      if (numericId !== null) {
+        const q = query(pujasCollection, where("id", "==", numericId));
+        querySnapshot = await getDocs(q);
+        console.log(`Query for numeric id=${numericId} returned ${querySnapshot.docs.length} results`);
+      }
+      
+      // If that didn't work, try as string
+      if (!querySnapshot || querySnapshot.empty) {
+        const q = query(pujasCollection, where("id", "==", stringId));
+        querySnapshot = await getDocs(q);
+        console.log(`Query for string id="${stringId}" returned ${querySnapshot.docs.length} results`);
+      }
+      
+      // Try by internalId field as well
+      if (!querySnapshot || querySnapshot.empty) {
+        if (numericId !== null) {
+          const q = query(pujasCollection, where("internalId", "==", numericId));
+          querySnapshot = await getDocs(q);
+          console.log(`Query for numeric internalId=${numericId} returned ${querySnapshot.docs.length} results`);
+        }
         
-        // Update the document using its actual Firestore ID
+        if (!querySnapshot || querySnapshot.empty) {
+          const q = query(pujasCollection, where("internalId", "==", stringId));
+          querySnapshot = await getDocs(q);
+          console.log(`Query for string internalId="${stringId}" returned ${querySnapshot.docs.length} results`);
+        }
+      }
+      
+      // If still not found but we have potential matches from our scan, use the first one
+      if ((!querySnapshot || querySnapshot.empty) && potentialMatches.length > 0) {
+        console.log('Using potential match found during scan');
+        const firestoreId = potentialMatches[0].docId;
+        
+        // Remove id field from data to avoid errors
+        const { id: docId, ...dataToUpdate } = pujaData;
+        
+        // Update the document
         const actualDocRef = doc(db, 'pujas', firestoreId);
         await updateDoc(actualDocRef, dataToUpdate);
         
-        console.log('Document updated successfully using matched Firestore ID.');
+        console.log('Document updated successfully using scan match');
+        return { id: firestoreId, ...dataToUpdate };
+      }
+      
+      // If we found results through queries
+      if (querySnapshot && !querySnapshot.empty) {
+        // Found the document by internal ID
+        const firestoreDoc = querySnapshot.docs[0];
+        const firestoreId = firestoreDoc.id;
+        
+        // Remove id field from data to avoid errors
+        const { id: docId, ...dataToUpdate } = pujaData;
+        
+        // Update the document
+        const actualDocRef = doc(db, 'pujas', firestoreId);
+        await updateDoc(actualDocRef, dataToUpdate);
+        
+        console.log('Document updated successfully using internal ID match');
         return { id: firestoreId, ...dataToUpdate };
       } else {
-        // No document found with this name either
-        console.error(`Error: No document found with ID ${stringId} or name "${pujaData.name}"`);
-        throw new Error(`Cannot update puja: No document found with ID ${stringId} or name "${pujaData.name}"`);
+        throw new Error(`Cannot update puja: Document with ID ${id} not found`);
       }
     }
   } catch (error) {
@@ -318,23 +398,130 @@ export const updatePuja = async (id, pujaData) => {
 
 export const deletePuja = async (id) => {
   try {
-    console.log('Deleting puja with ID:', id, 'Type:', typeof id);
+    console.log('Deleting puja with ID:', id);
     
-    // Convert ID to string if it's not already
-    const stringId = String(id);
+    // Make sure id is a valid string for Firestore
+    // Firebase document IDs cannot be numbers or objects
+    const docId = String(id);
     
+    // First, try to delete by Firestore document ID
     try {
-      // Try to delete the document
-      const docRef = doc(db, 'pujas', stringId);
-      await deleteDoc(docRef);
-      console.log('Document deleted successfully');
-      return { id: stringId };
-    } catch (error) {
-      // If the document doesn't exist, just return success
-      if (error.message && error.message.includes('No document to delete')) {
-        console.log(`Document with ID ${stringId} doesn't exist, considering delete successful`);
-        return { id: stringId };
+      const docRef = doc(db, 'pujas', docId);
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        // Delete the document
+        await deleteDoc(docRef);
+        console.log('Document deleted successfully');
+        return { id: docId };
+      } else {
+        // If not found by Firestore ID, try to find by internal ID
+        console.log(`Document with ID ${docId} not found, searching by internal ID...`);
+        
+        // Get all pujas to examine their structure
+        const allPujasSnapshot = await getDocs(pujasCollection);
+        console.log(`Total pujas in collection: ${allPujasSnapshot.docs.length}`);
+        
+        // Try as both string and number since we don't know how it's stored
+        const numericId = !isNaN(id) ? Number(id) : null;
+        const stringId = String(id);
+        
+        // Log potential matches to debug
+        const potentialMatches = [];
+        allPujasSnapshot.docs.forEach(doc => {
+          const data = doc.data();
+          if (
+            (data.id !== undefined && (data.id === numericId || data.id === stringId)) ||
+            (data.internalId !== undefined && (data.internalId === numericId || data.internalId === stringId))
+          ) {
+            potentialMatches.push({
+              docId: doc.id,
+              data: { id: data.id, internalId: data.internalId, name: data.name }
+            });
+          }
+        });
+        
+        // Log potential matches for debugging
+        if (potentialMatches.length > 0) {
+          console.log('Found potential matches:', potentialMatches);
+        } else {
+          console.log('No potential matches found for ID', docId);
+          
+          // Log a sample of documents to see their structure
+          console.log('Sample document structure:', 
+            allPujasSnapshot.docs.slice(0, 3).map(doc => ({
+              id: doc.id,
+              data: {
+                id: doc.data().id,
+                internalId: doc.data().internalId,
+                name: doc.data().name
+              }
+            }))
+          );
+        }
+        
+        // First, try a direct query for internal ID as number
+        let querySnapshot = null;
+        if (numericId !== null) {
+          const q = query(pujasCollection, where("id", "==", numericId));
+          querySnapshot = await getDocs(q);
+          console.log(`Query for numeric id=${numericId} returned ${querySnapshot.docs.length} results`);
+        }
+        
+        // If that didn't work, try as string
+        if (!querySnapshot || querySnapshot.empty) {
+          const q = query(pujasCollection, where("id", "==", stringId));
+          querySnapshot = await getDocs(q);
+          console.log(`Query for string id="${stringId}" returned ${querySnapshot.docs.length} results`);
+        }
+        
+        // Try by internalId field as well
+        if (!querySnapshot || querySnapshot.empty) {
+          if (numericId !== null) {
+            const q = query(pujasCollection, where("internalId", "==", numericId));
+            querySnapshot = await getDocs(q);
+            console.log(`Query for numeric internalId=${numericId} returned ${querySnapshot.docs.length} results`);
+          }
+          
+          if (!querySnapshot || querySnapshot.empty) {
+            const q = query(pujasCollection, where("internalId", "==", stringId));
+            querySnapshot = await getDocs(q);
+            console.log(`Query for string internalId="${stringId}" returned ${querySnapshot.docs.length} results`);
+          }
+        }
+        
+        // If still not found but we have potential matches from our scan, use the first one
+        if ((!querySnapshot || querySnapshot.empty) && potentialMatches.length > 0) {
+          console.log('Using potential match found during scan');
+          const firestoreId = potentialMatches[0].docId;
+          
+          // Delete the document
+          const actualDocRef = doc(db, 'pujas', firestoreId);
+          await deleteDoc(actualDocRef);
+          
+          console.log('Document deleted successfully using scan match');
+          return { id: firestoreId };
+        }
+        
+        // If we found results through queries
+        if (querySnapshot && !querySnapshot.empty) {
+          // Found the document by internal ID
+          const firestoreDoc = querySnapshot.docs[0];
+          const firestoreId = firestoreDoc.id;
+          
+          // Delete the document
+          const actualDocRef = doc(db, 'pujas', firestoreId);
+          await deleteDoc(actualDocRef);
+          
+          console.log('Document deleted successfully using internal ID match');
+          return { id: firestoreId };
+        } else {
+          console.log(`No document found with ID ${docId}, nothing to delete`);
+          return { id: docId, deleted: false };
+        }
       }
+    } catch (error) {
+      console.error('Error in document operation:', error);
       throw error;
     }
   } catch (error) {
