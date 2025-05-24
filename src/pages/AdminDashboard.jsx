@@ -121,6 +121,127 @@ const AdminDashboard = () => {
   const [uniqueCategories, setUniqueCategories] = useState([]);
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
+  const [viewingUser, setViewingUser] = useState(null);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [userForm, setUserForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    role: 'user',
+    status: 'active',
+    address: '',
+    city: '',
+    state: '',
+    pincode: '',
+    notes: ''
+  });
+  // State for user filters
+  const [userSearchTerm, setUserSearchTerm] = useState('');
+  const [userStatusFilter, setUserStatusFilter] = useState('');
+  const [userRoleFilter, setUserRoleFilter] = useState('');
+  const [userSortOption, setUserSortOption] = useState('newest');
+  const [selectedUserIds, setSelectedUserIds] = useState([]);
+  const [isAllUsersSelected, setIsAllUsersSelected] = useState(false);
+  // Pagination for users
+  const [userCurrentPage, setUserCurrentPage] = useState(1);
+  const usersPerPage = 10;
+  
+  // Get current page of users
+  const getCurrentPageUsers = () => {
+    const filteredUsers = getFilteredUsers();
+    const indexOfLastUser = userCurrentPage * usersPerPage;
+    const indexOfFirstUser = indexOfLastUser - usersPerPage;
+    return filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+  };
+  
+  // Calculate total pages
+  const getTotalUserPages = () => {
+    return Math.ceil(getFilteredUsers().length / usersPerPage);
+  };
+  
+  // Handle page change
+  const handleUserPageChange = (pageNumber) => {
+    setUserCurrentPage(pageNumber);
+  };
+
+  // Helper function to safely handle different date formats
+  const formatFirestoreDate = (dateField) => {
+    if (!dateField) return null;
+    
+    // If it's a Firestore timestamp with toDate method
+    if (dateField && typeof dateField.toDate === 'function') {
+      return dateField.toDate();
+    }
+    
+    // If it's already a Date object or timestamp number or string
+    try {
+      return new Date(dateField);
+    } catch (e) {
+      console.log('Error parsing date:', e);
+      return null;
+    }
+  };
+
+  // Fetch all users (no pagination) specifically for user management
+  const fetchAllUsers = async () => {
+    try {
+      setLoading(true);
+      
+      const usersSnapshot = await getDocs(collection(db, 'users'));
+      
+      // Extract user data with proper date handling
+      const userData = usersSnapshot.docs.map(doc => {
+        const data = doc.data();
+        
+        // Log a sample user for debugging
+        if (doc.id === usersSnapshot.docs[0]?.id) {
+          console.log('Sample user data:', data);
+        }
+        
+        // Create a timestamp for users without createdAt
+        const now = new Date();
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(now.getFullYear() - 1);
+        
+        // Ensure we have a status field and default to 'active'
+        const userStatus = data.status || 'active';
+        
+        return {
+          id: doc.id,
+          name: data.name || data.displayName || 'User',
+          email: data.email || 'No email',
+          phone: data.phone || '',
+          role: data.role || 'user',
+          status: userStatus,
+          // Ensure createdAt exists with a fallback
+          createdAt: data.createdAt || oneYearAgo,
+          lastLogin: data.lastLogin || null,
+          orderCount: data.orderCount || 0,
+          photoURL: data.photoURL || ''
+        };
+      });
+      
+      console.log(`Fetched ${userData.length} users for management`);
+      setAllUsers(userData);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching all users:', error);
+      setLoading(false);
+    }
+  };
+  
+  // Update the activeTab effect to fetch appropriate data
+  useEffect(() => {
+    // If switching to users tab, fetch all users
+    if (activeTab === 'users') {
+      fetchAllUsers();
+    }
+    
+    // If switching to pujas tab, fetch pujas
+    if (activeTab === 'pujas') {
+      fetchPujas();
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -305,21 +426,102 @@ const AdminDashboard = () => {
   const handleUserAction = async (userId, action) => {
     try {
       const userRef = doc(db, 'users', userId);
-      switch (action) {
-        case 'ban':
-          await updateDoc(userRef, { status: 'banned' });
-          break;
-        case 'unban':
-          await updateDoc(userRef, { status: 'active' });
-          break;
-        case 'delete':
-          await deleteDoc(userRef);
-          break;
+      
+      // For view action, get the user details and open modal
+      if (action === 'view') {
+        const userSnapshot = await getDoc(userRef);
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data();
+          
+          // Log the raw user data for debugging
+          console.log('Raw user data from Firestore:', userData);
+          
+          // Create a viewingUser object with properly handled dates and default values
+          const viewingUserData = { 
+            id: userId,
+            ...userData,
+            name: userData.name || userData.displayName || 'User',
+            email: userData.email || 'No email',
+            phone: userData.phone || '',
+            role: userData.role || 'user',
+            status: userData.status || 'active' // Set default status if missing
+          };
+          
+          console.log('Processed viewingUser data:', viewingUserData);
+          
+          setViewingUser(viewingUserData);
+          setUserForm({
+            name: userData.name || '',
+            email: userData.email || '',
+            phone: userData.phone || '',
+            role: userData.role || 'user',
+            status: userData.status || 'active', // Set default status if missing
+            address: userData.address || '',
+            city: userData.city || '',
+            state: userData.state || '',
+            pincode: userData.pincode || '',
+            notes: userData.notes || ''
+          });
+          setShowUserModal(true);
+        } else {
+          toast.error('User not found');
+        }
+        return;
       }
+      
+      // For ban action
+      if (action === 'ban') {
+        await updateDoc(userRef, { status: 'banned' });
+        toast.success('User banned successfully');
+      }
+      
+      // For unban action
+      if (action === 'unban') {
+        await updateDoc(userRef, { status: 'active' });
+        toast.success('User activated successfully');
+      }
+      
+      // For delete action
+      if (action === 'delete') {
+        if (window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+          await deleteDoc(userRef);
+          toast.success('User deleted successfully');
+        }
+      }
+      
+      // Refresh user data
       fetchDashboardData();
     } catch (error) {
       console.error('Error performing user action:', error);
+      toast.error('Error performing action: ' + error.message);
     }
+  };
+  
+  const handleSaveUser = async (e) => {
+    e.preventDefault();
+    
+    try {
+      if (!viewingUser) return;
+      
+      // Update the user document
+      const userRef = doc(db, 'users', viewingUser.id);
+      await updateDoc(userRef, userForm);
+      
+      toast.success('User updated successfully');
+      setShowUserModal(false);
+      fetchDashboardData();
+    } catch (error) {
+      console.error('Error updating user:', error);
+      toast.error('Error updating user: ' + error.message);
+    }
+  };
+  
+  const handleUserFormChange = (e) => {
+    const { name, value } = e.target;
+    setUserForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleBookingAction = async (bookingId, action) => {
@@ -1272,6 +1474,450 @@ const AdminDashboard = () => {
     );
   };
 
+  // User detail modal
+  const renderUserDetailModal = () => {
+    if (!showUserModal) return null;
+
+    return (
+      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+          <div className="border-b px-6 py-4 flex justify-between items-center">
+            <h3 className="text-lg font-semibold">
+              {viewingUser ? 'Edit User' : 'Add New User'}
+            </h3>
+            <button
+              onClick={() => setShowUserModal(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              &times;
+            </button>
+          </div>
+          <div className="p-6 overflow-y-auto">
+            <form onSubmit={handleSaveUser}>
+              {/* User Details Section */}
+              <div className="mb-6">
+                <h4 className="text-md font-semibold text-gray-700 border-b pb-2 mb-4">Personal Information</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Name*
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={userForm.name}
+                      onChange={handleUserFormChange}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      required
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Email*
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={userForm.email}
+                      onChange={handleUserFormChange}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Phone
+                    </label>
+                    <input
+                      type="text"
+                      name="phone"
+                      value={userForm.phone}
+                      onChange={handleUserFormChange}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Role
+                    </label>
+                    <select
+                      name="role"
+                      value={userForm.role}
+                      onChange={handleUserFormChange}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    >
+                      <option value="user">User</option>
+                      <option value="admin">Admin</option>
+                      <option value="vendor">Vendor</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Status
+                  </label>
+                  <select
+                    name="status"
+                    value={userForm.status}
+                    onChange={handleUserFormChange}
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  >
+                    <option value="active">Active</option>
+                    <option value="banned">Banned</option>
+                    <option value="unverified">Unverified</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Address Section */}
+              <div className="mb-6">
+                <h4 className="text-md font-semibold text-gray-700 border-b pb-2 mb-4">Address Information</h4>
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Address
+                  </label>
+                  <textarea
+                    name="address"
+                    value={userForm.address}
+                    onChange={handleUserFormChange}
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    rows="3"
+                  ></textarea>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      City
+                    </label>
+                    <input
+                      type="text"
+                      name="city"
+                      value={userForm.city}
+                      onChange={handleUserFormChange}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      State
+                    </label>
+                    <input
+                      type="text"
+                      name="state"
+                      value={userForm.state}
+                      onChange={handleUserFormChange}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      Pincode
+                    </label>
+                    <input
+                      type="text"
+                      name="pincode"
+                      value={userForm.pincode}
+                      onChange={handleUserFormChange}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Additional Notes */}
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Notes
+                </label>
+                <textarea
+                  name="notes"
+                  value={userForm.notes}
+                  onChange={handleUserFormChange}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  rows="3"
+                  placeholder="Additional notes about this user..."
+                ></textarea>
+              </div>
+
+              {/* Activity Summary (view only) */}
+              {viewingUser && (
+                <div className="mb-6 bg-gray-50 p-4 rounded-lg">
+                  <h4 className="text-md font-semibold text-gray-700 mb-2">User Activity</h4>
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <p className="text-gray-500">Joined</p>
+                      <p className="font-medium">
+                        {(() => {
+                          try {
+                            if (!viewingUser.createdAt) return 'Unknown';
+                            
+                            if (typeof viewingUser.createdAt === 'object' && 
+                                typeof viewingUser.createdAt.toDate === 'function') {
+                              return viewingUser.createdAt.toDate().toLocaleDateString();
+                            }
+                            
+                            if (viewingUser.createdAt instanceof Date) {
+                              return viewingUser.createdAt.toLocaleDateString();
+                            }
+                            
+                            // Last resort - try to parse as date string
+                            return new Date(viewingUser.createdAt).toLocaleDateString();
+                          } catch (err) {
+                            console.error('Error formatting createdAt date:', err, viewingUser.createdAt);
+                            return 'Unknown';
+                          }
+                        })()}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Last Login</p>
+                      <p className="font-medium">
+                        {(() => {
+                          try {
+                            if (!viewingUser.lastLogin) return 'Never';
+                            
+                            if (typeof viewingUser.lastLogin === 'object' && 
+                                typeof viewingUser.lastLogin.toDate === 'function') {
+                              return viewingUser.lastLogin.toDate().toLocaleDateString();
+                            }
+                            
+                            if (viewingUser.lastLogin instanceof Date) {
+                              return viewingUser.lastLogin.toLocaleDateString();
+                            }
+                            
+                            // Last resort - try to parse as date string
+                            return new Date(viewingUser.lastLogin).toLocaleDateString();
+                          } catch (err) {
+                            console.error('Error formatting lastLogin date:', err, viewingUser.lastLogin);
+                            return 'Never';
+                          }
+                        })()}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Total Orders</p>
+                      <p className="font-medium">{viewingUser.orderCount || 0}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end mt-6 sticky bottom-0 bg-white py-3 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={() => setShowUserModal(false)}
+                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                >
+                  Save
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Function to filter and sort users
+  const getFilteredUsers = () => {
+    if (!allUsers) return [];
+    
+    let filteredUsers = [...allUsers];
+    
+    // Apply search filter
+    if (userSearchTerm.trim()) {
+      const searchLower = userSearchTerm.toLowerCase();
+      filteredUsers = filteredUsers.filter(user => 
+        (user.name && user.name.toLowerCase().includes(searchLower)) ||
+        (user.email && user.email.toLowerCase().includes(searchLower)) ||
+        (user.phone && user.phone.toLowerCase().includes(searchLower))
+      );
+    }
+    
+    // Apply status filter - with debug logging
+    if (userStatusFilter) {
+      console.log(`Filtering by status: ${userStatusFilter}`);
+      console.log('Before status filter:', filteredUsers.length, 'users');
+      console.log('Sample statuses:', filteredUsers.slice(0, 5).map(u => u.status));
+      
+      filteredUsers = filteredUsers.filter(user => {
+        const matches = user.status === userStatusFilter;
+        return matches;
+      });
+      
+      console.log('After status filter:', filteredUsers.length, 'users');
+    }
+    
+    // Apply role filter
+    if (userRoleFilter) {
+      filteredUsers = filteredUsers.filter(user => user.role === userRoleFilter);
+    }
+    
+    // Apply sorting
+    filteredUsers.sort((a, b) => {
+      switch (userSortOption) {
+        case 'oldest':
+          return new Date(a.createdAt?.toDate?.() || a.createdAt || 0) - new Date(b.createdAt?.toDate?.() || b.createdAt || 0);
+        case 'name_asc':
+          return (a.name || '').localeCompare(b.name || '');
+        case 'name_desc':
+          return (b.name || '').localeCompare(a.name || '');
+        case 'newest':
+        default:
+          return new Date(b.createdAt?.toDate?.() || b.createdAt || 0) - new Date(a.createdAt?.toDate?.() || a.createdAt || 0);
+      }
+    });
+    
+    return filteredUsers;
+  };
+  
+  // Handle select all users
+  const handleSelectAllUsers = (e) => {
+    const isChecked = e.target.checked;
+    setIsAllUsersSelected(isChecked);
+    
+    if (isChecked) {
+      // Get all IDs from the current filtered view
+      const allFilteredIds = getFilteredUsers().map(user => user.id);
+      console.log('Selecting all filtered users:', allFilteredIds.length);
+      setSelectedUserIds(allFilteredIds);
+    } else {
+      console.log('Deselecting all users');
+      setSelectedUserIds([]);
+    }
+  };
+  
+  // Handle individual user selection
+  const handleUserCheckboxSelection = (userId) => {
+    setSelectedUserIds(prev => {
+      if (prev.includes(userId)) {
+        // Deselect user
+        const newSelection = prev.filter(id => id !== userId);
+        // Also update the "select all" checkbox
+        setIsAllUsersSelected(false);
+        return newSelection;
+      } else {
+        // Select user
+        const newSelection = [...prev, userId];
+        // If all visible users are now selected, check the "select all" box
+        const allFilteredIds = getFilteredUsers().map(user => user.id);
+        const allSelected = allFilteredIds.every(id => newSelection.includes(id));
+        setIsAllUsersSelected(allSelected);
+        return newSelection;
+      }
+    });
+  };
+  
+  // Handle bulk actions
+  const handleBulkAction = async (action) => {
+    if (selectedUserIds.length === 0) {
+      toast.error('No users selected');
+      return;
+    }
+    
+    console.log(`Executing bulk action '${action}' on ${selectedUserIds.length} users`);
+    console.log('Selected user IDs:', selectedUserIds);
+    
+    try {
+      if (action === 'ban') {
+        if (window.confirm(`Are you sure you want to ban ${selectedUserIds.length} users?`)) {
+          setLoading(true);
+          for (const userId of selectedUserIds) {
+            const userRef = doc(db, 'users', userId);
+            await updateDoc(userRef, { 
+              status: 'banned',
+              updatedAt: new Date()
+            });
+            console.log(`User ${userId} banned successfully`);
+          }
+          toast.success(`${selectedUserIds.length} users banned successfully`);
+          setLoading(false);
+        }
+      } else if (action === 'activate') {
+        if (window.confirm(`Are you sure you want to activate ${selectedUserIds.length} users?`)) {
+          setLoading(true);
+          for (const userId of selectedUserIds) {
+            const userRef = doc(db, 'users', userId);
+            await updateDoc(userRef, { 
+              status: 'active',
+              updatedAt: new Date()
+            });
+            console.log(`User ${userId} activated successfully`);
+          }
+          toast.success(`${selectedUserIds.length} users activated successfully`);
+          setLoading(false);
+        }
+      } else if (action === 'email') {
+        // Just show an info message for email action - would be implemented with your email service
+        toast.info(`Preparing to email ${selectedUserIds.length} users...`);
+        
+        // Here you would implement the actual email sending functionality
+        // For demonstration, we'll just log the selected users
+        const selectedUsers = allUsers.filter(user => selectedUserIds.includes(user.id));
+        console.log('Would email these users:', selectedUsers.map(u => u.email));
+        
+        toast.success('Email preparation complete!');
+      }
+      
+      // Refresh dashboard data and clear selection
+      await fetchAllUsers();
+      setSelectedUserIds([]);
+      setIsAllUsersSelected(false);
+      setUserCurrentPage(1); // Reset to first page
+    } catch (error) {
+      console.error(`Error performing bulk ${action}:`, error);
+      toast.error(`Failed to ${action} users: ${error.message}`);
+      setLoading(false);
+    }
+  };
+  
+  // Clear all user filters
+  const clearUserFilters = () => {
+    setUserSearchTerm('');
+    setUserStatusFilter('');
+    setUserRoleFilter('');
+    setUserSortOption('newest');
+    setSelectedUserIds([]);
+    setIsAllUsersSelected(false);
+    setUserCurrentPage(1);
+  };
+  
+  // Add effect to reset to page 1 when filters change
+  useEffect(() => {
+    setUserCurrentPage(1);
+  }, [userSearchTerm, userStatusFilter, userRoleFilter, userSortOption]);
+
+  // Helper function to safely format dates 
+  const safeFormatDate = (dateValue) => {
+    if (!dateValue) return null;
+    
+    try {
+      // For Firestore Timestamp objects
+      if (typeof dateValue.toDate === 'function') {
+        return dateValue.toDate().toLocaleDateString();
+      }
+      
+      // For Date objects
+      if (dateValue instanceof Date) {
+        return dateValue.toLocaleDateString();
+      }
+      
+      // For strings/numbers
+      return new Date(dateValue).toLocaleDateString();
+    } catch (err) {
+      console.error('Error formatting date:', err);
+      return 'Invalid date';
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -1475,17 +2121,154 @@ const AdminDashboard = () => {
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-semibold">User Management</h2>
-                  <button className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600">
-                    <FontAwesomeIcon icon={faPlus} className="mr-2" />
-                    Add User
-                  </button>
+                  <div className="flex space-x-2">
+                    <button 
+                      className="bg-green-600 text-white px-3 py-2 rounded-md flex items-center text-sm"
+                      onClick={() => window.confirm('Export user data to CSV?') && console.log('Export users')}
+                    >
+                      <FontAwesomeIcon icon={faPlus} className="mr-2" />
+                      Export Users
+                    </button>
+                    <button className="bg-orange-500 text-white px-3 py-2 rounded-md flex items-center text-sm">
+                      <FontAwesomeIcon icon={faPlus} className="mr-2" />
+                      Add User
+                    </button>
+                  </div>
                 </div>
+
+                {/* Advanced Filter Section */}
+                <div className="mb-6 bg-gray-50 p-4 rounded-lg">
+                  <div className="flex flex-wrap gap-4 mb-4">
+                    <div className="flex-1 min-w-[200px]">
+                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                        Search Users
+                      </label>
+                      <input
+                        type="text"
+                        value={userSearchTerm}
+                        onChange={(e) => setUserSearchTerm(e.target.value)}
+                        placeholder="Search by name, email, or phone..."
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      />
+                    </div>
+                    <div className="w-40">
+                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                        Status
+                      </label>
+                      <select 
+                        value={userStatusFilter}
+                        onChange={(e) => setUserStatusFilter(e.target.value)}
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      >
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="banned">Banned</option>
+                        <option value="unverified">Unverified</option>
+                      </select>
+                    </div>
+                    <div className="w-40">
+                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                        Role
+                      </label>
+                      <select 
+                        value={userRoleFilter}
+                        onChange={(e) => setUserRoleFilter(e.target.value)}
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      >
+                        <option value="">All Roles</option>
+                        <option value="admin">Admin</option>
+                        <option value="user">User</option>
+                        <option value="vendor">Vendor</option>
+                      </select>
+                    </div>
+                    <div className="w-40">
+                      <label className="block text-gray-700 text-sm font-bold mb-2">
+                        Sort By
+                      </label>
+                      <select 
+                        value={userSortOption}
+                        onChange={(e) => setUserSortOption(e.target.value)}
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      >
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="name_asc">Name (A-Z)</option>
+                        <option value="name_desc">Name (Z-A)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div className="flex items-center">
+                      <input 
+                        type="checkbox" 
+                        id="selectAll" 
+                        className="mr-2" 
+                        checked={isAllUsersSelected}
+                        onChange={handleSelectAllUsers}
+                      />
+                      <label htmlFor="selectAll" className="text-sm text-gray-700">Select All</label>
+                      
+                      {selectedUserIds.length > 0 && (
+                        <span className="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">
+                          {selectedUserIds.length} selected
+                        </span>
+                      )}
+                      
+                      <div className="ml-4 flex space-x-2">
+                        <button 
+                          className={`bg-red-100 text-red-700 px-2 py-1 rounded text-xs hover:bg-red-200 ${selectedUserIds.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          onClick={() => handleBulkAction('ban')}
+                          disabled={selectedUserIds.length === 0}
+                        >
+                          Ban Selected
+                        </button>
+                        <button 
+                          className={`bg-green-100 text-green-700 px-2 py-1 rounded text-xs hover:bg-green-200 ${selectedUserIds.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          onClick={() => handleBulkAction('activate')}
+                          disabled={selectedUserIds.length === 0}
+                        >
+                          Activate Selected
+                        </button>
+                        <button 
+                          className={`bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs hover:bg-blue-200 ${selectedUserIds.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          onClick={() => handleBulkAction('email')}
+                          disabled={selectedUserIds.length === 0}
+                        >
+                          Email Selected
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      {(userSearchTerm || userStatusFilter || userRoleFilter || userSortOption !== 'newest') && (
+                        <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">
+                          Filters applied
+                        </span>
+                      )}
+                      <button 
+                        className="text-sm text-gray-600 hover:text-gray-800"
+                        onClick={clearUserFilters}
+                      >
+                        Clear Filters
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead>
                       <tr>
+                        <th className="w-10 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <input type="checkbox" />
+                        </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           User
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Contact
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Activity
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Status
@@ -1496,8 +2279,15 @@ const AdminDashboard = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {stats.recentUsers.map((user) => (
-                        <tr key={user.id}>
+                      {getCurrentPageUsers().map((user) => (
+                        <tr key={user.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4">
+                            <input 
+                              type="checkbox" 
+                              checked={selectedUserIds.includes(user.id)}
+                              onChange={() => handleUserCheckboxSelection(user.id)}
+                            />
+                          </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center">
                               <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
@@ -1505,7 +2295,7 @@ const AdminDashboard = () => {
                                   <img
                                     src={user.photoURL}
                                     alt={user.name}
-                                    className="h-10 w-10 rounded-full"
+                                    className="h-10 w-10 rounded-full object-cover"
                                   />
                                 ) : (
                                   <span className="text-xl">{user.name?.[0]}</span>
@@ -1515,52 +2305,212 @@ const AdminDashboard = () => {
                                 <div className="text-sm font-medium text-gray-900">
                                   {user.name}
                                 </div>
-                                <div className="text-sm text-gray-500">{user.email}</div>
+                                <div className="text-sm text-gray-500">{user.role || 'User'}</div>
                               </div>
                             </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-sm text-gray-900">{user.email}</div>
+                            <div className="text-sm text-gray-500">{user.phone || 'No phone'}</div>
+                          </td>
+                          <td className="px-6 py-4 text-sm">
+                            <div>Last login: {
+                              (() => {
+                                try {
+                                  if (!user.lastLogin) return 'Never';
+                                  
+                                  if (typeof user.lastLogin === 'object' && 
+                                      typeof user.lastLogin.toDate === 'function') {
+                                    return user.lastLogin.toDate().toLocaleDateString();
+                                  }
+                                  
+                                  if (user.lastLogin instanceof Date) {
+                                    return user.lastLogin.toLocaleDateString();
+                                  }
+                                  
+                                  return new Date(user.lastLogin).toLocaleDateString();
+                                } catch (err) {
+                                  console.error('Error formatting lastLogin date:', err, user.lastLogin);
+                                  return 'Never';
+                                }
+                              })()
+                            }</div>
+                            <div>Joined: {
+                              (() => {
+                                try {
+                                  if (!user.createdAt) return 'Unknown';
+                                  
+                                  if (typeof user.createdAt === 'object' && 
+                                      typeof user.createdAt.toDate === 'function') {
+                                    return user.createdAt.toDate().toLocaleDateString();
+                                  }
+                                  
+                                  if (user.createdAt instanceof Date) {
+                                    return user.createdAt.toLocaleDateString();
+                                  }
+                                  
+                                  return new Date(user.createdAt).toLocaleDateString();
+                                } catch (err) {
+                                  console.error('Error formatting createdAt date:', err, user.createdAt);
+                                  return 'Unknown';
+                                }
+                              })()
+                            }</div>
+                            <div>Orders: {user.orderCount || 0}</div>
                           </td>
                           <td className="px-6 py-4">
                             <span
                               className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                                 user.status === 'active'
                                   ? 'bg-green-100 text-green-800'
-                                  : 'bg-red-100 text-red-800'
+                                  : user.status === 'banned'
+                                  ? 'bg-red-100 text-red-800'
+                                  : 'bg-yellow-100 text-yellow-800'
                               }`}
                             >
-                              {user.status}
+                              {user.status || 'active'}
                             </span>
                           </td>
-                          <td className="px-6 py-4">
-                            <button
-                              onClick={() => handleUserAction(user.id, 'edit')}
-                              className="text-indigo-600 hover:text-indigo-900 mr-3"
-                            >
-                              <FontAwesomeIcon icon={faEdit} />
-                            </button>
-                            <button
-                              onClick={() =>
-                                handleUserAction(
-                                  user.id,
-                                  user.status === 'active' ? 'ban' : 'unban'
-                                )
-                              }
-                              className="text-orange-600 hover:text-orange-900 mr-3"
-                            >
-                              <FontAwesomeIcon
-                                icon={user.status === 'active' ? faBan : faCheck}
-                              />
-                            </button>
-                            <button
-                              onClick={() => handleUserAction(user.id, 'delete')}
-                              className="text-red-600 hover:text-red-900"
-                            >
-                              <FontAwesomeIcon icon={faTrash} />
-                            </button>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => handleUserAction(user.id, 'view')}
+                                className="text-blue-600 hover:text-blue-900"
+                                title="View Details"
+                              >
+                                <FontAwesomeIcon icon={faEdit} />
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleUserAction(
+                                    user.id,
+                                    user.status === 'active' ? 'ban' : 'unban'
+                                  )
+                                }
+                                className={`${
+                                  user.status === 'active' 
+                                    ? 'text-orange-600 hover:text-orange-900' 
+                                    : 'text-green-600 hover:text-green-900'
+                                }`}
+                                title={user.status === 'active' ? 'Ban User' : 'Activate User'}
+                              >
+                                <FontAwesomeIcon
+                                  icon={user.status === 'active' ? faBan : faCheck}
+                                />
+                              </button>
+                              <button
+                                onClick={() => handleUserAction(user.id, 'delete')}
+                                className="text-red-600 hover:text-red-900"
+                                title="Delete User"
+                              >
+                                <FontAwesomeIcon icon={faTrash} />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
+                </div>
+
+                {/* Pagination */}
+                <div className="flex items-center justify-between mt-6 bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                  <div className="flex-1 flex justify-between sm:hidden">
+                    <button 
+                      onClick={() => handleUserPageChange(Math.max(1, userCurrentPage - 1))}
+                      disabled={userCurrentPage === 1}
+                      className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                    >
+                      Previous
+                    </button>
+                    <button 
+                      onClick={() => handleUserPageChange(Math.min(getTotalUserPages(), userCurrentPage + 1))}
+                      disabled={userCurrentPage === getTotalUserPages()}
+                      className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                    >
+                      Next
+                    </button>
+                  </div>
+                  <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm text-gray-700">
+                        Showing <span className="font-medium">{(userCurrentPage - 1) * usersPerPage + 1}</span> to{' '}
+                        <span className="font-medium">
+                          {Math.min(userCurrentPage * usersPerPage, getFilteredUsers().length)}
+                        </span> of{' '}
+                        <span className="font-medium">{getFilteredUsers().length}</span> users
+                        {getFilteredUsers().length !== allUsers.length && (
+                          <span className="text-gray-500"> (filtered from {allUsers.length} total)</span>
+                        )}
+                      </p>
+                    </div>
+                    <div>
+                      <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                        {/* Previous button */}
+                        <button
+                          onClick={() => handleUserPageChange(Math.max(1, userCurrentPage - 1))}
+                          disabled={userCurrentPage === 1}
+                          className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                        >
+                          <span className="sr-only">Previous</span>
+                          &laquo;
+                        </button>
+                        
+                        {/* Page numbers */}
+                        {[...Array(getTotalUserPages())].map((_, index) => {
+                          const pageNumber = index + 1;
+                          // Only show first 2 pages, last 2 pages, current page, and pages adjacent to current
+                          const shouldShowPage = 
+                            pageNumber <= 2 || 
+                            pageNumber >= getTotalUserPages() - 1 || 
+                            Math.abs(pageNumber - userCurrentPage) <= 1;
+                          
+                          // Show ellipsis after page 2 if there's a gap
+                          const showLeftEllipsis = pageNumber === 3 && userCurrentPage > 4;
+                          
+                          // Show ellipsis before the last two pages if there's a gap
+                          const showRightEllipsis = pageNumber === getTotalUserPages() - 2 && userCurrentPage < getTotalUserPages() - 3;
+                          
+                          if (shouldShowPage) {
+                            return (
+                              <button
+                                key={pageNumber}
+                                onClick={() => handleUserPageChange(pageNumber)}
+                                className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium ${
+                                  pageNumber === userCurrentPage
+                                    ? 'bg-orange-50 text-orange-500 hover:bg-orange-100'
+                                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                                }`}
+                              >
+                                {pageNumber}
+                              </button>
+                            );
+                          } else if (showLeftEllipsis || showRightEllipsis) {
+                            return (
+                              <span
+                                key={`ellipsis-${pageNumber}`}
+                                className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700"
+                              >
+                                ...
+                              </span>
+                            );
+                          }
+                          
+                          return null;
+                        })}
+                        
+                        {/* Next button */}
+                        <button
+                          onClick={() => handleUserPageChange(Math.min(getTotalUserPages(), userCurrentPage + 1))}
+                          disabled={userCurrentPage === getTotalUserPages()}
+                          className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                        >
+                          <span className="sr-only">Next</span>
+                          &raquo;
+                        </button>
+                      </nav>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -2023,6 +2973,9 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
+      
+      {/* Render the user detail modal */}
+      {renderUserDetailModal()}
     </div>
   );
 };
