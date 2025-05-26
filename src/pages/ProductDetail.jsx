@@ -609,7 +609,7 @@ const ProductDetail = () => {
                     </ul>
                   </div>
                   
-                  <div className="mb-6">
+                  {/* <div className="mb-6">
                     <h2 className="text-lg font-semibold mb-2">Ritual Steps</h2>
                     <ol className="list-decimal pl-5 text-gray-600 space-y-2">
                       <li>Sankalpa (Statement of Intent) - Stating the purpose of performing the puja</li>
@@ -621,8 +621,8 @@ const ProductDetail = () => {
                       <li>Distribution of prasad (blessed offerings)</li>
                     </ol>
                   </div>
-                  
-                  <div className="mb-6">
+                   */}
+                  {/* <div className="mb-6">
                     <h2 className="text-lg font-semibold mb-2">Key Mantras</h2>
                     <div className="bg-gray-50 p-3 rounded-md font-serif">
                       <p className="text-gray-800 mb-2">Om Namah Shivaya</p>
@@ -641,9 +641,9 @@ const ProductDetail = () => {
                         'connect with divine energy and receive blessings'}. According to Hindu traditions, this ceremony creates a powerful spiritual 
                       connection with the divine forces and helps remove obstacles from one's life path.
                     </p>
-                  </div>
+                  </div> */}
                   
-                  {itemType === 'puja' && item.pandits && item.pandits.length > 0 && (
+                  {/* {itemType === 'puja' && item.pandits && item.pandits.length > 0 && (
                     <div className="mb-6">
                       <h2 className="text-lg font-semibold mb-2">Available Pandits</h2>
                       <div className="space-y-3">
@@ -660,7 +660,7 @@ const ProductDetail = () => {
                         ))}
                       </div>
                     </div>
-                  )}
+                  )} */}
                   
                 </>
               )}
