@@ -22,6 +22,8 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const locationRef = useRef(null);
+  const languageRef = useRef(null);
+  const [selectedLanguage, setSelectedLanguage] = useState('English');
   const [isScrolled, setIsScrolled] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState('Select Location');
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
@@ -87,13 +89,16 @@ const Header = () => {
       if (locationRef.current && !locationRef.current.contains(event.target)) {
         setIsLocationDropdownOpen(false);
       }
+
+      if (languageRef.current && !languageRef.current.contains(event.target)) {
+        setIsLanguageDropdownOpen(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-
   }, []);
 
   useEffect(() => {
@@ -224,28 +229,52 @@ const Header = () => {
               </form>
 
               {/* Language Selector */}
-              <div className="relative">
+              <div className="relative" ref={languageRef}>
                 <button
                   className="text-sm text-gray-600 flex items-center px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
                   onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
                 >
                   <FontAwesomeIcon icon={faGlobe} className="mr-1" />
-                  <span>English</span>
+                  <span>{selectedLanguage}</span>
                 </button>
 
                 {isLanguageDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-md overflow-hidden z-10">
                     <div className="py-1">
-                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                     <button
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => {
+                          setSelectedLanguage('English');
+                          setIsLanguageDropdownOpen(false);
+                        }}
+                      >
                         English
                       </button>
-                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <button
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => {
+                          setSelectedLanguage('हिन्दी');
+                          setIsLanguageDropdownOpen(false);
+                        }}
+                      >
                         हिन्दी
                       </button>
-                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                           <button
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => {
+                          setSelectedLanguage('தமிழ்');
+                          setIsLanguageDropdownOpen(false);
+                        }}
+                      >
                         தமிழ்
                       </button>
-                      <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <button
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => {
+                          setSelectedLanguage('తెలుగు');
+                          setIsLanguageDropdownOpen(false);
+                        }}
+                      >
                         తెలుగు
                       </button>
                     </div>
