@@ -536,7 +536,7 @@ const ProductDetail = () => {
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
-                        min={new Date().toISOString().split('T')[0]}
+                        min={new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
                       />
                     </div>
                     <div>
