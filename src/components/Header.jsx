@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
@@ -20,6 +21,7 @@ import NotificationBell from './NotificationBell';
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const locationRef = useRef(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState('Select Location');
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
@@ -77,6 +79,21 @@ const Header = () => {
       window.removeEventListener('storage', updateCartCount);
       clearInterval(interval);
     };
+  }, []);
+
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (locationRef.current && !locationRef.current.contains(event.target)) {
+        setIsLocationDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+
   }, []);
 
   useEffect(() => {
@@ -236,8 +253,9 @@ const Header = () => {
                 )}
               </div>
 
+
               {/* Location Selector */}
-              <div className="relative">
+              <div className="relative" ref={locationRef}>
                 <button
                   className="text-sm text-gray-600 flex items-center px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
                   onClick={() => setIsLocationDropdownOpen(!isLocationDropdownOpen)}
