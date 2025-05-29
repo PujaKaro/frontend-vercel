@@ -11,7 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { doc, updateDoc, arrayUnion, Timestamp, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import emailjs from 'emailjs-com';
-import { createBooking, validateReferralCode, updateReferralStats, validateCode, updateCouponStats } from '../utils/firestoreUtils';
+import { createBooking, validateReferralCode, updateReferralStats, validateCode, updateCouponStats,validateAndUseCoupon  } from '../utils/firestoreUtils';
 
 // EmailJS configuration from environment variables
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
@@ -183,159 +183,154 @@ const BookingForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleCodeValidation = async () => {
-    if (!formData.referralCode) return;
-    
-    setIsValidatingCode(true);
-    setCodeError('');
-    try {
-      const result = await validateCode(formData.referralCode);
-      
-      if (result.valid) {
-        // For coupon codes that are assigned to specific users
-        if (result.isCoupon && result.assignedUsers) {
-          // Check if current user is in the assigned users list
-          if (!result.assignedUsers.includes(currentUser.uid)) {
-            setDiscountApplied(0);
-            setCodeError('This coupon code is not valid for your account');
-            setValidatedCodeData(null);
-            return;
-          }
-        }
-        
-        setDiscountApplied(result.discountPercentage);
-        setValidatedCodeData(result);
-        toast.success(`${result.discountPercentage}% discount applied!`);
-      } else {
-        setDiscountApplied(0);
-        setCodeError('Invalid code - please enter a valid referral or coupon code');
-        setValidatedCodeData(null);
-      }
-    } catch (error) {
-      console.error('Error validating code:', error);
-      setCodeError('Error validating code');
+ 
+   const handleCodeValidation = async () => {
+  if (!formData.referralCode) return;
+
+  setIsValidatingCode(true);
+  setCodeError('');
+  try {
+    // Only validate, do not mark as used
+    const result = await validateCode(formData.referralCode);
+
+    if (result.valid) {
+      setDiscountApplied(result.discountPercentage);
+      setValidatedCodeData(result);
+      toast.success(`${result.discountPercentage}% discount applied!`);
+    } else {
+      setDiscountApplied(0);
+      setCodeError('Invalid or already used code');
       setValidatedCodeData(null);
-    } finally {
-      setIsValidatingCode(false);
     }
-  };
-  
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  } catch (error) {
+    console.error('Error validating code:', error);
+    setCodeError('Error validating code');
+    setValidatedCodeData(null);
+  } finally {
+    setIsValidatingCode(false);
+  }
+};
     
-    if (!currentUser) {
-      toast.error('Please sign in to book a puja');
-      navigate('/login');
-      return;
-    }
-
-    if (validateForm()) {
-      setIsSubmitting(true);
+    const handleSubmit = async (e) => {
+      e.preventDefault();
       
-      try {
-        // Validate code one more time if it exists but hasn't been validated
-        if (formData.referralCode && !validatedCodeData) {
-          await handleCodeValidation();
-          if (codeError) {
-            setIsSubmitting(false);
-            return;
-          }
-        }
+      if (!currentUser) {
+        toast.error('Please sign in to book a puja');
+        navigate('/login');
+        return;
+      }
+  
+      if (await validateForm()) {
+        setIsSubmitting(true);
         
-        const finalPrice = puja.price * (1 - discountApplied / 100);
-        
-        const bookingData = {
-          userId: currentUser.uid,
-          userEmail: currentUser.email,
-          userName: formData.name || currentUser.displayName,
-          pujaId: puja.id,
-          pujaName: puja.name,
-          price: puja.price,
-          finalPrice: finalPrice,
-          discountApplied: discountApplied,
-          referralCode: formData.referralCode || null,
-          discountType: validatedCodeData?.isCoupon ? 'coupon' : 'referral',
-          date: formData.date,
-          time: formData.time,
-          address: formData.address,
-          city: formData.city,
-          state: formData.state,
-          pincode: formData.pincode,
-          phone: formData.phone,
-          specialInstructions: formData.specialInstructions || '',
-          additionalInfo: formData.additionalInfo || '',
-          status: 'pending',
-          location: userLocation || null
-        };
-
-        const bookingRef = await addDoc(collection(db, 'bookings'), {
-          ...bookingData,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-          status: 'pending'
-        });
-
-        // Update stats based on code type
-        if (formData.referralCode && validatedCodeData) {
-          const discountAmount = puja.price - finalPrice;
-          
-          if (validatedCodeData.isCoupon) {
-            await updateCouponStats(formData.referralCode, finalPrice, discountAmount);
-          } else {
-            await updateReferralStats(formData.referralCode, finalPrice, discountAmount);
-          }
-        }
-
-        // Send email notification about the new booking
-        const emailParams = {
-          to_email: 'pujakaro.in@gmail.com',
-          from_name: formData.name,
-          from_email: formData.email,
-          from_phone: formData.phone,
-          subject: `New Booking: ${puja.name}`,
-          puja_name: puja.name,
-          puja_date: formData.date,
-          puja_time: formData.time,
-          puja_price: puja.price.toLocaleString(),
-          address: `${formData.address}, ${formData.city}, ${formData.state}, ${formData.pincode}`,
-          special_instructions: formData.specialInstructions || 'None',
-          reply_to: 'pujakaro.in@gmail.com'
-        };
-
-        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, emailParams);
-
-        // Navigate to booking confirmation page
-        navigate('/booking-confirmation', {
-          state: {
-            bookingDetails: {
-              bookingId: bookingRef.id,
-              puja,
-              price: puja.price,
-              finalPrice: finalPrice,
-              date: formData.date,
-              timeSlot: formData.time,
-              customerDetails: {
-                name: formData.name,
-                email: formData.email,
-                phone: formData.phone,
-                address: formData.address,
-                city: formData.city,
-                state: formData.state,
-                pincode: formData.pincode
-              }
+        try {
+          // Validate code one more time if it exists but hasn't been validated
+          if (formData.referralCode && !validatedCodeData) {
+            await handleCodeValidation();
+            if (codeError) {
+              setIsSubmitting(false);
+              return;
             }
           }
-        });
-        
-        toast.success('Puja booking successful!');
-      } catch (error) {
-        console.error('Error saving booking:', error);
-        toast.error(`Failed to book puja: ${error.text || error.message || 'Please try again'}`);
-      } finally {
-        setIsSubmitting(false);
+          
+          const finalPrice = puja.price * (1 - discountApplied / 100);
+          
+          const bookingData = {
+            userId: currentUser.uid,
+            userEmail: currentUser.email,
+            userName: formData.name || currentUser.displayName,
+            pujaId: puja.id,
+            pujaName: puja.name,
+            price: puja.price,
+            finalPrice: finalPrice,
+            discountApplied: discountApplied,
+            referralCode: formData.referralCode || null,
+            discountType: validatedCodeData?.isCoupon ? 'coupon' : 'referral',
+            date: formData.date,
+            time: formData.time,
+            address: formData.address,
+            city: formData.city,
+            state: formData.state,
+            pincode: formData.pincode,
+            phone: formData.phone,
+            specialInstructions: formData.specialInstructions || '',
+            additionalInfo: formData.additionalInfo || '',
+            status: 'pending',
+            location: userLocation || null
+          };
+  
+          const bookingRef = await addDoc(collection(db, 'bookings'), {
+            ...bookingData,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+            status: 'pending'
+          });
+   // --- Mark coupon as used here ---
+      if (formData.referralCode && validatedCodeData?.isCoupon) {
+        await validateAndUseCoupon(formData.referralCode, currentUser.email);
       }
-    }
-  };
+          // Update stats based on code type
+          if (formData.referralCode && validatedCodeData) {
+            const discountAmount = puja.price - finalPrice;
+            
+            if (validatedCodeData.isCoupon) {
+              await updateCouponStats(formData.referralCode, finalPrice, discountAmount);
+            } else {
+              await updateReferralStats(formData.referralCode, finalPrice, discountAmount);
+            }
+          }
+  
+          // Send email notification about the new booking
+          const emailParams = {
+            to_email: 'pujakaro.in@gmail.com',
+            from_name: formData.name,
+            from_email: formData.email,
+            from_phone: formData.phone,
+            subject: `New Booking: ${puja.name}`,
+            puja_name: puja.name,
+            puja_date: formData.date,
+            puja_time: formData.time,
+            puja_price: puja.price.toLocaleString(),
+            address: `${formData.address}, ${formData.city}, ${formData.state}, ${formData.pincode}`,
+            special_instructions: formData.specialInstructions || 'None',
+            reply_to: 'pujakaro.in@gmail.com'
+          };
+  
+          await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, emailParams);
+  
+          // Navigate to booking confirmation page
+          navigate('/booking-confirmation', {
+            state: {
+              bookingDetails: {
+                bookingId: bookingRef.id,
+                puja,
+                price: puja.price,
+                finalPrice: finalPrice,
+                date: formData.date,
+                timeSlot: formData.time,
+                customerDetails: {
+                  name: formData.name,
+                  email: formData.email,
+                  phone: formData.phone,
+                  address: formData.address,
+                  city: formData.city,
+                  state: formData.state,
+                  pincode: formData.pincode
+                }
+              }
+            }
+          });
+          
+          toast.success('Puja booking successful!');
+        } catch (error) {
+          console.error('Error saving booking:', error);
+          toast.error(`Failed to book puja: ${error.text || error.message || 'Please try again'}`);
+        } finally {
+          setIsSubmitting(false);
+        }
+      }
+    };
+    
   
   if (!puja) {
     return (
