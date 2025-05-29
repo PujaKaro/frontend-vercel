@@ -433,8 +433,7 @@ import {
         updatedAt: serverTimestamp(),
         totalUsed: 0,
         totalDiscountGiven: 0,
-        totalRevenueGenerated: 0,
-        usedIds: []
+        totalRevenueGenerated: 0
       };
       const docRef = await addDoc(couponsRef, newCoupon);
       return { id: docRef.id, ...newCoupon };
@@ -587,6 +586,8 @@ import {
       throw error;
     }
   };
+
+  // Add these at the end of the file
 
   /**
    * Send a notification to a user
@@ -847,7 +848,7 @@ import {
     }
   };
 
-    /**
+   /**
    * Validate a coupon code and mark it as used by the user if not already used.
    * @param {string} code - The coupon code.
    * @param {string} userIdOrEmail - The user's UID or email.
@@ -882,7 +883,7 @@ import {
       return { valid: false, message: 'Error validating coupon' };
     }
   };
-  
+
   // Example usage:
   /*
   // Create a user
@@ -908,4 +909,3 @@ import {
   // Query products by category
   const electronics = await queryDocuments('products', 'category', '==', 'electronics');
   */
-
