@@ -11,7 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { doc, updateDoc, arrayUnion, Timestamp, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import emailjs from 'emailjs-com';
-import { createBooking, validateReferralCode, updateReferralStats, validateCode, updateCouponStats } from '../utils/firestoreUtils';
+import { createBooking, validateReferralCode, updateReferralStats, validateCode, updateCouponStats,validateAndUseCoupon} from '../utils/firestoreUtils';
 
 // EmailJS configuration from environment variables
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
@@ -272,33 +272,23 @@ const BookingForm = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  
-  const handleCodeValidation = async () => {
+
+const handleCodeValidation = async () => {
+
     if (!formData.referralCode) return;
     
     setIsValidatingCode(true);
     setCodeError('');
     try {
-      const result = await validateCode(formData.referralCode);
+      const result = await validateAndUseCoupon(formData.referralCode, currentUser.email);
       
       if (result.valid) {
-        // For coupon codes that are assigned to specific users
-        if (result.isCoupon && result.assignedUsers) {
-          // Check if current user is in the assigned users list
-          if (!result.assignedUsers.includes(currentUser.uid)) {
-            setDiscountApplied(0);
-            setCodeError('This coupon code is not valid for your account');
-            setValidatedCodeData(null);
-            return;
-          }
-        }
-        
         setDiscountApplied(result.discountPercentage);
         setValidatedCodeData(result);
         toast.success(`${result.discountPercentage}% discount applied!`);
       } else {
         setDiscountApplied(0);
-        setCodeError('Invalid code - please enter a valid referral or coupon code');
+        setCodeError(result.message);
         setValidatedCodeData(null);
       }
     } catch (error) {
@@ -326,10 +316,10 @@ const BookingForm = () => {
         // Validate code one more time if it exists but hasn't been validated
         if (formData.referralCode && !validatedCodeData) {
           await handleCodeValidation();
-          if (codeError) {
-            setIsSubmitting(false);
-            return;
-          }
+          // if (codeError) {
+          //   setIsSubmitting(false);
+          //   return;
+          // }
         }
         
         const finalPrice = puja.price * (1 - discountApplied / 100);
