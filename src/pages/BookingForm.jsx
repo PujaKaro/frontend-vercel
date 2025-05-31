@@ -11,12 +11,39 @@ import 'react-toastify/dist/ReactToastify.css';
 import { doc, updateDoc, arrayUnion, Timestamp, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import emailjs from 'emailjs-com';
-import { createBooking, validateReferralCode, updateReferralStats, validateCode, updateCouponStats } from '../utils/firestoreUtils';
+import { createBooking, validateReferralCode, updateReferralStats, validateCode, updateCouponStats,validateAndUseCoupon} from '../utils/firestoreUtils';
 
 // EmailJS configuration from environment variables
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
 const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_BOOKING_TEMPLATE_ID;
 const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+// Check if pincode exists using India Post API
+const checkPincodeExists = async (pincode) => {
+  try {
+    const res = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+    const data = await res.json();
+    return data[0].Status === 'Success';
+  } catch {
+    return false;
+  }
+};
+// Check if city lies in state for the given pincode
+const checkCityInState = async (city, state, pincode) => {
+  try {
+    const res = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+    const data = await res.json();
+    if (data[0].Status !== 'Success') return false;
+    const postOffices = data[0].PostOffice || [];
+    return postOffices.some(
+      po =>
+        po.District.toLowerCase() === city.trim().toLowerCase() &&
+        po.State.toLowerCase() === state.trim().toLowerCase()
+    );
+  } catch {
+    return false;
+  }
+};
 
 const BookingForm = () => {
   const { id } = useParams();
@@ -129,6 +156,46 @@ const BookingForm = () => {
     }
   }, [id, location, navigate, currentUser]);
   
+  useEffect(() => {
+    const fetchCityState = async () => {
+      const pincode = formData.pincode.trim();
+      if (/^\d{6}$/.test(pincode)) {
+        try {
+          const res = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+          const data = await res.json();
+          if (data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+            const postOffice = data[0].PostOffice[0];
+            setFormData(prev => ({
+              ...prev,
+              city: postOffice.District,
+              state: postOffice.State
+            }));
+            setErrors(prev => ({
+              ...prev,
+              pincode: '', // clear pincode error if any
+              city: '',    // clear city error if any
+              state: ''    // clear state error if any
+            }));
+          } else {
+            setErrors(prev => ({
+              ...prev,
+              pincode: 'Invalid or non-existent pincode'
+            }));
+          }
+        } catch {
+          setErrors(prev => ({
+            ...prev,
+            pincode: 'Error validating pincode'
+          }));
+        }
+      }
+    };
+
+    fetchCityState();
+    // Only run when pincode changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.pincode]);
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -151,64 +218,77 @@ const BookingForm = () => {
     }
   };
   
-  const validateForm = () => {
+  const validateForm = async () => {
     const newErrors = {};
-    
+
     if (!formData.name.trim()) newErrors.name = 'Name is required';
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
     }
-    
+
     if (!formData.phone.trim()) {
       newErrors.phone = 'Phone number is required';
     } else if (!/^\d{10}$/.test(formData.phone.replace(/\D/g, ''))) {
       newErrors.phone = 'Phone number must be 10 digits';
     }
-    
+
     if (!formData.address.trim()) newErrors.address = 'Address is required';
-    if (!formData.city.trim()) newErrors.city = 'City is required';
-    if (!formData.state.trim()) newErrors.state = 'State is required';
+        if (!formData.city.trim()) {
+      newErrors.city = 'City is required';
+    }
+    if (!formData.state.trim()) {
+      newErrors.state = 'State is required';
+    }
+    // Only check if all three fields are filled and pincode is valid
+    if (
+      formData.city.trim() &&
+      formData.state.trim() &&
+      formData.pincode.trim() &&
+      /^\d{6}$/.test(formData.pincode.replace(/\D/g, ''))
+    ) {
+      const isValidCityState = await checkCityInState(formData.city, formData.state, formData.pincode);
+      if (!isValidCityState) {
+        newErrors.city = 'City does not match the state for this pincode';
+        newErrors.state = 'State does not match the city for this pincode';
+      }
+    }
+
     if (!formData.pincode.trim()) {
       newErrors.pincode = 'Pincode is required';
     } else if (!/^\d{6}$/.test(formData.pincode.replace(/\D/g, ''))) {
       newErrors.pincode = 'Pincode must be 6 digits';
+    } else {
+      const exists = await checkPincodeExists(formData.pincode);
+      if (!exists) {
+        newErrors.pincode = 'Pincode does not exist';
+      }
     }
 
     if (!formData.date.trim()) newErrors.date = 'Date is required';
     if (!formData.time.trim()) newErrors.time = 'Time is required';
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleCodeValidation = async () => {
+const handleCodeValidation = async () => {
+
     if (!formData.referralCode) return;
     
     setIsValidatingCode(true);
     setCodeError('');
     try {
-      const result = await validateCode(formData.referralCode);
+      const result = await validateAndUseCoupon(formData.referralCode, currentUser.email);
       
       if (result.valid) {
-        // For coupon codes that are assigned to specific users
-        if (result.isCoupon && result.assignedUsers) {
-          // Check if current user is in the assigned users list
-          if (!result.assignedUsers.includes(currentUser.uid)) {
-            setDiscountApplied(0);
-            setCodeError('This coupon code is not valid for your account');
-            setValidatedCodeData(null);
-            return;
-          }
-        }
-        
         setDiscountApplied(result.discountPercentage);
         setValidatedCodeData(result);
         toast.success(`${result.discountPercentage}% discount applied!`);
       } else {
         setDiscountApplied(0);
-        setCodeError('Invalid code - please enter a valid referral or coupon code');
+        setCodeError(result.message);
         setValidatedCodeData(null);
       }
     } catch (error) {
@@ -229,17 +309,17 @@ const BookingForm = () => {
       return;
     }
 
-    if (validateForm()) {
+    if (await validateForm()) {
       setIsSubmitting(true);
       
       try {
         // Validate code one more time if it exists but hasn't been validated
         if (formData.referralCode && !validatedCodeData) {
           await handleCodeValidation();
-          if (codeError) {
-            setIsSubmitting(false);
-            return;
-          }
+          // if (codeError) {
+          //   setIsSubmitting(false);
+          //   return;
+          // }
         }
         
         const finalPrice = puja.price * (1 - discountApplied / 100);
@@ -546,6 +626,7 @@ const BookingForm = () => {
                     placeholder="City"
                     value={formData.city}
                     onChange={handleInputChange}
+                    readOnly
                   />
                   {errors.city && <p className="mt-1 text-sm text-red-500">{errors.city}</p>}
                 </div>
@@ -562,6 +643,7 @@ const BookingForm = () => {
                     placeholder="State"
                     value={formData.state}
                     onChange={handleInputChange}
+                    readOnly
                   />
                   {errors.state && <p className="mt-1 text-sm text-red-500">{errors.state}</p>}
                 </div>
