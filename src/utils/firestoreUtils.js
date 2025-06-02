@@ -14,8 +14,7 @@ import {
     addDoc,
     serverTimestamp,
     startAfter,
-    increment,
-    arrayUnion
+    increment
   } from 'firebase/firestore';
   import { db } from '../config/firebase';
   
@@ -845,42 +844,6 @@ import {
     } catch (error) {
       console.error('Error deleting notification:', error);
       return false;
-    }
-  };
-
-   /**
-   * Validate a coupon code and mark it as used by the user if not already used.
-   * @param {string} code - The coupon code.
-   * @param {string} userIdOrEmail - The user's UID or email.
-   * @returns {Promise<{valid: boolean, discountPercentage?: number, message?: string}>}
-   */
-  export const validateAndUseCoupon = async (code, userIdOrEmail) => {
-    try {
-      const couponsRef = collection(db, 'coupons');
-      const q = query(couponsRef, where('code', '==', code), where('isActive', '==', true));
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        return { valid: false, message: 'Invalid code - please enter a valid referral or coupon code' };
-      }
-
-      const couponDoc = querySnapshot.docs[0];
-      const couponData = couponDoc.data();
-
-      // Check if usedIds exists and if user has already used the coupon
-      if (couponData.usedIds && couponData.usedIds.includes(userIdOrEmail)) {
-        return { valid: false, message: 'You have already used this coupon code' };
-      }
-
-      // Mark as used
-      await updateDoc(doc(db, 'coupons', couponDoc.id), {
-        usedIds: arrayUnion(userIdOrEmail)
-      });
-
-      return { valid: true, discountPercentage: couponData.discountPercentage };
-    } catch (error) {
-      console.error('Error validating and using coupon:', error);
-      return { valid: false, message: 'Error validating coupon' };
     }
   };
 
