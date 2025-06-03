@@ -186,9 +186,25 @@ const Header = () => {
               <Link to="/puja-booking" className="text-gray-700 hover:text-[#317bea] font-medium">
                 Book a Puja
               </Link>
-              <Link to="/daily-horoscope" className="text-gray-700 hover:text-[#317bea] font-medium">
-                Daily Horoscope
-              </Link>
+              <div className="relative group">
+                <button className="text-gray-700 hover:text-[#317bea] font-medium flex items-center">
+                  Astrology
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                  <div className="py-1 rounded-md bg-white shadow-xs">
+                    <Link to="/daily-horoscope" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      Daily Horoscope
+                    </Link>
+                    <Link to="/birth-chart" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      Birth Chart Analysis
+                      <span className="ml-2 px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full">New!</span>
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </nav>
 
             {/* Search Bar and Location/Language */}
@@ -366,47 +382,40 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden bg-white border-t py-4 px-4 shadow-lg">
-            <div className="flex flex-col space-y-4">
-              <Link
-                to="/"
-                className="py-2 text-gray-700 hover:text-[#317bea] font-medium"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
+          <div className="lg:hidden absolute top-full left-0 right-0 bg-white shadow-lg border-t p-4 z-50">
+            <div className="flex flex-col space-y-3">
+              <Link to="/" className="text-gray-700 hover:text-[#317bea] font-medium py-2" onClick={() => setIsMobileMenuOpen(false)}>
                 Home
               </Link>
-              <Link
-                to="/shop"
-                className="py-2 text-gray-700 hover:text-[#317bea] font-medium"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
+              <Link to="/shop" className="text-gray-700 hover:text-[#317bea] font-medium py-2" onClick={() => setIsMobileMenuOpen(false)}>
                 Shop
               </Link>
-              <Link
-                to="/puja-booking"
-                className="py-2 text-gray-700 hover:text-[#317bea] font-medium"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
+              <Link to="/puja-booking" className="text-gray-700 hover:text-[#317bea] font-medium py-2" onClick={() => setIsMobileMenuOpen(false)}>
                 Book a Puja
               </Link>
-              <Link 
-                to="/daily-horoscope"
-                className="block py-2 text-gray-700 hover:text-[#317bea]"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Daily Horoscope
-              </Link>
-
-              <div className="border-t border-gray-200 pt-4">
-                <Link
-                  to={isAuthenticated ? '/profile' : '/signin'}
-                  className="py-2 text-gray-700 hover:text-[#317bea] font-medium flex items-center"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <FontAwesomeIcon icon={faUser} className="mr-2" />
-                  {isAuthenticated ? 'My Account' : 'Sign In / Register'}
+              <div className="border-t border-gray-100 pt-2">
+                <p className="text-sm font-medium text-gray-500 mb-1">Astrology</p>
+                <Link to="/daily-horoscope" className="text-gray-700 hover:text-[#317bea] font-medium py-2 pl-3 block" onClick={() => setIsMobileMenuOpen(false)}>
+                  Daily Horoscope
+                </Link>
+                <Link to="/birth-chart" className="text-gray-700 hover:text-[#317bea] font-medium py-2 pl-3 block" onClick={() => setIsMobileMenuOpen(false)}>
+                  Birth Chart Analysis
+                  <span className="ml-2 px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full">New!</span>
                 </Link>
               </div>
+              <Link to="/cart" className="text-gray-700 hover:text-[#317bea] font-medium py-2 flex items-center" onClick={() => setIsMobileMenuOpen(false)}>
+                <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
+                Cart
+                {cartCount > 0 && (
+                  <span className="ml-1 bg-red-500 text-white px-2 py-0.5 rounded-full text-xs">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
+              <button onClick={handleProfileClick} className="text-gray-700 hover:text-[#317bea] font-medium py-2 flex items-center">
+                <FontAwesomeIcon icon={faUser} className="mr-2" />
+                {isAuthenticated ? 'My Account' : 'Sign In'}
+              </button>
             </div>
           </div>
         )}
