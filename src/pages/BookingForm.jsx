@@ -473,6 +473,14 @@ const handleCodeValidation = async () => {
                   </div>
                   <div className="font-medium">{displayTimeSlot || formData.time}</div>
                 </div>
+                <div className="mt-3">
+                  <div className="text-gray-600 mb-2">Services Included:</div>
+                  <ul className="list-disc pl-5 text-gray-600">
+                    <li>Pandit Service</li>
+                    <li>Samagri Kit</li>
+                    <li>Home Decoration</li>
+                  </ul>
+                </div>
               </div>
             </div>
             
