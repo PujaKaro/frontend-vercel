@@ -86,14 +86,91 @@ export const addPandit = async (panditData) => {
 // Update a pandit
 export const updatePandit = async (id, panditData) => {
   try {
+    console.log(`[updatePandit] Starting with ID: ${id} (type: ${typeof id})`);
+    
+    if (!id) {
+      console.error('[updatePandit] Invalid document ID for update:', id);
+      throw new Error('Invalid document ID for update. ID cannot be empty.');
+    }
+    
+    // First, try to find the document with a numeric ID field
+    if (/^\d+$/.test(id)) {
+      console.log(`[updatePandit] Numeric ID detected: ${id}. Searching for matching document.`);
+      
+      // Query for documents with a matching numeric ID field
+      const q = query(panditsCollection, where("id", "==", parseInt(id)));
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        // Found a document with this numeric ID
+        const docRef = querySnapshot.docs[0];
+        const realDocId = docRef.id;
+        console.log(`[updatePandit] Found document with numeric ID ${id}, using Firestore document ID: ${realDocId}`);
+        
+        // Update with the real document ID
+        const realDocRef = doc(db, 'pandits', realDocId);
+        
+        // Clean data for update
+        const cleanData = { ...panditData };
+        
+        // Remove any undefined values
+        Object.keys(cleanData).forEach(key => {
+          if (cleanData[key] === undefined) {
+            delete cleanData[key];
+          }
+        });
+        
+        console.log(`[updatePandit] Updating document with data:`, cleanData);
+        await updateDoc(realDocRef, cleanData);
+        
+        console.log(`[updatePandit] Successfully updated pandit with ID: ${realDocId}`);
+        return {
+          id: realDocId,
+          ...panditData
+        };
+      } else {
+        console.log(`[updatePandit] No document found with numeric ID: ${id}. Creating new document.`);
+        // No document found, create a new one
+        const newPandit = {
+          ...panditData,
+          id: parseInt(id) // Store the numeric ID in the document
+        };
+        
+        console.log(`[updatePandit] Creating new pandit:`, newPandit);
+        const docRef = await addDoc(panditsCollection, newPandit);
+        
+        console.log(`[updatePandit] Successfully created new pandit with ID: ${docRef.id}`);
+        return {
+          id: docRef.id,
+          ...newPandit
+        };
+      }
+    }
+    
+    // If it's not a numeric ID, proceed with regular update
+    console.log(`[updatePandit] Updating document with ID: ${id}`);
     const docRef = doc(db, 'pandits', id);
-    await updateDoc(docRef, panditData);
+    
+    // Clean data for update
+    const cleanData = { ...panditData };
+    
+    // Remove any undefined values
+    Object.keys(cleanData).forEach(key => {
+      if (cleanData[key] === undefined) {
+        delete cleanData[key];
+      }
+    });
+    
+    console.log(`[updatePandit] Updating document with data:`, cleanData);
+    await updateDoc(docRef, cleanData);
+    
+    console.log(`[updatePandit] Successfully updated pandit with ID: ${id}`);
     return {
       id,
       ...panditData
     };
   } catch (error) {
-    console.error('Error updating pandit:', error);
+    console.error('[updatePandit] Error updating pandit:', error);
     throw error;
   }
 };
@@ -101,11 +178,48 @@ export const updatePandit = async (id, panditData) => {
 // Delete a pandit
 export const deletePandit = async (id) => {
   try {
+    console.log(`[deletePandit] Starting with ID: ${id} (type: ${typeof id})`);
+    
+    if (!id) {
+      console.error('[deletePandit] Invalid document ID for deletion:', id);
+      throw new Error('Invalid document ID for deletion. ID cannot be empty.');
+    }
+    
+    // First, try to find the document with a numeric ID field
+    if (/^\d+$/.test(id)) {
+      console.log(`[deletePandit] Numeric ID detected: ${id}. Searching for matching document.`);
+      
+      // Query for documents with a matching numeric ID field
+      const q = query(panditsCollection, where("id", "==", parseInt(id)));
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        // Found a document with this numeric ID
+        const docRef = querySnapshot.docs[0];
+        const realDocId = docRef.id;
+        console.log(`[deletePandit] Found document with numeric ID ${id}, using Firestore document ID: ${realDocId}`);
+        
+        // Delete with the real document ID
+        const realDocRef = doc(db, 'pandits', realDocId);
+        await deleteDoc(realDocRef);
+        
+        console.log(`[deletePandit] Successfully deleted pandit with ID: ${realDocId}`);
+        return true;
+      } else {
+        console.log(`[deletePandit] No document found with numeric ID: ${id}.`);
+        throw new Error(`No pandit found with ID: ${id}`);
+      }
+    }
+    
+    // If it's not a numeric ID, proceed with regular delete
+    console.log(`[deletePandit] Deleting document with ID: ${id}`);
     const docRef = doc(db, 'pandits', id);
     await deleteDoc(docRef);
+    
+    console.log(`[deletePandit] Successfully deleted pandit with ID: ${id}`);
     return true;
   } catch (error) {
-    console.error('Error deleting pandit:', error);
+    console.error('[deletePandit] Error deleting pandit:', error);
     throw error;
   }
 };

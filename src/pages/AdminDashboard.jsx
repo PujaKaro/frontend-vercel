@@ -56,6 +56,12 @@ import {
   updatePandit,
   deletePandit
 } from '../utils/panditUtils';
+import {
+  getPanditServices,
+  addPanditService,
+  updatePanditService,
+  deletePanditService
+} from '../utils/panditServiceUtils';
 
 
 const AdminDashboard = () => {
@@ -2057,12 +2063,15 @@ const AdminDashboard = () => {
     e.preventDefault();
     try {
       setLoading(true);
+      console.log('Saving product with data:', productForm);
       
       if (editingProduct) {
+        console.log('Updating existing product with ID:', editingProduct.id);
         // Update existing product
         await updateProduct(editingProduct.id, productForm);
         toast.success('Product updated successfully');
       } else {
+        console.log('Adding new product');
         // Add new product
         await addProduct(productForm);
         toast.success('Product added successfully');
@@ -2074,7 +2083,12 @@ const AdminDashboard = () => {
       setLoading(false);
     } catch (error) {
       console.error('Error saving product:', error);
-      toast.error('Failed to save product');
+      // Show more detailed error message
+      if (error.message.includes('No document to update')) {
+        toast.error('Product not found. Please try adding it as a new product.');
+      } else {
+        toast.error(`Failed to save product: ${error.message}`);
+      }
       setLoading(false);
     }
   };

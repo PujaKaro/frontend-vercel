@@ -65,16 +65,45 @@ export const getProductById = async (id) => {
   }
 };
 
-// Add a new product
+// Add a product
 export const addProduct = async (productData) => {
   try {
-    const docRef = await addDoc(productsCollection, productData);
+    console.log('[addProduct] Adding new product:', productData);
+    
+    // If the product has a numeric ID, check if it already exists
+    if (productData.id && /^\d+$/.test(productData.id)) {
+      console.log(`[addProduct] Numeric ID detected: ${productData.id}. Checking if product exists.`);
+      
+      // Query for documents with a matching numeric ID field
+      const q = query(productsCollection, where("id", "==", parseInt(productData.id)));
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        console.log(`[addProduct] Product with numeric ID ${productData.id} already exists.`);
+        throw new Error(`Product with ID ${productData.id} already exists.`);
+      }
+    }
+    
+    // Clean data for add
+    const cleanData = { ...productData };
+    
+    // Remove any undefined values
+    Object.keys(cleanData).forEach(key => {
+      if (cleanData[key] === undefined) {
+        delete cleanData[key];
+      }
+    });
+    
+    console.log('[addProduct] Adding product with cleaned data:', cleanData);
+    const docRef = await addDoc(productsCollection, cleanData);
+    
+    console.log(`[addProduct] Successfully added product with ID: ${docRef.id}`);
     return {
       id: docRef.id,
-      ...productData
+      ...cleanData
     };
   } catch (error) {
-    console.error('Error adding product:', error);
+    console.error('[addProduct] Error adding product:', error);
     throw error;
   }
 };
@@ -82,14 +111,92 @@ export const addProduct = async (productData) => {
 // Update a product
 export const updateProduct = async (id, productData) => {
   try {
+    console.log(`[updateProduct] Starting with ID: ${id} (type: ${typeof id})`);
+    console.log('[updateProduct] Product data:', productData);
+    
+    if (!id) {
+      console.error('[updateProduct] Invalid document ID for update:', id);
+      throw new Error('Invalid document ID for update. ID cannot be empty.');
+    }
+    
+    // First, try to find the document with a numeric ID field
+    if (/^\d+$/.test(id)) {
+      console.log(`[updateProduct] Numeric ID detected: ${id}. Searching for matching document.`);
+      
+      // Query for documents with a matching numeric ID field
+      const q = query(productsCollection, where("id", "==", parseInt(id)));
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        // Found a document with this numeric ID
+        const docRef = querySnapshot.docs[0];
+        const realDocId = docRef.id;
+        console.log(`[updateProduct] Found document with numeric ID ${id}, using Firestore document ID: ${realDocId}`);
+        
+        // Update with the real document ID
+        const realDocRef = doc(db, 'products', realDocId);
+        
+        // Clean data for update
+        const cleanData = { ...productData };
+        
+        // Remove any undefined values
+        Object.keys(cleanData).forEach(key => {
+          if (cleanData[key] === undefined) {
+            delete cleanData[key];
+          }
+        });
+        
+        console.log(`[updateProduct] Updating document with data:`, cleanData);
+        await updateDoc(realDocRef, cleanData);
+        
+        console.log(`[updateProduct] Successfully updated product with ID: ${realDocId}`);
+        return {
+          id: realDocId,
+          ...productData
+        };
+      } else {
+        console.log(`[updateProduct] No document found with numeric ID: ${id}. Creating new document.`);
+        // No document found, create a new one
+        const newProduct = {
+          ...productData,
+          id: parseInt(id) // Store the numeric ID in the document
+        };
+        
+        console.log(`[updateProduct] Creating new product:`, newProduct);
+        const docRef = await addDoc(productsCollection, newProduct);
+        
+        console.log(`[updateProduct] Successfully created new product with ID: ${docRef.id}`);
+        return {
+          id: docRef.id,
+          ...newProduct
+        };
+      }
+    }
+    
+    // If it's not a numeric ID, proceed with regular update
+    console.log(`[updateProduct] Updating document with ID: ${id}`);
     const docRef = doc(db, 'products', id);
-    await updateDoc(docRef, productData);
+    
+    // Clean data for update
+    const cleanData = { ...productData };
+    
+    // Remove any undefined values
+    Object.keys(cleanData).forEach(key => {
+      if (cleanData[key] === undefined) {
+        delete cleanData[key];
+      }
+    });
+    
+    console.log(`[updateProduct] Updating document with data:`, cleanData);
+    await updateDoc(docRef, cleanData);
+    
+    console.log(`[updateProduct] Successfully updated product with ID: ${id}`);
     return {
       id,
       ...productData
     };
   } catch (error) {
-    console.error('Error updating product:', error);
+    console.error('[updateProduct] Error updating product:', error);
     throw error;
   }
 };
@@ -97,11 +204,48 @@ export const updateProduct = async (id, productData) => {
 // Delete a product
 export const deleteProduct = async (id) => {
   try {
+    console.log(`[deleteProduct] Starting with ID: ${id} (type: ${typeof id})`);
+    
+    if (!id) {
+      console.error('[deleteProduct] Invalid document ID for deletion:', id);
+      throw new Error('Invalid document ID for deletion. ID cannot be empty.');
+    }
+    
+    // First, try to find the document with a numeric ID field
+    if (/^\d+$/.test(id)) {
+      console.log(`[deleteProduct] Numeric ID detected: ${id}. Searching for matching document.`);
+      
+      // Query for documents with a matching numeric ID field
+      const q = query(productsCollection, where("id", "==", parseInt(id)));
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        // Found a document with this numeric ID
+        const docRef = querySnapshot.docs[0];
+        const realDocId = docRef.id;
+        console.log(`[deleteProduct] Found document with numeric ID ${id}, using Firestore document ID: ${realDocId}`);
+        
+        // Delete with the real document ID
+        const realDocRef = doc(db, 'products', realDocId);
+        await deleteDoc(realDocRef);
+        
+        console.log(`[deleteProduct] Successfully deleted product with ID: ${realDocId}`);
+        return true;
+      } else {
+        console.log(`[deleteProduct] No document found with numeric ID: ${id}.`);
+        throw new Error(`No product found with ID: ${id}`);
+      }
+    }
+    
+    // If it's not a numeric ID, proceed with regular delete
+    console.log(`[deleteProduct] Deleting document with ID: ${id}`);
     const docRef = doc(db, 'products', id);
     await deleteDoc(docRef);
+    
+    console.log(`[deleteProduct] Successfully deleted product with ID: ${id}`);
     return true;
   } catch (error) {
-    console.error('Error deleting product:', error);
+    console.error('[deleteProduct] Error deleting product:', error);
     throw error;
   }
 };
