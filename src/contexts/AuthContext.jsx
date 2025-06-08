@@ -5,11 +5,26 @@ import {
   signOut, 
   onAuthStateChanged,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  sendEmailVerification,
+  sendPasswordResetEmail,
+  fetchSignInMethodsForEmail,
+  reload,
+  updateProfile
 } from 'firebase/auth';
-import { auth } from '../config/firebase';
-import { doc, setDoc, getDoc, updateDoc, collection, query, where, orderBy, onSnapshot, limit } from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { 
+  doc, 
+  setDoc, 
+  getDoc, 
+  updateDoc, 
+  collection, 
+  query, 
+  where, 
+  orderBy, 
+  onSnapshot, 
+  limit 
+} from 'firebase/firestore';
+import { auth, db } from '../config/firebase';
 
 // Create context
 const AuthContext = createContext();
@@ -27,6 +42,16 @@ export function AuthProvider({ children }) {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
+      // Update user profile with display name
+      if (userData.name) {
+        await updateProfile(user, {
+          displayName: userData.name
+        });
+      }
+      
+      // Send email verification
+      await sendEmailVerification(user);
+      
       // Create user profile in Firestore
       await setDoc(doc(db, 'users', user.uid), {
         name: userData.name,
@@ -35,7 +60,9 @@ export function AuthProvider({ children }) {
         address: userData.address,
         photoURL: null,
         role: 'user',
-        status: 'active',
+        status: 'pending', // Set to pending until email is verified
+        emailVerified: false,
+        phoneVerified: false, // Add phone verification status
         createdAt: new Date(),
         orders: [],
         bookings: [],
@@ -57,12 +84,21 @@ export function AuthProvider({ children }) {
       const userDoc = await getDoc(doc(db, 'users', user.uid));
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        setCurrentUser({ ...user, ...userData });
+        
+        // Update Firestore if email was just verified
+        if (!userData.emailVerified && user.emailVerified) {
+          await updateDoc(doc(db, 'users', user.uid), {
+            emailVerified: true,
+            status: 'active'
+          });
+        }
+        
+        setCurrentUser({ ...user, ...userData, emailVerified: user.emailVerified });
+        return { ...user, ...userData, emailVerified: user.emailVerified };
       } else {
-        setCurrentUser(user);
+        setCurrentUser({ ...user, emailVerified: user.emailVerified });
+        return { ...user, emailVerified: user.emailVerified };
       }
-      
-      return user;
     } catch (error) {
       throw error;
     }
@@ -70,6 +106,93 @@ export function AuthProvider({ children }) {
 
   function logout() {
     return signOut(auth);
+  }
+  
+  // Function to check if an email exists in Firebase Auth
+  async function checkEmailExists(email) {
+    try {
+      const methods = await fetchSignInMethodsForEmail(auth, email);
+      return methods.length > 0;
+    } catch (error) {
+      // Don't throw error, just return false
+      return false;
+    }
+  }
+  
+  // Function to send password reset email
+  async function resetPassword(email) {
+    try {
+      // Make sure email is trimmed to remove any accidental spaces
+      await sendPasswordResetEmail(auth, email.trim());
+      return true;
+    } catch (error) {
+      // Check for specific Firebase auth errors
+      if (error.code === 'auth/user-not-found') {
+        throw new Error('No account found with this email address. Please check your email or sign up for a new account.');
+      } else if (error.code === 'auth/invalid-email') {
+        throw new Error('The email address is not valid. Please enter a valid email address.');
+      } else if (error.code === 'auth/too-many-requests') {
+        throw new Error('Too many requests. Please try again later.');
+      } else {
+        throw error;
+      }
+    }
+  }
+  
+  // Function to resend email verification
+  async function resendEmailVerification() {
+    try {
+      if (!currentUser) {
+        throw new Error('No user logged in');
+      }
+      
+      // Reload user to get latest emailVerified status
+      await reload(currentUser);
+      
+      if (currentUser.emailVerified) {
+        throw new Error('Email is already verified');
+      }
+      
+      await sendEmailVerification(currentUser);
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+  
+  // Function to check email verification status
+  async function checkEmailVerification() {
+    try {
+      if (!currentUser) return false;
+      
+      // Reload user to get latest emailVerified status
+      await reload(currentUser);
+      
+      if (currentUser.emailVerified) {
+        // Update Firestore if needed
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (userDoc.exists() && !userDoc.data().emailVerified) {
+          await updateDoc(doc(db, 'users', currentUser.uid), {
+            emailVerified: true,
+            status: 'active'
+          });
+        }
+        
+        // Update current user state
+        setCurrentUser(prevUser => ({
+          ...prevUser,
+          emailVerified: true,
+          status: 'active'
+        }));
+        
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Error checking email verification:', error);
+      return false;
+    }
   }
 
   async function signInWithGoogle() {
@@ -88,6 +211,8 @@ export function AuthProvider({ children }) {
           photoURL: user.photoURL,
           role: 'user',
           status: 'active',
+          emailVerified: true,
+          phoneVerified: true, // Since Google authentication is considered trusted, set phoneVerified to true
           createdAt: new Date(),
           orders: [],
           bookings: [],
@@ -209,10 +334,15 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
+        // For email/password users, get the user data regardless of verification
+        // We need to set the user in state to show the verification pages
+        const isGoogleUser = user.providerData.some(provider => provider.providerId === 'google.com');
+        
         // Get user data from Firestore
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
-          setCurrentUser({ ...user, ...userDoc.data() });
+          const userData = userDoc.data();
+          setCurrentUser({ ...user, ...userData, emailVerified: user.emailVerified });
         } else {
           setCurrentUser(user);
         }
@@ -330,6 +460,11 @@ export function AuthProvider({ children }) {
     updateUserProfile,
     promoteToAdmin,
     demoteFromAdmin,
+    // Add new authentication functions
+    checkEmailExists,
+    resetPassword,
+    resendEmailVerification,
+    checkEmailVerification,
     // Add notification related values
     notifications,
     unreadCount,

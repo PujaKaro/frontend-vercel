@@ -13,17 +13,27 @@ const SignIn = () => {
   const navigate = useNavigate();
   const { login, signInWithGoogle, signInWithFacebook } = useAuth();
 
-  console.log('SignIn component rendered'); // Debugging line
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setError('');
       setLoading(true);
-      console.log('Logging in with email:', email , password); // Debugging line
-      await login(email, password);
-      navigate('/profile');
+      const user = await login(email, password);
+      
+      // Check if email is verified - if not, redirect to email verification
+      if (!user.emailVerified) {
+        navigate('/email-verification');
+      } 
+      // Check if phone is verified - if not, redirect to phone verification
+      else if (!user.phoneVerified) {
+        navigate('/phone-verification');
+      }
+      // Both email and phone are verified, redirect to profile
+      else {
+        navigate('/profile');
+      }
     } catch (error) {
-      setError('Failed to sign in. Please check your credentials.');
+      setError(error.message || 'Failed to sign in. Please check your credentials.');
     } finally {
       setLoading(false);
     }
@@ -111,6 +121,17 @@ const SignIn = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#317bea] focus:border-[#317bea] text-sm sm:text-base"
                 />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="text-sm">
+                <Link 
+                  to="/forgot-password" 
+                  className="font-medium text-[#317bea] hover:text-[#317bea]/90"
+                >
+                  Forgot your password?
+                </Link>
               </div>
             </div>
 
