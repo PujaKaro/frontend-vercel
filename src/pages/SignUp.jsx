@@ -26,7 +26,7 @@ const SignUp = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { signup } = useAuth();
 
   // Handle input changes
   const handleChange = (e) => {
@@ -100,26 +100,17 @@ const SignUp = () => {
     if (Object.keys(validationErrors).length === 0) {
       setIsLoading(true);
       try {
-        // Create a new user with email and password
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          formData.email,
-          formData.password
-        );
-        const user = userCredential.user;
+        // Create a new user with email and password using our signup function
+        const user = await signup(formData.email, formData.password, {
+          name: formData.fullName,
+          phone: formData.phone,
+          address: ''
+        });
 
-        // Optionally update the profile with full name
-        await updateProfile(user, { displayName: formData.fullName });
-
-        // Save the user data to Firestore
-        await saveUserToFirestore(user);
-
-        // Log in with the same credentials used for signup
-        await login(formData.email, formData.password);
-        navigate('/profile');
+        // Redirect to email verification page
+        navigate('/email-verification');
       } catch (error) {
-        console.error('Error during email sign-up:', error);
-        // Optionally set error messages here to display to the user
+        setErrors({ general: error.message || 'Failed to create account. Please try again.' });
       } finally {
         setIsLoading(false);
       }
