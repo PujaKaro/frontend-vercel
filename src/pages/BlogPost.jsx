@@ -5,6 +5,7 @@ import { db } from '../config/firebase';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt, faUser, faClock, faTags, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { Helmet } from 'react-helmet-async';
+import 'react-quill/dist/quill.snow.css';
 
 const BlogPost = () => {
   const { id } = useParams();
@@ -74,9 +75,6 @@ const BlogPost = () => {
     });
   };
 
-  // Split content into paragraphs
-  const paragraphs = post.content.split('\n\n').filter(p => p.trim());
-
   return (
     <>
       <Helmet>
@@ -140,12 +138,12 @@ const BlogPost = () => {
                   </div>
                 </div>
                 
-                <div className="prose prose-lg max-w-none">
-                  {paragraphs.map((paragraph, index) => (
-                    <p key={index} className="mb-4">
-                      {paragraph}
-                    </p>
-                  ))}
+                <div className="prose prose-lg max-w-none ql-editor">
+                  {post.content ? (
+                    <div dangerouslySetInnerHTML={{ __html: post.content }} />
+                  ) : (
+                    <p>No content available</p>
+                  )}
                 </div>
                 
                 {post.tags && post.tags.length > 0 && (
