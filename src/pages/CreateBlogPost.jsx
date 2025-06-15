@@ -4,6 +4,8 @@ import { doc, addDoc, updateDoc, getDoc, collection } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const CreateBlogPost = () => {
   const { id } = useParams();
@@ -29,6 +31,31 @@ const CreateBlogPost = () => {
     ogImage: '/images/blog/default-blog.jpg',
     canonicalUrl: ''
   });
+
+  // Quill editor modules and formats
+  const modules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'indent': '-1'}, { 'indent': '+1' }],
+      ['link', 'image'],
+      ['blockquote', 'code-block'],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'align': [] }],
+      ['clean']
+    ],
+  };
+  
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet', 'indent',
+    'link', 'image',
+    'blockquote', 'code-block',
+    'color', 'background',
+    'align'
+  ];
 
   useEffect(() => {
     if (id) {
@@ -73,6 +100,13 @@ const CreateBlogPost = () => {
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  const handleEditorChange = (content) => {
+    setFormData(prev => ({
+      ...prev,
+      content
     }));
   };
 
@@ -174,17 +208,18 @@ const CreateBlogPost = () => {
               <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
                 Content
               </label>
-              <textarea
-                id="content"
-                name="content"
-                value={formData.content}
-                onChange={handleChange}
-                required
-                rows="15"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 whitespace-pre-wrap"
-              ></textarea>
+              <div className="bg-white border border-gray-300 rounded-md">
+                <ReactQuill
+                  theme="snow"
+                  value={formData.content}
+                  onChange={handleEditorChange}
+                  modules={modules}
+                  formats={formats}
+                  className="h-150"
+                />
+              </div>
               <p className="mt-1 text-sm text-gray-500">
-                Use double line breaks to create paragraphs. The formatting will be preserved.
+                Use the toolbar above to format your content with headings, lists, and other styling.
               </p>
             </div>
 
