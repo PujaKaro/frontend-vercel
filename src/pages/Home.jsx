@@ -5,6 +5,7 @@ import FeaturedPuja from '../components/FeaturedPuja';
 import ProductsSection from '../components/ProductsSection';
 import PanditSection from '../components/PanditSection';
 import SEO from '../components/SEO';
+import FlashingBanner from '../components/FlashingBanner';
 
 const Home = () => {
   // Define the JSON-LD schemas for the home page
@@ -127,6 +128,7 @@ const Home = () => {
 
   return (
     <main className="mt-2">
+      <FlashingBanner />
       <SEO
         title="PujaKaro - Your One-Stop Solution for Religious Needs"
         description="Book authentic pujas, purchase religious items, and connect with experienced pandits. PujaKaro offers traditional puja services, premium quality products, and spiritual guidance."
@@ -156,4 +158,4 @@ const Home = () => {
   );
 };
 
-export default Home; 
+export default Home;

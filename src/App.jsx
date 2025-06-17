@@ -9,6 +9,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import PopupModal from './components/PopupModal';
 import LeadCaptureModal from './components/LeadCaptureModal';
+import GeoLocationTracker from './components/GeoLocationTracker';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <CartProvider>
             <AnalyticsTracker />
             <PopupModal />
+            <GeoLocationTracker />
             <LeadCaptureModal />
             <Header />
             <main>
