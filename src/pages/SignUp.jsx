@@ -41,32 +41,40 @@ const SignUp = () => {
   const validateForm = () => {
     const newErrors = {};
 
+    // Full name
     if (!formData.fullName) {
       newErrors.fullName = 'Full name is required';
     }
 
+    // Email validation (standard)
     if (!formData.email) {
       newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+    } else if (
+      !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(formData.email)
+    ) {
+      newErrors.email = 'Please enter a valid email address';
     }
 
+    // Indian phone validation (starts with 6-9, 10 digits)
     if (!formData.phone) {
       newErrors.phone = 'Phone number is required';
-    } else if (!/^\d{10}$/.test(formData.phone)) {
-      newErrors.phone = 'Phone number must be 10 digits';
+    } else if (!/^[6-9]\d{9}$/.test(formData.phone)) {
+      newErrors.phone = 'Enter a valid 10-digit Indian mobile number';
     }
 
+    // Password
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
 
+    // Confirm password
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
+    // Terms
     if (!formData.acceptTerms) {
       newErrors.acceptTerms = 'You must accept the terms and conditions';
     }
@@ -263,20 +271,23 @@ const SignUp = () => {
               <label htmlFor="phone" className="sr-only">
                 Phone Number
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FontAwesomeIcon icon={faPhone} className="text-gray-400" />
-                </div>
+              <div className="relative flex">
+                <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm select-none">
+                  +91
+                </span>
                 <input
                   id="phone"
                   name="phone"
                   type="tel"
+                  maxLength={10}
+                  pattern="[6-9][0-9]{9}"
                   value={formData.phone}
                   onChange={handleChange}
-                  className={`appearance-none rounded-md relative block w-full pl-10 pr-3 py-3 border ${
+                  className={`appearance-none rounded-r-md relative block w-full pl-3 pr-3 py-3 border ${
                     errors.phone ? 'border-red-300' : 'border-gray-300'
                   } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-custom focus:border-custom focus:z-10`}
                   placeholder="Phone Number"
+                  style={{ borderLeft: 'none' }}
                 />
               </div>
               {errors.phone && (
