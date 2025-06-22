@@ -82,11 +82,10 @@ const PujaBooking = () => {
     let filtered = [...pujas];
     
     if (filters.searchTerm) {
-      filtered = filtered.filter(p => 
-        p.name.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
-        p.description.toLowerCase().includes(filters.searchTerm.toLowerCase())
-      );
-    }
+  filtered = filtered.filter(p => 
+    p.name.toLowerCase().startsWith(filters.searchTerm.toLowerCase()) 
+  );
+}
 
     if (filters.priceRange !== 'all') {
       const [min, max] = filters.priceRange.split('-').map(Number);

@@ -14,8 +14,7 @@ import {
     addDoc,
     serverTimestamp,
     startAfter,
-    increment,
-    arrayUnion
+    increment
   } from 'firebase/firestore';
   import { db } from '../config/firebase';
   
@@ -848,42 +847,6 @@ import {
     }
   };
 
-   /**
-   * Validate a coupon code and mark it as used by the user if not already used.
-   * @param {string} code - The coupon code.
-   * @param {string} userIdOrEmail - The user's UID or email.
-   * @returns {Promise<{valid: boolean, discountPercentage?: number, message?: string}>}
-   */
-  export const validateAndUseCoupon = async (code, userIdOrEmail) => {
-    try {
-      const couponsRef = collection(db, 'coupons');
-      const q = query(couponsRef, where('code', '==', code), where('isActive', '==', true));
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        return { valid: false, message: 'Invalid code - please enter a valid referral or coupon code' };
-      }
-
-      const couponDoc = querySnapshot.docs[0];
-      const couponData = couponDoc.data();
-
-      // Check if usedIds exists and if user has already used the coupon
-      if (couponData.usedIds && couponData.usedIds.includes(userIdOrEmail)) {
-        return { valid: false, message: 'You have already used this coupon code' };
-      }
-
-      // Mark as used
-      await updateDoc(doc(db, 'coupons', couponDoc.id), {
-        usedIds: arrayUnion(userIdOrEmail)
-      });
-
-      return { valid: true, discountPercentage: couponData.discountPercentage };
-    } catch (error) {
-      console.error('Error validating and using coupon:', error);
-      return { valid: false, message: 'Error validating coupon' };
-    }
-  };
-
   // Example usage:
   /*
   // Create a user
@@ -908,4 +871,43 @@ import {
   
   // Query products by category
   const electronics = await queryDocuments('products', 'category', '==', 'electronics');
+  */
+
+  // Sample data for puja services
+  /*
+  await createDocument('pujaServices', 'durgaPuja', {
+    name: 'Durga Puja',
+    description: 'Durga Puja is a festival originating in the Indian subcontinent, dedicated to the worship of the Hindu goddess Durga.',
+    price: 5000,
+    duration: 120,
+    maxParticipants: 20,
+    minParticipants: 5,
+    schedule: [
+      {
+        date: '2023-10-22',
+        time: '10:00',
+        availableSlots: 10
+      },
+      {
+        date: '2023-10-23',
+        time: '10:00',
+        availableSlots: 8
+      }
+    ],
+    createdAt: Timestamp.now(),
+    updatedAt: Timestamp.now()
+  });
+  */
+
+  // Example puja data
+  /*
+  const puja = {
+    name: "Durga Puja",
+    description: "A major Hindu festival...",
+    // ...other fields...
+    nameLower: "durga puja" // Always store lowercase version!
+  };
+
+  // Add to Firestore
+  await addDoc(collection(db, "pujas"), puja);
   */

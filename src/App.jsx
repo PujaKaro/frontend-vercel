@@ -10,6 +10,9 @@ import { CartProvider } from './contexts/CartContext';
 import PopupModal from './components/PopupModal';
 import LeadCaptureModal from './components/LeadCaptureModal';
 
+
+
+
 function App() {
   return (
     <HelmetProvider>
@@ -18,6 +21,7 @@ function App() {
         <AuthProvider>
           <CartProvider>
             <AnalyticsTracker />
+         
             <PopupModal />
             <LeadCaptureModal />
             <Header />
