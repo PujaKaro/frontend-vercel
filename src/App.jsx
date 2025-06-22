@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import Header from './components/Header';
@@ -8,18 +8,17 @@ import AnalyticsTracker from './components/AnalyticsTracker';
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import PopupModal from './components/PopupModal';
-import LeadCaptureModal from './components/LeadCaptureModal';
-
+import IPInfoLocationTracker from './components/IPInfoLocationTracker';
 function App() {
   return (
     <HelmetProvider>
       <Router>
         <ScrollToTop />
         <AuthProvider>
+          <IPInfoLocationTracker />
           <CartProvider>
             <AnalyticsTracker />
             <PopupModal />
-            <LeadCaptureModal />
             <Header />
             <main>
               <AppRouter />

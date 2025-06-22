@@ -525,16 +525,6 @@ const ProductDetail = () => {
                   </span>
                 )}
               </div>
-
-              <div className="services-section mb-6">
-                <h4 className="text-lg font-semibold mb-3">Services Included</h4>
-                <ul className="list-disc pl-5 text-gray-600">
-                  <li>Pandit Service</li>
-                  <li>Samagri Kit</li>
-                  <li>Home Decoration</li>
-                </ul>
-              </div>
-
               {itemType === 'puja' && (
                 <div className="mb-6">
                   <h2 className="text-lg font-semibold mb-2">Select Date & Time</h2>

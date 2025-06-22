@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { 
   faStar, 
   faCalendarAlt, 
   faClock,
-  faShare,
-  faChartLine
+  faShare
 } from '@fortawesome/free-solid-svg-icons';
 import { planets, getTodayHoroscope } from '../data/horoscopeData';
 import useNavigationTracker from '../hooks/useNavigationTracker';
@@ -114,24 +113,13 @@ const DailyHoroscope = () => {
             Discover how the nine planets influence your day with our daily planetary insights
           </p>
           
-          <div className="flex flex-col sm:flex-row items-center justify-center mb-4">
-            <div className="flex items-center text-sm text-gray-500 mb-2 sm:mb-0 sm:mr-6">
-              <FontAwesomeIcon icon={faClock} className="mr-1" />
-              <span>Last updated: {horoscope?.lastUpdated ? new Date(horoscope.lastUpdated).toLocaleTimeString('en-US', { 
-                hour: '2-digit', 
-                minute: '2-digit',
-                hour12: true 
-              }) : 'N/A'}</span>
-            </div>
-            
-            <Link 
-              to="/birth-chart"
-              className="flex items-center text-blue-600 hover:text-blue-800 font-medium text-sm"
-            >
-              <FontAwesomeIcon icon={faChartLine} className="mr-1" />
-              <span>Get Your Personalized Birth Chart</span>
-              <span className="ml-1 px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full">New!</span>
-            </Link>
+          <div className="flex items-center justify-center text-sm text-gray-500">
+            <FontAwesomeIcon icon={faClock} className="mr-1" />
+            <span>Last updated: {horoscope?.lastUpdated ? new Date(horoscope.lastUpdated).toLocaleTimeString('en-US', { 
+              hour: '2-digit', 
+              minute: '2-digit',
+              hour12: true 
+            }) : 'N/A'}</span>
           </div>
         </div>
         
@@ -178,20 +166,12 @@ const DailyHoroscope = () => {
               Want deeper insights into how these planetary positions affect your specific birth chart? 
               Book a personal consultation with our expert astrologers for detailed guidance.
             </p>
-            <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <button 
-                onClick={handleBookConsultation}
-                className="bg-white text-orange-600 px-8 py-3 rounded-md font-medium hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-orange-500"
-              >
-                Book Consultation
-              </button>
-              <Link 
-                to="/birth-chart"
-                className="bg-orange-700 text-white px-8 py-3 rounded-md font-medium hover:bg-orange-800 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-orange-500"
-              >
-                Generate Birth Chart
-              </Link>
-            </div>
+            <button 
+              onClick={handleBookConsultation}
+              className="bg-white text-orange-600 px-8 py-3 rounded-md font-medium hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-orange-500"
+            >
+              Book Consultation
+            </button>
           </div>
         </div>
         
