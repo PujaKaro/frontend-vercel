@@ -17,6 +17,7 @@ import { useCart } from '../contexts/CartContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import NotificationBell from './NotificationBell';
+import HeaderSearchBar from './HeaderSearchBar';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -120,7 +121,7 @@ const Header = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    navigate(`/shop?search=${searchTerm}`);
+    navigate(`/puja-booking?search=${searchTerm}`);
     setSearchTerm('');
     setIsSearchVisible(false);
   };
@@ -231,18 +232,9 @@ const Header = () => {
 
             {/* Search Bar and Location/Language */}
             <div className="hidden lg:flex items-center space-x-4 flex-1 max-w-2xl mx-4">
-              <form onSubmit={handleSearch} className="relative flex-1">
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search for products, pujas..."
-                  className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#317bea] focus:border-[#317bea]"
-                />
-                <button type="submit" className="absolute right-0 top-0 mt-2 mr-3 text-gray-400">
-                  <FontAwesomeIcon icon={faSearch} />
-                </button>
-              </form>
+             <div className="hidden md:block min-w-0">
+  <HeaderSearchBar />
+</div>
 
               {/* Language Selector */}
               <div className="relative" ref={languageRef}>
@@ -410,19 +402,8 @@ const Header = () => {
 
           {/* Mobile Search Bar */}
           {isSearchVisible && (
-            <div className="lg:hidden mt-4">
-              <form onSubmit={handleSearch} className="relative">
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search for products, pujas..."
-                  className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#317bea] focus:border-[#317bea]"
-                />
-                <button type="submit" className="absolute right-0 top-0 mt-2 mr-3 text-gray-400">
-                  <FontAwesomeIcon icon={faSearch} />
-                </button>
-              </form>
+            <div className="md:hidden px-4 pb-2">
+              <HeaderSearchBar />
             </div>
           )}
         </div>

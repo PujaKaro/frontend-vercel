@@ -872,3 +872,42 @@ import {
   // Query products by category
   const electronics = await queryDocuments('products', 'category', '==', 'electronics');
   */
+
+  // Sample data for puja services
+  /*
+  await createDocument('pujaServices', 'durgaPuja', {
+    name: 'Durga Puja',
+    description: 'Durga Puja is a festival originating in the Indian subcontinent, dedicated to the worship of the Hindu goddess Durga.',
+    price: 5000,
+    duration: 120,
+    maxParticipants: 20,
+    minParticipants: 5,
+    schedule: [
+      {
+        date: '2023-10-22',
+        time: '10:00',
+        availableSlots: 10
+      },
+      {
+        date: '2023-10-23',
+        time: '10:00',
+        availableSlots: 8
+      }
+    ],
+    createdAt: Timestamp.now(),
+    updatedAt: Timestamp.now()
+  });
+  */
+
+  // Example puja data
+  /*
+  const puja = {
+    name: "Durga Puja",
+    description: "A major Hindu festival...",
+    // ...other fields...
+    nameLower: "durga puja" // Always store lowercase version!
+  };
+
+  // Add to Firestore
+  await addDoc(collection(db, "pujas"), puja);
+  */
