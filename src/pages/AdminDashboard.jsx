@@ -16,7 +16,8 @@ import {
   faBell,
   faStar,
   faPray,
-  faDatabase
+  faDatabase,
+  faCommentDots
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../config/firebase';
@@ -37,6 +38,8 @@ import { createReferralCode, getAllReferralCodes, updateDocument, createCouponCo
 import { toast } from 'react-hot-toast';
 import AdminCodesTabs from '../components/AdminCodesTabs';
 import AdminNotificationsTab from '../components/AdminNotificationsTab';
+import AdminTestimonialsTab from '../components/AdminTestimonialsTab';
+import BookingManagementTab from '../components/BookingManagementTab';
 import { 
   migrateDataToFirestore, 
   getAllPujas, 
@@ -2914,6 +2917,17 @@ const AdminDashboard = () => {
                   Blogs
                 </button>
                 <button
+                  onClick={() => setActiveTab('testimonials')}
+                  className={`w-full text-left px-4 py-2 rounded-lg ${
+                    activeTab === 'testimonials'
+                      ? 'bg-orange-50 text-orange-500'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faCommentDots} className="mr-2" />
+                  Testimonials
+                </button>
+                <button
                   onClick={() => {
                     setActiveTab('pujas');
                     // Immediately try to load pujas data when tab is clicked
@@ -3467,90 +3481,7 @@ const AdminDashboard = () => {
             )}
 
             {activeTab === 'bookings' && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold">Booking Management</h2>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead>
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Puja Details
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Customer
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {stats.recentBookings.map((booking) => (
-                        <tr key={booking.id}>
-                          <td className="px-6 py-4">
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">
-                                {booking.pujaName}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                Date: {new Date(booking.createdAt.toDate()).toLocaleDateString()}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                Price: ₹{booking.finalPrice || booking.price}
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div>
-                              <div className="text-sm text-gray-900">{booking.userName}</div>
-                              <div className="text-sm text-gray-500">{booking.phone}</div>
-                              <div className="text-sm text-gray-500">{booking.address}</div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span
-                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                booking.status === 'approved'
-                                  ? 'bg-green-100 text-green-800'
-                                  : booking.status === 'pending'
-                                  ? 'bg-yellow-100 text-yellow-800'
-                                  : 'bg-red-100 text-red-800'
-                              }`}
-                            >
-                              {booking.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <button
-                              onClick={() => handleBookingAction(booking.id, 'edit')}
-                              className="text-indigo-600 hover:text-indigo-900 mr-3"
-                            >
-                              <FontAwesomeIcon icon={faEdit} />
-                            </button>
-                            <button
-                              onClick={() => handleBookingAction(booking.id, 'approve')}
-                              className="text-green-600 hover:text-green-900 mr-3"
-                            >
-                              <FontAwesomeIcon icon={faCheck} />
-                            </button>
-                            <button
-                              onClick={() => handleBookingAction(booking.id, 'reject')}
-                              className="text-red-600 hover:text-red-900"
-                            >
-                              <FontAwesomeIcon icon={faBan} />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+              <BookingManagementTab />
             )}
 
             {activeTab === 'orders' && (
@@ -3727,6 +3658,10 @@ const AdminDashboard = () => {
           {activeTab === 'products' && renderProductsTab()}
 
           {activeTab === 'pandits' && renderPanditsTab()}
+          
+          {activeTab === 'testimonials' && (
+            <AdminTestimonialsTab />
+          )}
 
           {activeTab === 'analytics' && (
               <div className="space-y-6">

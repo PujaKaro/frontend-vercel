@@ -7,7 +7,7 @@ import {
   faSignOut, faCalendar, faClock, faRupeeSign,
   faBell, faHeart, faTicket, faGift, faCog,
   faStar, faQuestionCircle, faShare, faCheckCircle, faCreditCard,
-  faEye, faCopy, faTimes, faLock
+  faEye, faCopy, faTimes, faLock, faCommentDots
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
@@ -15,6 +15,7 @@ import { db } from '../config/firebase';
 import SEO from '../components/SEO';
 import { getUserBookings, getUserOrders, getUserReferralCode, createReferralCode, getUserCoupons } from '../utils/firestoreUtils';
 import toast from 'react-hot-toast';
+import BookingReviewForm from '../components/BookingReviewForm';
 
 const Profile = () => {
   const { currentUser, logout } = useAuth();
@@ -31,6 +32,8 @@ const Profile = () => {
   const [savedCards, setSavedCards] = useState([]);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [selectedBookingForReview, setSelectedBookingForReview] = useState(null);
   const [referralStats, setReferralStats] = useState({
     totalUsed: 0,
     totalDiscountGiven: 0,
@@ -273,6 +276,25 @@ const Profile = () => {
         console.error('Error sharing:', error);
       }
     }
+  };
+
+  const handleReviewSubmitted = (reviewId) => {
+    // Update the booking in the list to show it has a review
+    setUserBookings(prevBookings =>
+      prevBookings.map(booking =>
+        booking.id === selectedBookingForReview.id
+          ? { ...booking, hasReview: true, reviewId }
+          : booking
+      )
+    );
+    setShowReviewForm(false);
+    setSelectedBookingForReview(null);
+    
+    // Close the booking modal as well
+    setShowBookingModal(false);
+    setSelectedBooking(null);
+    
+    toast.success("Thank you for your review! It will be reviewed by our team.");
   };
 
   if (loading) {
@@ -601,13 +623,35 @@ const Profile = () => {
                           </div>
                           <div className="text-right">
                             <p className="font-medium text-gray-900">₹{booking.finalPrice?.toLocaleString() || booking.price.toLocaleString()}</p>
-                            <button 
-                              onClick={() => handleViewBookingDetails(booking)}
-                              className="mt-2 text-orange-500 hover:text-orange-600 flex items-center"
-                            >
-                              <FontAwesomeIcon icon={faEye} className="mr-1" />
-                              View Details
-                            </button>
+                            <div className="mt-2 flex flex-col space-y-2">
+                              <button 
+                                onClick={() => handleViewBookingDetails(booking)}
+                                className="text-orange-500 hover:text-orange-600 flex items-center justify-end"
+                              >
+                                <FontAwesomeIcon icon={faEye} className="mr-1" />
+                                View Details
+                              </button>
+                              
+                              {booking.status === 'completed' && !booking.hasReview && (
+                                <button
+                                  onClick={() => {
+                                    setSelectedBookingForReview(booking);
+                                    setShowReviewForm(true);
+                                  }}
+                                  className="text-green-600 hover:text-green-700 flex items-center justify-end"
+                                >
+                                  <FontAwesomeIcon icon={faCommentDots} className="mr-1" />
+                                  Write Review
+                                </button>
+                              )}
+                              
+                              {booking.status === 'completed' && booking.hasReview && (
+                                <span className="text-green-600 flex items-center justify-end text-sm">
+                                  <FontAwesomeIcon icon={faCheckCircle} className="mr-1" />
+                                  Review Submitted
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                         {booking.referralCode && (
@@ -1079,8 +1123,59 @@ const Profile = () => {
                           </div>
                         </div>
                       )}
+                      
+                      {/* Add the review section */}
+                      {selectedBooking.status === 'completed' && (
+                        <div className="mt-6">
+                          {selectedBooking.hasReview ? (
+                            <div className="bg-green-50 p-4 rounded-lg text-center">
+                              <FontAwesomeIcon icon={faCheckCircle} className="text-green-500 text-xl mb-2" />
+                              <p className="text-green-700">You've already submitted a review for this booking. Thank you!</p>
+                            </div>
+                          ) : (
+                            <div className="bg-orange-50 p-4 rounded-lg text-center">
+                              <h3 className="font-semibold mb-2">Share Your Experience</h3>
+                              <p className="text-gray-600 mb-4">Your feedback helps others choose the right puja services.</p>
+                              <button
+                                onClick={() => {
+                                  setSelectedBookingForReview(selectedBooking);
+                                  setShowReviewForm(true);
+                                }}
+                                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg flex items-center mx-auto"
+                              >
+                                <FontAwesomeIcon icon={faCommentDots} className="mr-2" />
+                                Leave a Review
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Review Form Modal */}
+            {showReviewForm && selectedBookingForReview && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-lg max-w-2xl w-full p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-xl font-semibold">Submit Review</h3>
+                    <button
+                      onClick={() => {
+                        setShowReviewForm(false);
+                        setSelectedBookingForReview(null);
+                      }}
+                      className="text-gray-500 hover:text-gray-700 text-2xl"
+                    >
+                      &times;
+                    </button>
+                  </div>
+                  <BookingReviewForm
+                    booking={selectedBookingForReview}
+                    onReviewSubmitted={handleReviewSubmitted}
+                  />
                 </div>
               </div>
             )}

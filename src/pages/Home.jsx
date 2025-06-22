@@ -4,6 +4,7 @@ import Services from '../components/Services';
 import FeaturedPuja from '../components/FeaturedPuja';
 import ProductsSection from '../components/ProductsSection';
 import PanditSection from '../components/PanditSection';
+import TestimonialSection from '../components/TestimonialSection';
 import SEO from '../components/SEO';
 
 const Home = () => {
@@ -151,6 +152,7 @@ const Home = () => {
       <Services />
       <FeaturedPuja />
       <ProductsSection />
+      <TestimonialSection />
       <PanditSection />
     </main>
   );
