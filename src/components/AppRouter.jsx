@@ -27,7 +27,6 @@ import ProductManagerApplication from '../pages/ProductManagerApplication';
 import MarketingSpecialistApplication from '../pages/MarketingSpecialistApplication';
 import AdminDashboard from '../pages/AdminDashboard';
 import DailyHoroscope from '../pages/DailyHoroscope';
-import BirthChartAstrology from '../pages/BirthChartAstrology';
 import HoroscopeAdmin from '../pages/HoroscopeAdmin';
   
 // Import authentication pages
@@ -70,7 +69,6 @@ const AppRouter = () => {
       <Route path="/apply/product-manager" element={<ProductManagerApplication />} />
       <Route path="/apply/marketing-specialist" element={<MarketingSpecialistApplication />} />
       <Route path="/daily-horoscope" element={<DailyHoroscope />} />
-      <Route path="/birth-chart" element={<BirthChartAstrology />} />
       <Route 
         path="/admin" 
         element={
