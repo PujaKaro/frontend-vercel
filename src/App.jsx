@@ -11,6 +11,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import PopupModal from './components/PopupModal';
 import LeadCaptureModal from './components/LeadCaptureModal';
+import AnnouncementBar from './components/AnnouncementBar';
 
 import useFacebookPixel from './hooks/useFacebookPixel';
 import FloatingWhatsAppButton from './components/FloatingWhatsAppButton';
@@ -27,6 +28,7 @@ function AppWithTracking() {
           <AnalyticsTracker />
           <PopupModal />
           <LeadCaptureModal />
+          <AnnouncementBar />
           <Header />
           <main>
             <AppRouter />
