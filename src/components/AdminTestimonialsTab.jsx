@@ -86,7 +86,8 @@ const AdminTestimonialsTab = () => {
         )
       );
       
-      // Send notification to the user if userId exists
+      // NOTIFICATIONS ENABLED: Comment out the notification sending code
+      // This will send users from receiving testimonial approval notifications
       if (testimonial.userId) {
         try {
           await sendTestimonialStatusNotification(testimonial.userId, id, 'approved');
@@ -126,7 +127,9 @@ const AdminTestimonialsTab = () => {
         )
       );
       
-      // Send notification to the user if userId exists
+      // NOTIFICATIONS DISABLED: Comment out the notification sending code
+      // This will prevent users from receiving testimonial rejection notifications
+      /*
       if (testimonial.userId) {
         try {
           await sendTestimonialStatusNotification(testimonial.userId, id, 'rejected');
@@ -134,6 +137,7 @@ const AdminTestimonialsTab = () => {
           console.error('Error sending testimonial notification:', err);
         }
       }
+      */
       
       toast.success('Testimonial rejected');
     } catch (error) {
