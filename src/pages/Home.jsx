@@ -6,6 +6,8 @@ import ProductsSection from '../components/ProductsSection';
 import PanditSection from '../components/PanditSection';
 import TestimonialSection from '../components/TestimonialSection';
 import SEO from '../components/SEO';
+import PromotionalBanner from '../components/PromotionalBanner';
+import WhyChooseUs from '../components/WhyChooseUs';
 
 const Home = () => {
   // Define the JSON-LD schemas for the home page
@@ -149,7 +151,9 @@ const Home = () => {
         ]}
       />
       <HeroSection />
+      <PromotionalBanner />
       <Services />
+      <WhyChooseUs />
       <FeaturedPuja />
       <ProductsSection />
       <TestimonialSection />
