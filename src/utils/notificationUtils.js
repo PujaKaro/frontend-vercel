@@ -151,8 +151,8 @@ export const sendReviewRequestNotification = async (userId, bookingId, pujaName)
   try {
     const notificationData = {
       userId,
-      title: 'Share Your Experience',
-      message: `How was your experience with ${pujaName}? Please take a moment to share your feedback.`,
+      title: '✨ Share Your Divine Experience',
+      message: `How was your spiritual journey with the ${pujaName}? Your sacred experience can guide others on their path. Please take a moment to share your blessings and insights with our community.`,
       type: 'review_request',
       bookingId,
       pujaName,
@@ -180,11 +180,14 @@ export const sendTestimonialStatusNotification = async (userId, testimonialId, s
     let title, message;
     
     if (status === 'approved') {
-      title = 'Testimonial Approved';
-      message = 'Your testimonial has been approved and is now visible on our website. Thank you for your feedback!';
+      title = '🎉 Your Testimonial is Live!';
+      message = 'Wonderful news! Your heartfelt testimonial has been approved and is now inspiring others on our website. Your spiritual journey helps guide others on their path. Thank you for being part of our divine community!';
+    } else if (status === 'rejected') {
+      title = 'Update on Your Testimonial';
+      message = 'We\'ve reviewed your testimonial and would love to discuss how we can refine it together to better share your spiritual experience. Please contact our team for a personalized conversation.';
     } else {
-      title = 'Testimonial Update';
-      message = 'Your testimonial has been reviewed. Please contact us for more information.';
+      title = 'Testimonial Status Update';
+      message = 'There\'s been an update regarding your testimonial. Our team has reviewed your shared experience and may have additional information for you. Feel free to check your account dashboard or contact us.';
     }
     
     const notificationData = {
