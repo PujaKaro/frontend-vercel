@@ -4,45 +4,76 @@ import { Link } from 'react-router-dom';
 
 const FeaturedPuja = () => {
   return (
-    <section 
-      className="py-16 bg-[#fb9548]" 
-      style={{ backgroundImage: "url('/images/Section.png')", backgroundSize: "cover", backgroundPosition: "center" }}
-    >
-      <div className="max-w-8xl mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-6">Featured Puja</h2>
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden relative">
-          <div className="absolute inset-0 bg-cover bg-center"></div>
+    <section className="py-20 relative overflow-hidden">
+      {/* Decorative background */}
+      <div 
+        className="absolute inset-0 bg-[#fb9548]/10" 
+        style={{ 
+          backgroundImage: "url('/images/Section.png')", 
+          backgroundSize: "cover", 
+          backgroundPosition: "center",
+          opacity: 0.15
+        }}
+      ></div>
+      
+      {/* Content container */}
+      <div className="max-w-8xl mx-auto px-4 relative z-10">
+        <div className="text-center mb-12">
+          <h2 className="inline-block text-3xl md:text-4xl font-bold mb-4 relative">
+            Featured Puja
+            <div className="absolute -bottom-3 left-0 right-0 h-1.5 bg-[#fb9548] rounded-full transform scale-x-75"></div>
+          </h2>
+        </div>
+        
+        <div className="bg-white rounded-xl shadow-xl overflow-hidden relative border border-[#fb9548]/20">
+          {/* Decorative elements */}
+          <div className="absolute top-0 left-0 w-32 h-32 -translate-x-16 -translate-y-16 bg-[#fb9548]/10 rounded-full"></div>
+          <div className="absolute bottom-0 right-0 w-64 h-64 translate-x-32 translate-y-32 bg-[#317bea]/10 rounded-full"></div>
+          
           <div className="grid md:grid-cols-2 relative">
-            <div className="p-8">
-              <span className="inline-block px-4 py-1 bg-custom/10 text-custom rounded-full text-sm font-medium mb-4 bg-[#ffeee7]">
+            <div className="p-8 md:p-12 relative z-10">
+              <span className="inline-block px-4 py-1 bg-[#ffeee7] text-[#fb9548] rounded-full text-sm font-medium mb-6 border border-[#fb9548]/20">
                 Special Offer
               </span>
-              <h3 className="text-2xl font-bold mb-4">Satyanarayan Puja</h3>
-              <p className="text-gray-600 mb-6">
+              
+              <h3 className="text-3xl font-bold mb-4 text-[#8B0000]">Satyanarayan Puja</h3>
+              
+              <p className="text-gray-600 mb-8 text-lg leading-relaxed">
                 Experience the divine blessings of Lord Vishnu through this auspicious puja performed by our expert pandits.
+                This sacred ceremony brings prosperity and peace to your home.
               </p>
-              <div className="flex items-center gap-4 mb-6">
-                <div className="flex items-center gap-2">
-                  <FontAwesomeIcon icon={faCalendar} className="text-custom" />
+              
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8">
+                <div className="flex items-center gap-2 bg-[#ffeee7] px-4 py-2 rounded-full">
+                  <FontAwesomeIcon icon={faCalendar} className="text-[#fb9548]" />
                   <span>Next Available: Tomorrow</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <FontAwesomeIcon icon={faClock} className="text-custom" />
+                <div className="flex items-center gap-2 bg-[#ffeee7] px-4 py-2 rounded-full">
+                  <FontAwesomeIcon icon={faClock} className="text-[#fb9548]" />
                   <span>Duration: 2 hours</span>
                 </div>
               </div>
-              <Link 
-                to="/puja-booking" 
-                className="px-8 py-3 bg-[#317bea] text-white font-semibold rounded-button hover:bg-[#317bea]/90"
-              >
-                Book Now at ₹5,100
-              </Link>
+              
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <Link 
+                  to="/puja-booking" 
+                  className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[#fb9548] to-[#fb7a48] text-white font-bold rounded-full hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
+                >
+                  Book Now at ₹5,100
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </Link>
+                <span className="text-gray-500 text-sm">Includes complete samagri</span>
+              </div>
             </div>
-            <div className="relative h-full min-h-[300px]">
+            
+            <div className="relative h-full min-h-[400px] order-first md:order-last">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent md:hidden z-10"></div>
               <img 
                 src="/images/featuredPuja.jpg" 
                 className="absolute inset-0 w-full h-full object-cover" 
-                alt="Satyanarayan Puja"
+                alt="Satyanarayan Puja" 
               />
             </div>
           </div>

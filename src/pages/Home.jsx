@@ -128,8 +128,19 @@ const Home = () => {
     aggregateOfferSchema
   ];
 
+  // Add smooth scroll behavior
+  useEffect(() => {
+    // Add smooth scroll behavior to the entire page
+    document.documentElement.style.scrollBehavior = 'smooth';
+    
+    return () => {
+      // Clean up when component unmounts
+      document.documentElement.style.scrollBehavior = '';
+    };
+  }, []);
+
   return (
-    <main className="mt-2">
+    <main className="overflow-hidden">
       <SEO
         title="PujaKaro - Your One-Stop Solution for Religious Needs"
         description="Book authentic pujas, purchase religious items, and connect with experienced pandits. PujaKaro offers traditional puja services, premium quality products, and spiritual guidance."
@@ -150,14 +161,36 @@ const Home = () => {
           "ganesh puja"
         ]}
       />
-      <HeroSection />
-      <PromotionalBanner />
-      <Services />
-      <WhyChooseUs />
-      <FeaturedPuja />
-      <ProductsSection />
-      <TestimonialSection />
-      <PanditSection />
+      
+      {/* Hero Section with promotional banner underneath */}
+      <div className="relative">
+        <HeroSection />
+        <div className="relative z-10 -mt-6">
+          <PromotionalBanner />
+        </div>
+      </div>
+      
+      {/* Main sections with proper spacing */}
+      <div className="space-y-4">
+
+         {/* Services Section */}
+         <Services />
+
+        {/* Why Choose Us Section */}
+        <WhyChooseUs />
+        
+        {/* Featured Puja Section */}
+        <FeaturedPuja />
+        
+        {/* Products Section */}
+        <ProductsSection />
+        
+        {/* Testimonial Section */}
+        <TestimonialSection />
+        
+        {/* Pandit Section */}
+        <PanditSection />
+      </div>
     </main>
   );
 };
