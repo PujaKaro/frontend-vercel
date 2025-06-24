@@ -17,7 +17,8 @@ import {
   faStar,
   faPray,
   faDatabase,
-  faCommentDots
+  faCommentDots,
+  faHome
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../config/firebase';
@@ -40,6 +41,7 @@ import AdminCodesTabs from '../components/AdminCodesTabs';
 import AdminNotificationsTab from '../components/AdminNotificationsTab';
 import AdminTestimonialsTab from '../components/AdminTestimonialsTab';
 import BookingManagementTab from '../components/BookingManagementTab';
+import AdminHomeContentTab from '../components/AdminHomeContentTab';
 import { 
   migrateDataToFirestore, 
   getAllPujas, 
@@ -3006,6 +3008,17 @@ const AdminDashboard = () => {
                   Notifications
                 </button>
                 <button
+                  onClick={() => setActiveTab('homeContent')}
+                  className={`w-full text-left px-4 py-2 rounded-lg ${
+                    activeTab === 'homeContent'
+                      ? 'bg-orange-50 text-orange-500'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faHome} className="mr-2" />
+                  Home Content
+                </button>
+                <button
                   className={`flex items-center px-4 py-2 rounded-lg ${
                     activeTab === 'horoscope' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'
                   }`}
@@ -3661,6 +3674,10 @@ const AdminDashboard = () => {
           
           {activeTab === 'testimonials' && (
             <AdminTestimonialsTab />
+          )}
+          
+          {activeTab === 'homeContent' && (
+            <AdminHomeContentTab />
           )}
 
           {activeTab === 'analytics' && (
