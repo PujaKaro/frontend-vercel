@@ -1,10 +1,55 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar, faClock } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
 const FeaturedPuja = () => {
+  const [featuredPujaContent, setFeaturedPujaContent] = useState({
+    heading: "Featured Puja",
+    pujaName: "Satyanarayan Puja",
+    description: "Experience the divine blessings of Lord Vishnu through this auspicious puja performed by our expert pandits. This sacred ceremony brings prosperity and peace to your home.",
+    price: "₹5,100",
+    nextAvailable: "Tomorrow",
+    duration: "2 hours",
+    image: "/images/featuredPuja.jpg"
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFeaturedPujaContent = async () => {
+      try {
+        setLoading(true);
+        const featuredPujaDoc = await getDoc(doc(db, 'siteContent', 'featuredPuja'));
+        if (featuredPujaDoc.exists()) {
+          setFeaturedPujaContent(featuredPujaDoc.data());
+        }
+      } catch (error) {
+        console.error('Error fetching featured puja content:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeaturedPujaContent();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="py-10 relative overflow-hidden">
+        <div className="max-w-8xl mx-auto px-4 relative z-10">
+          <div className="text-center mb-6">
+            <div className="animate-pulse h-8 bg-gray-300 rounded w-48 mx-auto mb-4"></div>
+          </div>
+          <div className="animate-pulse bg-gray-200 h-96 rounded-xl"></div>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className="py-20 relative overflow-hidden">
+    <section className="py-10 relative overflow-hidden">
       {/* Decorative background */}
       <div 
         className="absolute inset-0 bg-[#fb9548]/10" 
@@ -12,15 +57,15 @@ const FeaturedPuja = () => {
           backgroundImage: "url('/images/Section.png')", 
           backgroundSize: "cover", 
           backgroundPosition: "center",
-          opacity: 0.15
+          opacity: 0.85
         }}
       ></div>
       
       {/* Content container */}
       <div className="max-w-8xl mx-auto px-4 relative z-10">
-        <div className="text-center mb-12">
+        <div className="text-center mb-6">
           <h2 className="inline-block text-3xl md:text-4xl font-bold mb-4 relative">
-            Featured Puja
+            {featuredPujaContent.heading}
             <div className="absolute -bottom-3 left-0 right-0 h-1.5 bg-[#fb9548] rounded-full transform scale-x-75"></div>
           </h2>
         </div>
@@ -36,21 +81,20 @@ const FeaturedPuja = () => {
                 Special Offer
               </span>
               
-              <h3 className="text-3xl font-bold mb-4 text-[#8B0000]">Satyanarayan Puja</h3>
+              <h3 className="text-3xl font-bold mb-4 text-[#8B0000]">{featuredPujaContent.pujaName}</h3>
               
               <p className="text-gray-600 mb-8 text-lg leading-relaxed">
-                Experience the divine blessings of Lord Vishnu through this auspicious puja performed by our expert pandits.
-                This sacred ceremony brings prosperity and peace to your home.
+                {featuredPujaContent.description}
               </p>
               
               <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8">
                 <div className="flex items-center gap-2 bg-[#ffeee7] px-4 py-2 rounded-full">
                   <FontAwesomeIcon icon={faCalendar} className="text-[#fb9548]" />
-                  <span>Next Available: Tomorrow</span>
+                  <span>Next Available: {featuredPujaContent.nextAvailable}</span>
                 </div>
                 <div className="flex items-center gap-2 bg-[#ffeee7] px-4 py-2 rounded-full">
                   <FontAwesomeIcon icon={faClock} className="text-[#fb9548]" />
-                  <span>Duration: 2 hours</span>
+                  <span>Duration: {featuredPujaContent.duration}</span>
                 </div>
               </div>
               
@@ -59,7 +103,7 @@ const FeaturedPuja = () => {
                   to="/puja-booking" 
                   className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[#fb9548] to-[#fb7a48] text-white font-bold rounded-full hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
                 >
-                  Book Now at ₹5,100
+                  Book Now at {featuredPujaContent.price}
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>
@@ -71,9 +115,9 @@ const FeaturedPuja = () => {
             <div className="relative h-full min-h-[400px] order-first md:order-last">
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent md:hidden z-10"></div>
               <img 
-                src="/images/featuredPuja.jpg" 
+                src={featuredPujaContent.image} 
                 className="absolute inset-0 w-full h-full object-cover" 
-                alt="Satyanarayan Puja" 
+                alt={featuredPujaContent.pujaName} 
               />
             </div>
           </div>

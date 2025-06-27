@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar, faQuoteLeft, faQuoteRight } from '@fortawesome/free-solid-svg-icons';
-import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy, limit, doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import Glide from '@glidejs/glide';
 import '@glidejs/glide/dist/css/glide.core.min.css';
@@ -10,7 +10,26 @@ import '@glidejs/glide/dist/css/glide.theme.min.css';
 const TestimonialSection = () => {
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [testimonialContent, setTestimonialContent] = useState({
+    heading: "What Our Devotees Say",
+    subheading: "Hear from people who have experienced the divine journey with us"
+  });
   const glideRef = useRef(null);
+
+  useEffect(() => {
+    const fetchTestimonialContent = async () => {
+      try {
+        const testimonialDoc = await getDoc(doc(db, 'siteContent', 'testimonials'));
+        if (testimonialDoc.exists()) {
+          setTestimonialContent(testimonialDoc.data());
+        }
+      } catch (error) {
+        console.error('Error fetching testimonial content:', error);
+      }
+    };
+
+    fetchTestimonialContent();
+  }, []);
 
   useEffect(() => {
     const fetchTestimonials = async () => {
@@ -96,8 +115,8 @@ const TestimonialSection = () => {
       <section className="py-20 bg-gradient-to-b from-white to-[#ffeee7]/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">What Our Devotees Say</h2>
-            <div className="animate-pulse mx-auto h-4 w-24 bg-gray-300 rounded"></div>
+            <div className="animate-pulse h-8 bg-gray-300 rounded w-64 mx-auto mb-4"></div>
+            <div className="animate-pulse h-4 bg-gray-300 rounded w-96 mx-auto"></div>
           </div>
           <div className="flex justify-center">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#fb9548]"></div>
@@ -122,10 +141,10 @@ const TestimonialSection = () => {
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#8B0000]">What Our Devotees Say</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#8B0000]">{testimonialContent.heading}</h2>
           <div className="w-32 h-1.5 bg-gradient-to-r from-[#fb9548] to-[#317bea] mx-auto rounded-full"></div>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto mt-6">
-            Hear from people who have experienced the divine journey with us
+            {testimonialContent.subheading}
           </p>
         </div>
 
@@ -198,20 +217,18 @@ const TestimonialSection = () => {
           {/* Custom navigation arrows */}
           <div className="glide__arrows flex justify-center md:justify-between mt-8 md:absolute md:top-1/2 md:left-0 md:right-0 md:-translate-y-1/2 md:mt-0 md:px-2" data-glide-el="controls">
             <button 
-              className="glide__arrow glide__arrow--left p-3 rounded-full bg-white/80 shadow-md hover:bg-white transition-colors focus:outline-none group"
+              className="glide__arrow glide__arrow--left bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-shadow transform hover:scale-105 hidden md:flex items-center justify-center"
               data-glide-dir="<"
-              aria-label="Previous slide"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#8B0000] group-hover:text-[#fb9548] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-5 h-5 text-[#8B0000]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             <button 
-              className="glide__arrow glide__arrow--right p-3 rounded-full bg-white/80 shadow-md hover:bg-white transition-colors focus:outline-none group ml-4 md:ml-0"
+              className="glide__arrow glide__arrow--right bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-shadow transform hover:scale-105 hidden md:flex items-center justify-center"
               data-glide-dir=">"
-              aria-label="Next slide"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#8B0000] group-hover:text-[#fb9548] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-5 h-5 text-[#8B0000]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>

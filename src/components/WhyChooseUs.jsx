@@ -1,40 +1,82 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
 const WhyChooseUs = () => {
-  // Features highlighting why users should choose PujaKaro
-  const features = [
-    {
-      icon: "🕉️",
-      title: "Expert Pandits",
-      description: "Experienced and knowledgeable pandits who perform authentic rituals with precision"
-    },
-    {
-      icon: "🛍️",
-      title: "Complete Samagri",
-      description: "Premium quality puja materials sourced directly from religious suppliers"
-    },
-    {
-      icon: "🏠",
-      title: "Beautiful Decor",
-      description: "Elegant and traditional decorations to create a divine ambience for your ceremony"
-    },
-    {
-      icon: "🔥",
-      title: "All Essentials",
-      description: "Hawan kund, kalash, and all other ritual necessities provided with care"
-    },
-    {
-      icon: "✅",
-      title: "One Booking",
-      description: "We handle everything from start to finish - just relax and focus on the spiritual experience"
-    },
-    {
-      icon: "📍",
-      title: "Multiple Locations",
-      description: "Choose from temple, home, online or yamuna ghat for your puja ceremony"
-    }
-  ];
+  const [whyChooseUsContent, setWhyChooseUsContent] = useState({
+    heading: "Why Choose PujaKaro",
+    subheading: "Your one-stop destination for all puja needs, offering an unmatched spiritual experience",
+    features: [
+      {
+        icon: "🕉️",
+        title: "Expert Pandits",
+        description: "Experienced and knowledgeable pandits who perform authentic rituals with precision"
+      },
+      {
+        icon: "🛍️",
+        title: "Complete Samagri",
+        description: "Premium quality puja materials sourced directly from religious suppliers"
+      },
+      {
+        icon: "🏠",
+        title: "Beautiful Decor",
+        description: "Elegant and traditional decorations to create a divine ambience for your ceremony"
+      },
+      {
+        icon: "🔥",
+        title: "All Essentials",
+        description: "Hawan kund, kalash, and all other ritual necessities provided with care"
+      },
+      {
+        icon: "✅",
+        title: "One Booking",
+        description: "We handle everything from start to finish - just relax and focus on the spiritual experience"
+      },
+      {
+        icon: "📍",
+        title: "Multiple Locations",
+        description: "Choose from temple, home, online or yamuna ghat for your puja ceremony"
+      }
+    ]
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchWhyChooseUsContent = async () => {
+      try {
+        setLoading(true);
+        const whyChooseUsDoc = await getDoc(doc(db, 'siteContent', 'whyChooseUs'));
+        if (whyChooseUsDoc.exists()) {
+          setWhyChooseUsContent(whyChooseUsDoc.data());
+        }
+      } catch (error) {
+        console.error('Error fetching why choose us content:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWhyChooseUsContent();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="py-12 relative overflow-hidden bg-gradient-to-r from-[#fcf4e9] to-[#fff9f0]">
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
+          <div className="text-center mb-8 md:mb-12">
+            <div className="animate-pulse h-8 bg-gray-300 rounded w-64 mx-auto mb-4"></div>
+            <div className="animate-pulse h-4 bg-gray-300 rounded w-96 mx-auto"></div>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} className="animate-pulse bg-gray-200 h-32 rounded-lg"></div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-12 relative overflow-hidden bg-gradient-to-r from-[#fcf4e9] to-[#fff9f0]">
@@ -50,11 +92,11 @@ const WhyChooseUs = () => {
       <div className="max-w-7xl mx-auto px-4 relative z-10">
         <div className="text-center mb-8 md:mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-[#8B0000] mb-4 inline-block relative">
-            Why Choose PujaKaro
+            {whyChooseUsContent.heading}
             <span className="block h-1 w-full bg-[#FFD700] mt-2 rounded"></span>
           </h2>
           <p className="text-lg max-w-3xl mx-auto text-gray-700">
-            Your one-stop destination for all puja needs, offering an unmatched spiritual experience
+            {whyChooseUsContent.subheading}
           </p>
         </div>
         
@@ -66,7 +108,7 @@ const WhyChooseUs = () => {
           
           <div className="overflow-x-auto pb-4 -mx-4 px-4 md:overflow-visible md:pb-0 md:mx-0 md:px-0 hide-scrollbar">
             <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {features.map((feature, index) => (
+              {whyChooseUsContent.features.map((feature, index) => (
                 <div 
                   key={index} 
                   className="flex-shrink-0 w-[270px] sm:w-[320px] md:w-auto bg-white p-6 rounded-lg shadow-sm border border-[#FFD700]/20 hover:shadow-md transition group"
