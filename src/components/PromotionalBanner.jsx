@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
 const PromotionalBanner = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [banners, setBanners] = useState([]);
+  const [loading, setLoading] = useState(true);
   
-  // Promotional banners data based on the images
-  const banners = [
+  // Default banners as fallback
+  const defaultBanners = [
     {
       icon: "✨",
       title: "Your One-Stop Destination for All Puja Needs!",
@@ -26,14 +30,61 @@ const PromotionalBanner = () => {
     }
   ];
 
+  // Fetch banners from Firestore
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const bannerDoc = await getDoc(doc(db, 'siteContent', 'promotionalBanner'));
+        if (bannerDoc.exists() && bannerDoc.data().banners) {
+          setBanners(bannerDoc.data().banners);
+        } else {
+          setBanners(defaultBanners);
+        }
+      } catch (error) {
+        console.error('Error fetching promotional banners:', error);
+        setBanners(defaultBanners);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBanners();
+  }, []);
+
   // Auto-advance the carousel every 5 seconds
   useEffect(() => {
+    if (banners.length === 0) return;
+    
     const interval = setInterval(() => {
       setActiveIndex((prevIndex) => (prevIndex + 1) % banners.length);
     }, 5000);
     
     return () => clearInterval(interval);
   }, [banners.length]);
+
+  // Show loading state
+  if (loading) {
+    return (
+      <section className="py-3 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="bg-gradient-to-r from-[#ffbe55] to-[#ffd68f] rounded-md shadow-lg p-8">
+            <div className="animate-pulse">
+              <div className="h-6 bg-white/20 rounded mb-4"></div>
+              <div className="h-4 bg-white/20 rounded mb-2"></div>
+              <div className="h-4 bg-white/20 rounded mb-2"></div>
+              <div className="h-4 bg-white/20 rounded mb-4"></div>
+              <div className="h-8 bg-white/20 rounded w-32"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Don't render if no banners
+  if (banners.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-3 relative overflow-hidden">
