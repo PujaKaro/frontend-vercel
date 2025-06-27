@@ -18,7 +18,8 @@ import {
   faPray,
   faDatabase,
   faCommentDots,
-  faHome
+  faHome,
+  faUser
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../config/firebase';
@@ -42,6 +43,7 @@ import AdminNotificationsTab from '../components/AdminNotificationsTab';
 import AdminTestimonialsTab from '../components/AdminTestimonialsTab';
 import BookingManagementTab from '../components/BookingManagementTab';
 import AdminHomeContentTab from '../components/AdminHomeContentTab';
+import AdminLeadsTab from '../components/AdminLeadsTab';
 import { 
   migrateDataToFirestore, 
   getAllPujas, 
@@ -82,6 +84,7 @@ const AdminDashboard = () => {
     totalBookings: 0,
     totalOrders: 0,
     totalBlogs: 0,
+    totalLeads: 0,
     recentUsers: [],
     recentBookings: [],
     recentOrders: [],
@@ -326,6 +329,9 @@ const AdminDashboard = () => {
         getAllCoupons()
       ]);
 
+      // Fetch leads count
+      const leadsSnapshot = await getDocs(collection(db, 'NEW_LEADS'));
+
       const recentUsersQuery = query(
         collection(db, 'users'),
         orderBy('createdAt', 'desc'),
@@ -454,6 +460,7 @@ const AdminDashboard = () => {
         totalBookings: bookings.size,
         totalOrders: orders.size,
         totalBlogs: blogs.size,
+        totalLeads: leadsSnapshot.size,
         recentUsers: recentUsers.docs.map(doc => ({ id: doc.id, ...doc.data() })),
         recentBookings: recentBookings.docs.map(doc => ({ id: doc.id, ...doc.data() })),
         recentOrders: recentOrders.docs.map(doc => ({ id: doc.id, ...doc.data() })),
@@ -3019,6 +3026,17 @@ const AdminDashboard = () => {
                   Home Content
                 </button>
                 <button
+                  onClick={() => setActiveTab('leads')}
+                  className={`w-full text-left px-4 py-2 rounded-lg ${
+                    activeTab === 'leads'
+                      ? 'bg-orange-50 text-orange-500'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faUser} className="mr-2" />
+                  Leads
+                </button>
+                <button
                   className={`flex items-center px-4 py-2 rounded-lg ${
                     activeTab === 'horoscope' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'
                   }`}
@@ -3047,7 +3065,7 @@ const AdminDashboard = () => {
           {/* Main Content Area */}
           <div className="md:col-span-3">
             {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
               <div className="bg-white rounded-lg shadow-sm p-4">
                 <div className="flex items-center">
                   <div className="p-3 bg-orange-50 rounded-lg">
@@ -3089,6 +3107,17 @@ const AdminDashboard = () => {
                   <div className="ml-4">
                     <p className="text-gray-500">Blogs</p>
                     <p className="text-2xl font-bold">{stats.totalBlogs}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white rounded-lg shadow-sm p-4">
+                <div className="flex items-center">
+                  <div className="p-3 bg-teal-50 rounded-lg">
+                    <FontAwesomeIcon icon={faUser} className="text-teal-500 text-xl" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-gray-500">Leads</p>
+                    <p className="text-2xl font-bold">{stats.totalLeads}</p>
                   </div>
                 </div>
               </div>
@@ -3678,6 +3707,10 @@ const AdminDashboard = () => {
           
           {activeTab === 'homeContent' && (
             <AdminHomeContentTab />
+          )}
+
+          {activeTab === 'leads' && (
+            <AdminLeadsTab />
           )}
 
           {activeTab === 'analytics' && (
