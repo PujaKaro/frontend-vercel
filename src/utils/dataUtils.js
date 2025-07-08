@@ -62,14 +62,68 @@ export const migrateDataToFirestore = async () => {
   }
 };
 
+// Function to clean up existing products with empty id fields
+export const cleanupExistingProducts = async () => {
+  try {
+    console.log('Cleaning up existing products with empty id fields...');
+    const snapshot = await getDocs(productsCollection);
+    let updatedCount = 0;
+    
+    for (const doc of snapshot.docs) {
+      const data = doc.data();
+      // If the document has an empty id field, set it to the product name
+      if (data.id === '' || data.id === null || data.id === undefined) {
+        console.log(`Cleaning up product: ${doc.id} - ${data.name}`);
+        
+        // Create a clean name-based ID from the product name
+        let cleanId = '';
+        if (data.name) {
+          // Convert name to a URL-friendly ID
+          cleanId = data.name
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
+            .replace(/\s+/g, '-') // Replace spaces with hyphens
+            .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+            .trim('-'); // Remove leading/trailing hyphens
+        }
+        
+        // If no name or empty after cleaning, use a fallback
+        if (!cleanId) {
+          cleanId = `product-${doc.id}`;
+        }
+        
+        // Update the document with the new ID
+        const updatedData = {
+          ...data,
+          id: cleanId
+        };
+        
+        await updateDoc(doc.ref, updatedData);
+        updatedCount++;
+        console.log(`Updated product "${data.name}" with ID: ${cleanId}`);
+      }
+    }
+    
+    console.log(`Cleaned up ${updatedCount} products`);
+    return { success: true, updatedCount };
+  } catch (error) {
+    console.error('Error cleaning up products:', error);
+    return { success: false, error: error.message };
+  }
+};
+
 // CRUD operations for products
 export const getAllProducts = async () => {
   try {
     const snapshot = await getDocs(productsCollection);
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+    return snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        firestoreId: doc.id, // Store the actual Firestore document ID
+        id: data.id || doc.id, // Use custom ID if available, otherwise use Firestore ID
+        ...data
+      };
+    });
   } catch (error) {
     console.error('Error getting products:', error);
     throw error;
@@ -116,7 +170,7 @@ export const getProductById = async (id) => {
       const doc = querySnapshot.docs[0];
       console.log(`Found product via id field. Document ID: ${doc.id}, Internal id: ${doc.data().id}`);
       return {
-        id: doc.id, // Using the Firestore document ID
+        id: doc.id, // Using the Firestore document ID for routing
         ...doc.data()
       };
     }
@@ -131,9 +185,23 @@ export const getProductById = async (id) => {
 
 export const addProduct = async (productData) => {
   try {
+    // If the product has a custom ID, check if it already exists
+    if (productData.id && productData.id.trim() !== '') {
+      console.log(`[addProduct] Custom ID detected: ${productData.id}. Checking if product exists.`);
+      
+      // Query for documents with a matching custom ID field
+      const q = query(productsCollection, where("id", "==", productData.id));
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        console.log(`[addProduct] Product with custom ID ${productData.id} already exists.`);
+        throw new Error(`Product with ID ${productData.id} already exists.`);
+      }
+    }
+    
     const docRef = await addDoc(productsCollection, productData);
     return {
-      id: docRef.id,
+      id: docRef.id, // Return Firestore document ID for routing
       ...productData
     };
   } catch (error) {
@@ -144,6 +212,46 @@ export const addProduct = async (productData) => {
 
 export const updateProduct = async (id, productData) => {
   try {
+    // If the product has a custom ID, check if it already exists
+    if (productData.id && productData.id.trim() !== '') {
+      console.log(`[updateProduct] Custom ID detected: ${productData.id}. Checking if product exists.`);
+      
+      // Query for documents with a matching custom ID field
+      const q = query(productsCollection, where("id", "==", productData.id));
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        // Found a document with this custom ID
+        const docRef = querySnapshot.docs[0];
+        const realDocId = docRef.id;
+        console.log(`[updateProduct] Found document with custom ID ${productData.id}, using Firestore document ID: ${realDocId}`);
+        
+        // Update with the real document ID
+        const realDocRef = doc(db, 'products', realDocId);
+        await updateDoc(realDocRef, productData);
+        
+        return {
+          id: realDocId,
+          ...productData
+        };
+      } else {
+        console.log(`[updateProduct] No document found with custom ID: ${productData.id}. Creating new document.`);
+        // No document found, create a new one
+        const newProduct = {
+          ...productData,
+          id: productData.id // Store the custom ID in the document
+        };
+        
+        const docRef = await addDoc(productsCollection, newProduct);
+        
+        return {
+          id: docRef.id,
+          ...newProduct
+        };
+      }
+    }
+    
+    // If it's not a custom ID, proceed with regular update using Firestore document ID
     const docRef = doc(db, 'products', id);
     await updateDoc(docRef, productData);
     return {
@@ -531,7 +639,7 @@ export const deletePuja = async (id) => {
 };
 
 // Functions for getting suggested products and pujas
-export const getSuggestedProducts = async (productId, limit = 3) => {
+export const getSuggestedProducts = async (productId, limitValue = 3) => {
   try {
     // Get the product
     const product = await getProductById(productId);
@@ -542,7 +650,7 @@ export const getSuggestedProducts = async (productId, limit = 3) => {
     const q = query(
       productsCollection,
       where('category', '==', product.category),
-      limit(limit + 1)  // +1 in case we need to filter out the current product
+      limit(limitValue + 1)  // +1 in case we need to filter out the current product
     );
     
     const snapshot = await getDocs(q);
@@ -551,8 +659,8 @@ export const getSuggestedProducts = async (productId, limit = 3) => {
       .filter(item => item.id !== productId);
     
     // If not enough products in the same category, add random products
-    if (suggestedProducts.length < limit) {
-      const remainingLimit = limit - suggestedProducts.length;
+    if (suggestedProducts.length < limitValue) {
+      const remainingLimit = limitValue - suggestedProducts.length;
       const allProductsSnapshot = await getDocs(productsCollection);
       const allProducts = allProductsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       
@@ -573,7 +681,7 @@ export const getSuggestedProducts = async (productId, limit = 3) => {
       });
     }
     
-    return suggestedProducts.slice(0, limit);
+    return suggestedProducts.slice(0, limitValue);
   } catch (error) {
     console.error('Error getting suggested products:', error);
     throw error;

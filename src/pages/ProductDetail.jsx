@@ -613,7 +613,7 @@ const ProductDetail = () => {
                   <div className="mb-6">
                     <h2 className="text-lg font-semibold mb-2">Requirements</h2>
                     <ul className="list-disc pl-5 text-gray-600">
-                      {item.requirements.map((req, index) => (
+                      {(item.requirements || []).map((req, index) => (
                         <li key={index} className="mb-1">{req}</li>
                       ))}
                     </ul>
@@ -681,7 +681,7 @@ const ProductDetail = () => {
                   <div className="mb-6">
                     <h2 className="text-lg font-semibold mb-2">Features</h2>
                     <ul className="list-disc pl-5 text-gray-600">
-                      {item.features.map((feature, index) => (
+                      {(item.features || []).map((feature, index) => (
                         <li key={index} className="mb-1">{feature}</li>
                       ))}
                     </ul>
@@ -751,9 +751,9 @@ const ProductDetail = () => {
             </h2>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {suggestedItems.map(item => (
+              {suggestedItems.map((item, idx) => (
                 <div 
-                  key={item.id} 
+                  key={item.id || `suggested-${idx}`}
                   className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
                   onClick={() => navigate(`/${itemType === 'product' ? 'product' : 'puja-booking'}/${item.id}`)}
                 >

@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter, faStar, faSearch, faHeart, faShoppingCart, faChevronDown, faChevronUp, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
 import { getAllProducts } from '../utils/dataUtils';
+import { getProductRoutingId } from '../utils/productUtils';
 import { useAuth } from '../contexts/AuthContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -123,7 +124,7 @@ const Shop = () => {
     }
 
     const updatedProducts = productList.map(product =>
-      product.id === id ? { ...product, isWishlisted: !product.isWishlisted } : product
+      getProductRoutingId(product) === id ? { ...product, isWishlisted: !product.isWishlisted } : product
     );
     setProductList(updatedProducts);
     applyFilters(updatedProducts, filters);
@@ -143,7 +144,7 @@ const Shop = () => {
     const userId = currentUser?.uid;
     
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const existingProductIndex = cart.findIndex(item => item.id === product.id);
+    const existingProductIndex = cart.findIndex(item => getProductRoutingId(item) === getProductRoutingId(product));
     
     if (existingProductIndex > -1) {
       cart[existingProductIndex].quantity += 1;
@@ -193,7 +194,7 @@ const Shop = () => {
           "name": product.name,
           "image": product.image.startsWith('/') ? `https://pujakaro.com${product.image}` : product.image,
           "description": product.description.substring(0, 150),
-          "url": `https://pujakaro.com/product/${product.id}`,
+          "url": `https://pujakaro.com/product/${getProductRoutingId(product)}`,
           "offers": {
             "@type": "Offer",
             "price": product.price,
@@ -359,10 +360,10 @@ const Shop = () => {
             {/* Products Grid */}
             {filteredProducts.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredProducts.map(product => (
+                {filteredProducts.map((product, index) => (
                   <Link 
-                    key={product.id} 
-                    to={`/product/${product.id}`}
+                    key={product.id || `product-${index}`} 
+                    to={`/product/${getProductRoutingId(product)}`}
                     className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-300"
                   >
                     <div className="relative">
@@ -372,11 +373,11 @@ const Shop = () => {
                         className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                       <button 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          toggleWishlist(product.id);
-                        }}
+                                              onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toggleWishlist(getProductRoutingId(product));
+                      }}
                         className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white flex items-center justify-center shadow hover:bg-gray-100 transition-colors"
                         aria-label="Toggle Wishlist"
                       >
