@@ -49,14 +49,15 @@ import {
   getAllPujas, 
   addPuja, 
   updatePuja, 
-  deletePuja 
+  deletePuja,
+  cleanupExistingProducts
 } from '../utils/dataUtils';
 import { 
-  getAllProducts, 
   addProduct, 
   updateProduct, 
   deleteProduct 
 } from '../utils/productUtils';
+import { getAllProducts } from '../utils/dataUtils';
 import {
   getAllPandits,
   addPandit,
@@ -158,7 +159,34 @@ const AdminDashboard = () => {
     stock: 0,
     featured: false,
     rating: 4.5,
-    reviews: 0
+    reviews: 0,
+    discount: 0,
+    features: [],
+    requirements: [],
+    occasions: [],
+    pandits: [],
+    availableTimeSlots: [],
+    duration: '',
+    spiritualSignificance: '',
+    keyMantras: [],
+    ritualSteps: [],
+    placementGuide: '',
+    careInstructions: '',
+    weight: '',
+    dimensions: '',
+    material: '',
+    brand: '',
+    sku: '',
+    mpn: '',
+    inStock: true,
+    isWishlisted: false,
+    additionalImages: [],
+    seoTitle: '',
+    seoDescription: '',
+    seoKeywords: '',
+    canonicalUrl: '',
+    breadcrumbSchema: '',
+    productSchema: ''
   });
   const [panditForm, setPanditForm] = useState({
     id: '',
@@ -883,6 +911,25 @@ const AdminDashboard = () => {
       console.error('Migration failed:', error);
       toast.error(`Migration failed: ${error.message}`);
       setIsMigratingData(false);
+    }
+  };
+
+  const handleCleanupProducts = async () => {
+    try {
+      setLoading(true);
+      const result = await cleanupExistingProducts();
+      if (result.success) {
+        toast.success(`Cleaned up ${result.updatedCount} products successfully`);
+        // Refresh products list
+        await fetchProducts();
+      } else {
+        toast.error(`Failed to cleanup products: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error cleaning up products:', error);
+      toast.error('Failed to cleanup products');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -1988,6 +2035,7 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       const productsData = await getAllProducts();
+      console.log('Fetched products:', productsData);
       setProducts(productsData);
       
       // Extract unique categories for filters
@@ -2018,11 +2066,22 @@ const AdminDashboard = () => {
 
   // Handle product modal open
   const handleOpenProductModal = (product = null) => {
+    console.log('Opening product modal with product:', product);
+    
     if (product) {
       // Editing existing product
+      console.log('Editing product with Firestore ID:', product.firestoreId);
+      
+      // Ensure we have a valid Firestore ID for editing
+      if (!product.firestoreId) {
+        console.error('Product has no valid Firestore ID for editing');
+        toast.error('Cannot edit this product: No valid Firestore ID found. Please add it as a new product.');
+        return;
+      }
+      
       setEditingProduct(product);
       setProductForm({
-        id: product.id || '',
+        id: product.id || '', // Custom ID field
         name: product.name || '',
         description: product.description || '',
         longDescription: product.longDescription || '',
@@ -2036,6 +2095,7 @@ const AdminDashboard = () => {
       });
     } else {
       // Adding new product
+      console.log('Adding new product');
       setEditingProduct(null);
       setProductForm({
         id: '',
@@ -2076,11 +2136,21 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       console.log('Saving product with data:', productForm);
+      console.log('Editing product:', editingProduct);
       
       if (editingProduct) {
-        console.log('Updating existing product with ID:', editingProduct.id);
-        // Update existing product
-        await updateProduct(editingProduct.id, productForm);
+        console.log('Updating existing product with Firestore ID:', editingProduct.firestoreId);
+        
+        // Check if we have a valid Firestore ID for updating
+        if (!editingProduct.firestoreId) {
+          console.error('No valid Firestore ID found for editing product');
+          toast.error('Cannot update product: No valid Firestore ID found. Please try adding it as a new product.');
+          setLoading(false);
+          return;
+        }
+        
+        // Update existing product using Firestore document ID
+        await updateProduct(editingProduct.firestoreId, productForm);
         toast.success('Product updated successfully');
       } else {
         console.log('Adding new product');
@@ -2137,13 +2207,25 @@ const AdminDashboard = () => {
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">Product Management</h2>
-          <button
-            onClick={() => handleOpenProductModal()}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center"
-          >
-            <FontAwesomeIcon icon={faPlus} className="mr-2" />
-            Add New Product
-          </button>
+          <div className="flex gap-2">
+            {/* Cleanup button commented out - functionality moved to automatic cleanup
+            <button
+              onClick={handleCleanupProducts}
+              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md flex items-center"
+              disabled={loading}
+            >
+              <FontAwesomeIcon icon={faDatabase} className="mr-2" />
+              {loading ? 'Cleaning...' : 'Cleanup Products'}
+            </button>
+            */}
+            <button
+              onClick={() => handleOpenProductModal()}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center"
+            >
+              <FontAwesomeIcon icon={faPlus} className="mr-2" />
+              Add New Product
+            </button>
+          </div>
         </div>
         
         {/* Filters */}
@@ -2230,8 +2312,8 @@ const AdminDashboard = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredProducts.length > 0 ? (
-                filteredProducts.map((product) => (
-                  <tr key={product.id}>
+                filteredProducts.map((product, index) => (
+                  <tr key={product.firestoreId || `product-${index}`}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="h-10 w-10 flex-shrink-0">
@@ -2272,7 +2354,7 @@ const AdminDashboard = () => {
                         <FontAwesomeIcon icon={faEdit} />
                       </button>
                       <button
-                        onClick={() => handleDeleteProduct(product.id)}
+                        onClick={() => handleDeleteProduct(product.firestoreId)}
                         className="text-red-600 hover:text-red-900"
                       >
                         <FontAwesomeIcon icon={faTrash} />
@@ -2300,136 +2382,585 @@ const AdminDashboard = () => {
       <div className={`fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center ${
         showProductModal ? 'block' : 'hidden'
       }`}>
-        <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
           <h2 className="text-xl font-semibold mb-4">
             {editingProduct ? 'Edit Product' : 'Add New Product'}
           </h2>
           <form onSubmit={handleSaveProduct}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Product Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2"
-                  value={productForm.name}
-                  onChange={handleProductFormChange}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Category
-                </label>
-                <input
-                  type="text"
-                  name="category"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2"
-                  value={productForm.category}
-                  onChange={handleProductFormChange}
-                  required
-                  list="product-categories"
-                />
-                <datalist id="product-categories">
-                  {uniqueCategories.map((category, index) => (
-                    <option key={index} value={category} />
-                  ))}
-                </datalist>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Price (₹)
-                </label>
-                <input
-                  type="number"
-                  name="price"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2"
-                  value={productForm.price}
-                  onChange={handleProductFormChange}
-                  required
-                  min="0"
-                  step="0.01"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Stock
-                </label>
-                <input
-                  type="number"
-                  name="stock"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2"
-                  value={productForm.stock}
-                  onChange={handleProductFormChange}
-                  required
-                  min="0"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Image URL
-                </label>
-                <input
-                  type="text"
-                  name="image"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2"
-                  value={productForm.image}
-                  onChange={handleProductFormChange}
-                  required
-                />
-              </div>
-              <div className="flex items-center mt-6">
-                <input
-                  type="checkbox"
-                  name="featured"
-                  id="featured"
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  checked={productForm.featured}
-                  onChange={handleProductFormChange}
-                />
-                <label htmlFor="featured" className="ml-2 block text-sm text-gray-900">
-                  Featured Product
-                </label>
+            {/* Basic Information */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Basic Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Product ID (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    name="id"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.id}
+                    onChange={handleProductFormChange}
+                    placeholder="Leave empty for auto-generated ID"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Product Name *
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.name}
+                    onChange={handleProductFormChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Category *
+                  </label>
+                  <input
+                    type="text"
+                    name="category"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.category}
+                    onChange={handleProductFormChange}
+                    required
+                    list="product-categories"
+                  />
+                  <datalist id="product-categories">
+                    {uniqueCategories.map((category, index) => (
+                      <option key={index} value={category} />
+                    ))}
+                  </datalist>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Brand
+                  </label>
+                  <input
+                    type="text"
+                    name="brand"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.brand}
+                    onChange={handleProductFormChange}
+                    placeholder="e.g., PujaKaro"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Price (₹) *
+                  </label>
+                  <input
+                    type="number"
+                    name="price"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.price}
+                    onChange={handleProductFormChange}
+                    required
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Discount (%)
+                  </label>
+                  <input
+                    type="number"
+                    name="discount"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.discount}
+                    onChange={handleProductFormChange}
+                    min="0"
+                    max="100"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Stock *
+                  </label>
+                  <input
+                    type="number"
+                    name="stock"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.stock}
+                    onChange={handleProductFormChange}
+                    required
+                    min="0"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Rating
+                  </label>
+                  <input
+                    type="number"
+                    name="rating"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.rating}
+                    onChange={handleProductFormChange}
+                    min="0"
+                    max="5"
+                    step="0.1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Reviews Count
+                  </label>
+                  <input
+                    type="number"
+                    name="reviews"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.reviews}
+                    onChange={handleProductFormChange}
+                    min="0"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    SKU
+                  </label>
+                  <input
+                    type="text"
+                    name="sku"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.sku}
+                    onChange={handleProductFormChange}
+                    placeholder="e.g., PUJA-PROD-001"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    MPN
+                  </label>
+                  <input
+                    type="text"
+                    name="mpn"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.mpn}
+                    onChange={handleProductFormChange}
+                    placeholder="Manufacturer Part Number"
+                  />
+                </div>
               </div>
             </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Short Description
-              </label>
-              <textarea
-                name="description"
-                rows="3"
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
-                value={productForm.description}
-                onChange={handleProductFormChange}
-                required
-              ></textarea>
+
+            {/* Physical Attributes */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Physical Attributes</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Weight
+                  </label>
+                  <input
+                    type="text"
+                    name="weight"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.weight}
+                    onChange={handleProductFormChange}
+                    placeholder="e.g., 500g"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Dimensions
+                  </label>
+                  <input
+                    type="text"
+                    name="dimensions"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.dimensions}
+                    onChange={handleProductFormChange}
+                    placeholder="e.g., 10x5x3 cm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Material
+                  </label>
+                  <input
+                    type="text"
+                    name="material"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.material}
+                    onChange={handleProductFormChange}
+                    placeholder="e.g., Brass, Wood, etc."
+                  />
+                </div>
+              </div>
             </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Long Description
-              </label>
-              <textarea
-                name="longDescription"
-                rows="6"
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
-                value={productForm.longDescription}
-                onChange={handleProductFormChange}
-              ></textarea>
+
+            {/* Images */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Images</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Main Image URL *
+                  </label>
+                  <input
+                    type="text"
+                    name="image"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.image}
+                    onChange={handleProductFormChange}
+                    required
+                    placeholder="https://example.com/image.jpg"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Additional Images (comma-separated)
+                  </label>
+                  <input
+                    type="text"
+                    name="additionalImages"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={(productForm.additionalImages || []).join(', ')}
+                    onChange={(e) => setProductForm(prev => ({
+                      ...prev,
+                      additionalImages: e.target.value.split(',').map(url => url.trim()).filter(url => url)
+                    }))}
+                    placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg"
+                  />
+                </div>
+              </div>
             </div>
-            <div className="flex justify-end">
+
+            {/* Descriptions */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Descriptions</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Short Description *
+                  </label>
+                  <textarea
+                    name="description"
+                    rows="3"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.description}
+                    onChange={handleProductFormChange}
+                    required
+                    placeholder="Brief description for product listings"
+                  ></textarea>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Long Description
+                  </label>
+                  <textarea
+                    name="longDescription"
+                    rows="6"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.longDescription}
+                    onChange={handleProductFormChange}
+                    placeholder="Detailed description for product detail page"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+
+            {/* Features & Requirements */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Features & Requirements</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Features (comma-separated)
+                  </label>
+                  <input
+                    type="text"
+                    name="features"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={(productForm.features || []).join(', ')}
+                    onChange={(e) => setProductForm(prev => ({
+                      ...prev,
+                      features: e.target.value.split(',').map(feature => feature.trim()).filter(feature => feature)
+                    }))}
+                    placeholder="Feature 1, Feature 2, Feature 3"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Requirements (comma-separated)
+                  </label>
+                  <input
+                    type="text"
+                    name="requirements"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={(productForm.requirements || []).join(', ')}
+                    onChange={(e) => setProductForm(prev => ({
+                      ...prev,
+                      requirements: e.target.value.split(',').map(req => req.trim()).filter(req => req)
+                    }))}
+                    placeholder="Requirement 1, Requirement 2"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Ritual Information */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Ritual Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Duration
+                  </label>
+                  <input
+                    type="text"
+                    name="duration"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.duration}
+                    onChange={handleProductFormChange}
+                    placeholder="e.g., 2-3 hours"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Available Time Slots (comma-separated)
+                  </label>
+                  <input
+                    type="text"
+                    name="availableTimeSlots"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={(productForm.availableTimeSlots || []).join(', ')}
+                    onChange={(e) => setProductForm(prev => ({
+                      ...prev,
+                      availableTimeSlots: e.target.value.split(',').map(slot => slot.trim()).filter(slot => slot)
+                    }))}
+                    placeholder="Morning: 6-9 AM, Evening: 6-9 PM"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Occasions (comma-separated)
+                  </label>
+                  <input
+                    type="text"
+                    name="occasions"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={(productForm.occasions || []).join(', ')}
+                    onChange={(e) => setProductForm(prev => ({
+                      ...prev,
+                      occasions: e.target.value.split(',').map(occasion => occasion.trim()).filter(occasion => occasion)
+                    }))}
+                    placeholder="House warming, Marriage, Birthday"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Pandits (comma-separated)
+                  </label>
+                  <input
+                    type="text"
+                    name="pandits"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={(productForm.pandits || []).join(', ')}
+                    onChange={(e) => setProductForm(prev => ({
+                      ...prev,
+                      pandits: e.target.value.split(',').map(pandit => pandit.trim()).filter(pandit => pandit)
+                    }))}
+                    placeholder="Pandit 1, Pandit 2"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Spiritual Content */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Spiritual Content</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Spiritual Significance
+                  </label>
+                  <textarea
+                    name="spiritualSignificance"
+                    rows="4"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.spiritualSignificance}
+                    onChange={handleProductFormChange}
+                    placeholder="Explain the spiritual significance and benefits"
+                  ></textarea>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Key Mantras (comma-separated)
+                  </label>
+                  <input
+                    type="text"
+                    name="keyMantras"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={(productForm.keyMantras || []).join(', ')}
+                    onChange={(e) => setProductForm(prev => ({
+                      ...prev,
+                      keyMantras: e.target.value.split(',').map(mantra => mantra.trim()).filter(mantra => mantra)
+                    }))}
+                    placeholder="Om Namah Shivaya, Om Namo Bhagavate Vasudevaya"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Ritual Steps (comma-separated)
+                  </label>
+                  <input
+                    type="text"
+                    name="ritualSteps"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={(productForm.ritualSteps || []).join(', ')}
+                    onChange={(e) => setProductForm(prev => ({
+                      ...prev,
+                      ritualSteps: e.target.value.split(',').map(step => step.trim()).filter(step => step)
+                    }))}
+                    placeholder="Step 1, Step 2, Step 3"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Care & Placement */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Care & Placement</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Placement Guide
+                  </label>
+                  <textarea
+                    name="placementGuide"
+                    rows="4"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.placementGuide}
+                    onChange={handleProductFormChange}
+                    placeholder="Instructions for proper placement"
+                  ></textarea>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Care Instructions
+                  </label>
+                  <textarea
+                    name="careInstructions"
+                    rows="4"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.careInstructions}
+                    onChange={handleProductFormChange}
+                    placeholder="Instructions for care and maintenance"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+
+            {/* SEO Information */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">SEO Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    SEO Title
+                  </label>
+                  <input
+                    type="text"
+                    name="seoTitle"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.seoTitle}
+                    onChange={handleProductFormChange}
+                    placeholder="SEO optimized title"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    SEO Keywords
+                  </label>
+                  <input
+                    type="text"
+                    name="seoKeywords"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.seoKeywords}
+                    onChange={handleProductFormChange}
+                    placeholder="keyword1, keyword2, keyword3"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    SEO Description
+                  </label>
+                  <textarea
+                    name="seoDescription"
+                    rows="3"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={productForm.seoDescription}
+                    onChange={handleProductFormChange}
+                    placeholder="SEO optimized description (150-160 characters)"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+
+            {/* Status & Options */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Status & Options</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="featured"
+                    id="featured"
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    checked={productForm.featured}
+                    onChange={handleProductFormChange}
+                  />
+                  <label htmlFor="featured" className="ml-2 block text-sm text-gray-900">
+                    Featured Product
+                  </label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="inStock"
+                    id="inStock"
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    checked={productForm.inStock}
+                    onChange={handleProductFormChange}
+                  />
+                  <label htmlFor="inStock" className="ml-2 block text-sm text-gray-900">
+                    In Stock
+                  </label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="isWishlisted"
+                    id="isWishlisted"
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    checked={productForm.isWishlisted}
+                    onChange={handleProductFormChange}
+                  />
+                  <label htmlFor="isWishlisted" className="ml-2 block text-sm text-gray-900">
+                    Wishlisted
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3">
               <button
                 type="button"
                 onClick={handleCloseProductModal}
-                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md mr-2"
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-md"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
+                className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md"
                 disabled={loading}
               >
                 {loading ? 'Saving...' : 'Save Product'}
