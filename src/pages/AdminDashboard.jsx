@@ -70,6 +70,10 @@ import {
   updatePanditService,
   deletePanditService
 } from '../utils/panditServiceUtils';
+import AdminProductModal from '../components/AdminProductModal';
+import AdminPujaModal from '../components/AdminPujaModal';
+import AdminPanditModal from '../components/AdminPanditModal';
+import AdminUserDetailModal from '../components/AdminUserDetailModal';
 
 
 const AdminDashboard = () => {
@@ -1326,262 +1330,17 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* Puja Edit/Add Modal */}
-        {showPujaModal && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
-              <div className="border-b px-6 py-4 flex justify-between items-center">
-                <h3 className="text-lg font-semibold">
-                  {editingPuja ? 'Edit Puja' : 'Add New Puja'}
-                </h3>
-                <button
-                  onClick={handleClosePujaModal}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  &times;
-                </button>
-              </div>
-              <div className="p-6 overflow-y-auto">
-                <form onSubmit={handleSavePuja}>
-                  <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                      ID (Internal Reference)
-                    </label>
-                    <input
-                      type="text"
-                      name="id"
-                      value={pujaForm.id}
-                      className="bg-gray-100 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline cursor-not-allowed"
-                      placeholder="Auto-generated ID"
-                      readOnly
-                    />
-                    <p className="mt-1 text-xs text-gray-500">
-                      This is saved as a field in the document, not as the document ID.
-                    </p>
-                  </div>
-                  <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                      Name*
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={pujaForm.name}
-                      onChange={handlePujaFormChange}
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      required
-                    />
-                  </div>
-                  <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                      Description*
-                    </label>
-                    <textarea
-                      name="description"
-                      value={pujaForm.description}
-                      onChange={handlePujaFormChange}
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      required
-                      rows="3"
-                    ></textarea>
-                  </div>
-                  <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                      Long Description
-                    </label>
-                    <textarea
-                      name="longDescription"
-                      value={pujaForm.longDescription}
-                      onChange={handlePujaFormChange}
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      rows="6"
-                    ></textarea>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="mb-4">
-                      <label className="block text-gray-700 text-sm font-bold mb-2">
-                        Price (₹)*
-                      </label>
-                      <input
-                        type="number"
-                        name="price"
-                        value={pujaForm.price}
-                        onChange={handlePujaFormChange}
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        required
-                        min="0"
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-gray-700 text-sm font-bold mb-2">
-                        Duration
-                      </label>
-                      <input
-                        type="text"
-                        name="duration"
-                        value={pujaForm.duration}
-                        onChange={handlePujaFormChange}
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        placeholder="e.g. 2 hours"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="mb-4">
-                      <label className="block text-gray-700 text-sm font-bold mb-2">
-                        Category
-                      </label>
-                      <input
-                        type="text"
-                        name="category"
-                        value={pujaForm.category}
-                        onChange={handlePujaFormChange}
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-gray-700 text-sm font-bold mb-2">
-                        Image URL
-                      </label>
-                      <input
-                        type="text"
-                        name="image"
-                        value={pujaForm.image}
-                        onChange={handlePujaFormChange}
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      />
-                    </div>
-                  </div>
-                  <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                      Requirements (comma-separated)
-                    </label>
-                    <textarea
-                      name="requirements"
-                      value={pujaForm.requirements.join(', ')}
-                      onChange={handlePujaFormChange}
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      rows="3"
-                      placeholder="e.g. Fresh flowers, Incense sticks, Ghee"
-                    ></textarea>
-                  </div>
-                  <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                      Available Time Slots (comma-separated)
-                    </label>
-                    <textarea
-                      name="availableTimeSlots"
-                      value={pujaForm.availableTimeSlots.join(', ')}
-                      onChange={handlePujaFormChange}
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      rows="3"
-                      placeholder="e.g. Morning (6 AM - 8 AM), Evening (4 PM - 6 PM)"
-                    ></textarea>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="mb-4">
-                      <label className="block text-gray-700 text-sm font-bold mb-2">
-                        Rating (0-5)
-                      </label>
-                      <input
-                        type="number"
-                        name="rating"
-                        value={pujaForm.rating}
-                        onChange={(e) => {
-                          const value = parseFloat(e.target.value) || 0;
-                          setPujaForm(prev => ({
-                            ...prev,
-                            rating: value
-                          }));
-                        }}
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        min="0"
-                        max="5"
-                        step="0.1"
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-gray-700 text-sm font-bold mb-2">
-                        Reviews Count
-                      </label>
-                      <input
-                        type="number"
-                        name="reviews"
-                        value={pujaForm.reviews}
-                        onChange={(e) => {
-                          const value = parseInt(e.target.value) || 0;
-                          setPujaForm(prev => ({
-                            ...prev,
-                            reviews: value
-                          }));
-                        }}
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        min="0"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                      Occasions (comma-separated)
-                    </label>
-                    <textarea
-                      name="occasions"
-                      value={pujaForm.occasions.join(', ')}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setPujaForm(prev => ({
-                          ...prev,
-                          occasions: value.split(',').map(item => item.trim()).filter(item => item !== '')
-                        }));
-                      }}
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      rows="3"
-                      placeholder="e.g. Wedding, Housewarming, Birthday"
-                    ></textarea>
-                  </div>
-                  
-                  <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                      Pandits (comma-separated IDs)
-                    </label>
-                    <textarea
-                      name="pandits"
-                      value={pujaForm.pandits.join(', ')}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setPujaForm(prev => ({
-                          ...prev,
-                          pandits: value.split(',').map(item => item.trim()).filter(item => item !== '')
-                        }));
-                      }}
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      rows="3"
-                      placeholder="e.g. pandit1, pandit2, pandit3"
-                    ></textarea>
-                  </div>
-                  <div className="flex justify-end mt-6 sticky bottom-0 bg-white py-3 border-t border-gray-200">
-                    <button
-                      type="button"
-                      onClick={handleClosePujaModal}
-                      className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-                      disabled={loading}
-                    >
-                      {loading ? 'Saving...' : 'Save'}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Puja Modal */}
+        <AdminPujaModal
+          showPujaModal={showPujaModal}
+          editingPuja={editingPuja}
+          pujaForm={pujaForm}
+          setPujaForm={setPujaForm}
+          handlePujaFormChange={handlePujaFormChange}
+          handleSavePuja={handleSavePuja}
+          handleClosePujaModal={handleClosePujaModal}
+          loading={loading}
+        />
       </div>
     );
   };
@@ -2091,7 +1850,37 @@ const AdminDashboard = () => {
         stock: product.stock || 0,
         featured: product.featured || false,
         rating: product.rating || 4.5,
-        reviews: product.reviews || 0
+        reviews: product.reviews || 0,
+        discount: product.discount || 0,
+        sku: product.sku || '',
+        mpn: product.mpn || '',
+        weight: product.weight || '',
+        dimensions: product.dimensions || '',
+        material: product.material || '',
+        brand: product.brand || '',
+        inStock: product.inStock !== undefined ? product.inStock : true,
+        isWishlisted: product.isWishlisted || false,
+        // Array fields - ensure they are arrays
+        additionalImages: Array.isArray(product.additionalImages) ? product.additionalImages : [],
+        features: Array.isArray(product.features) ? product.features : [],
+        requirements: Array.isArray(product.requirements) ? product.requirements : [],
+        availableTimeSlots: Array.isArray(product.availableTimeSlots) ? product.availableTimeSlots : [],
+        occasions: Array.isArray(product.occasions) ? product.occasions : [],
+        pandits: Array.isArray(product.pandits) ? product.pandits : [],
+        keyMantras: Array.isArray(product.keyMantras) ? product.keyMantras : [],
+        ritualSteps: Array.isArray(product.ritualSteps) ? product.ritualSteps : [],
+        // Text fields
+        spiritualSignificance: product.spiritualSignificance || '',
+        placementGuide: product.placementGuide || '',
+        careInstructions: product.careInstructions || '',
+        duration: product.duration || '',
+        // SEO fields
+        seoTitle: product.seoTitle || '',
+        seoDescription: product.seoDescription || '',
+        seoKeywords: product.seoKeywords || '',
+        canonicalUrl: product.canonicalUrl || '',
+        breadcrumbSchema: product.breadcrumbSchema || '',
+        productSchema: product.productSchema || ''
       });
     } else {
       // Adding new product
@@ -2108,7 +1897,34 @@ const AdminDashboard = () => {
         stock: 0,
         featured: false,
         rating: 4.5,
-        reviews: 0
+        reviews: 0,
+        discount: 0,
+        sku: '',
+        mpn: '',
+        weight: '',
+        dimensions: '',
+        material: '',
+        brand: '',
+        inStock: true,
+        isWishlisted: false,
+        additionalImages: [],
+        features: [],
+        requirements: [],
+        availableTimeSlots: [],
+        occasions: [],
+        pandits: [],
+        keyMantras: [],
+        ritualSteps: [],
+        spiritualSignificance: '',
+        placementGuide: '',
+        careInstructions: '',
+        duration: '',
+        seoTitle: '',
+        seoDescription: '',
+        seoKeywords: '',
+        canonicalUrl: '',
+        breadcrumbSchema: '',
+        productSchema: ''
       });
     }
     setShowProductModal(true);
@@ -2379,596 +2195,17 @@ const AdminDashboard = () => {
   // Product Modal
   const renderProductModal = () => {
     return (
-      <div className={`fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center ${
-        showProductModal ? 'block' : 'hidden'
-      }`}>
-        <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-          <h2 className="text-xl font-semibold mb-4">
-            {editingProduct ? 'Edit Product' : 'Add New Product'}
-          </h2>
-          <form onSubmit={handleSaveProduct}>
-            {/* Basic Information */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Basic Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Product ID (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    name="id"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.id}
-                    onChange={handleProductFormChange}
-                    placeholder="Leave empty for auto-generated ID"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Product Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.name}
-                    onChange={handleProductFormChange}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Category *
-                  </label>
-                  <input
-                    type="text"
-                    name="category"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.category}
-                    onChange={handleProductFormChange}
-                    required
-                    list="product-categories"
-                  />
-                  <datalist id="product-categories">
-                    {uniqueCategories.map((category, index) => (
-                      <option key={index} value={category} />
-                    ))}
-                  </datalist>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Brand
-                  </label>
-                  <input
-                    type="text"
-                    name="brand"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.brand}
-                    onChange={handleProductFormChange}
-                    placeholder="e.g., PujaKaro"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Price (₹) *
-                  </label>
-                  <input
-                    type="number"
-                    name="price"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.price}
-                    onChange={handleProductFormChange}
-                    required
-                    min="0"
-                    step="0.01"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Discount (%)
-                  </label>
-                  <input
-                    type="number"
-                    name="discount"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.discount}
-                    onChange={handleProductFormChange}
-                    min="0"
-                    max="100"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Stock *
-                  </label>
-                  <input
-                    type="number"
-                    name="stock"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.stock}
-                    onChange={handleProductFormChange}
-                    required
-                    min="0"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Rating
-                  </label>
-                  <input
-                    type="number"
-                    name="rating"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.rating}
-                    onChange={handleProductFormChange}
-                    min="0"
-                    max="5"
-                    step="0.1"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Reviews Count
-                  </label>
-                  <input
-                    type="number"
-                    name="reviews"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.reviews}
-                    onChange={handleProductFormChange}
-                    min="0"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    SKU
-                  </label>
-                  <input
-                    type="text"
-                    name="sku"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.sku}
-                    onChange={handleProductFormChange}
-                    placeholder="e.g., PUJA-PROD-001"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    MPN
-                  </label>
-                  <input
-                    type="text"
-                    name="mpn"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.mpn}
-                    onChange={handleProductFormChange}
-                    placeholder="Manufacturer Part Number"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Physical Attributes */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Physical Attributes</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Weight
-                  </label>
-                  <input
-                    type="text"
-                    name="weight"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.weight}
-                    onChange={handleProductFormChange}
-                    placeholder="e.g., 500g"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Dimensions
-                  </label>
-                  <input
-                    type="text"
-                    name="dimensions"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.dimensions}
-                    onChange={handleProductFormChange}
-                    placeholder="e.g., 10x5x3 cm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Material
-                  </label>
-                  <input
-                    type="text"
-                    name="material"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.material}
-                    onChange={handleProductFormChange}
-                    placeholder="e.g., Brass, Wood, etc."
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Images */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Images</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Main Image URL *
-                  </label>
-                  <input
-                    type="text"
-                    name="image"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.image}
-                    onChange={handleProductFormChange}
-                    required
-                    placeholder="https://example.com/image.jpg"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Additional Images (comma-separated)
-                  </label>
-                  <input
-                    type="text"
-                    name="additionalImages"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={(productForm.additionalImages || []).join(', ')}
-                    onChange={(e) => setProductForm(prev => ({
-                      ...prev,
-                      additionalImages: e.target.value.split(',').map(url => url.trim()).filter(url => url)
-                    }))}
-                    placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Descriptions */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Descriptions</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Short Description *
-                  </label>
-                  <textarea
-                    name="description"
-                    rows="3"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.description}
-                    onChange={handleProductFormChange}
-                    required
-                    placeholder="Brief description for product listings"
-                  ></textarea>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Long Description
-                  </label>
-                  <textarea
-                    name="longDescription"
-                    rows="6"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.longDescription}
-                    onChange={handleProductFormChange}
-                    placeholder="Detailed description for product detail page"
-                  ></textarea>
-                </div>
-              </div>
-            </div>
-
-            {/* Features & Requirements */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Features & Requirements</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Features (comma-separated)
-                  </label>
-                  <input
-                    type="text"
-                    name="features"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={(productForm.features || []).join(', ')}
-                    onChange={(e) => setProductForm(prev => ({
-                      ...prev,
-                      features: e.target.value.split(',').map(feature => feature.trim()).filter(feature => feature)
-                    }))}
-                    placeholder="Feature 1, Feature 2, Feature 3"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Requirements (comma-separated)
-                  </label>
-                  <input
-                    type="text"
-                    name="requirements"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={(productForm.requirements || []).join(', ')}
-                    onChange={(e) => setProductForm(prev => ({
-                      ...prev,
-                      requirements: e.target.value.split(',').map(req => req.trim()).filter(req => req)
-                    }))}
-                    placeholder="Requirement 1, Requirement 2"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Ritual Information */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Ritual Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Duration
-                  </label>
-                  <input
-                    type="text"
-                    name="duration"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.duration}
-                    onChange={handleProductFormChange}
-                    placeholder="e.g., 2-3 hours"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Available Time Slots (comma-separated)
-                  </label>
-                  <input
-                    type="text"
-                    name="availableTimeSlots"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={(productForm.availableTimeSlots || []).join(', ')}
-                    onChange={(e) => setProductForm(prev => ({
-                      ...prev,
-                      availableTimeSlots: e.target.value.split(',').map(slot => slot.trim()).filter(slot => slot)
-                    }))}
-                    placeholder="Morning: 6-9 AM, Evening: 6-9 PM"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Occasions (comma-separated)
-                  </label>
-                  <input
-                    type="text"
-                    name="occasions"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={(productForm.occasions || []).join(', ')}
-                    onChange={(e) => setProductForm(prev => ({
-                      ...prev,
-                      occasions: e.target.value.split(',').map(occasion => occasion.trim()).filter(occasion => occasion)
-                    }))}
-                    placeholder="House warming, Marriage, Birthday"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Pandits (comma-separated)
-                  </label>
-                  <input
-                    type="text"
-                    name="pandits"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={(productForm.pandits || []).join(', ')}
-                    onChange={(e) => setProductForm(prev => ({
-                      ...prev,
-                      pandits: e.target.value.split(',').map(pandit => pandit.trim()).filter(pandit => pandit)
-                    }))}
-                    placeholder="Pandit 1, Pandit 2"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Spiritual Content */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Spiritual Content</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Spiritual Significance
-                  </label>
-                  <textarea
-                    name="spiritualSignificance"
-                    rows="4"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.spiritualSignificance}
-                    onChange={handleProductFormChange}
-                    placeholder="Explain the spiritual significance and benefits"
-                  ></textarea>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Key Mantras (comma-separated)
-                  </label>
-                  <input
-                    type="text"
-                    name="keyMantras"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={(productForm.keyMantras || []).join(', ')}
-                    onChange={(e) => setProductForm(prev => ({
-                      ...prev,
-                      keyMantras: e.target.value.split(',').map(mantra => mantra.trim()).filter(mantra => mantra)
-                    }))}
-                    placeholder="Om Namah Shivaya, Om Namo Bhagavate Vasudevaya"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Ritual Steps (comma-separated)
-                  </label>
-                  <input
-                    type="text"
-                    name="ritualSteps"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={(productForm.ritualSteps || []).join(', ')}
-                    onChange={(e) => setProductForm(prev => ({
-                      ...prev,
-                      ritualSteps: e.target.value.split(',').map(step => step.trim()).filter(step => step)
-                    }))}
-                    placeholder="Step 1, Step 2, Step 3"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Care & Placement */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Care & Placement</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Placement Guide
-                  </label>
-                  <textarea
-                    name="placementGuide"
-                    rows="4"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.placementGuide}
-                    onChange={handleProductFormChange}
-                    placeholder="Instructions for proper placement"
-                  ></textarea>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Care Instructions
-                  </label>
-                  <textarea
-                    name="careInstructions"
-                    rows="4"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.careInstructions}
-                    onChange={handleProductFormChange}
-                    placeholder="Instructions for care and maintenance"
-                  ></textarea>
-                </div>
-              </div>
-            </div>
-
-            {/* SEO Information */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">SEO Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    SEO Title
-                  </label>
-                  <input
-                    type="text"
-                    name="seoTitle"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.seoTitle}
-                    onChange={handleProductFormChange}
-                    placeholder="SEO optimized title"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    SEO Keywords
-                  </label>
-                  <input
-                    type="text"
-                    name="seoKeywords"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.seoKeywords}
-                    onChange={handleProductFormChange}
-                    placeholder="keyword1, keyword2, keyword3"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    SEO Description
-                  </label>
-                  <textarea
-                    name="seoDescription"
-                    rows="3"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                    value={productForm.seoDescription}
-                    onChange={handleProductFormChange}
-                    placeholder="SEO optimized description (150-160 characters)"
-                  ></textarea>
-                </div>
-              </div>
-            </div>
-
-            {/* Status & Options */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Status & Options</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="featured"
-                    id="featured"
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    checked={productForm.featured}
-                    onChange={handleProductFormChange}
-                  />
-                  <label htmlFor="featured" className="ml-2 block text-sm text-gray-900">
-                    Featured Product
-                  </label>
-                </div>
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="inStock"
-                    id="inStock"
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    checked={productForm.inStock}
-                    onChange={handleProductFormChange}
-                  />
-                  <label htmlFor="inStock" className="ml-2 block text-sm text-gray-900">
-                    In Stock
-                  </label>
-                </div>
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="isWishlisted"
-                    id="isWishlisted"
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    checked={productForm.isWishlisted}
-                    onChange={handleProductFormChange}
-                  />
-                  <label htmlFor="isWishlisted" className="ml-2 block text-sm text-gray-900">
-                    Wishlisted
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={handleCloseProductModal}
-                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-md"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md"
-                disabled={loading}
-              >
-                {loading ? 'Saving...' : 'Save Product'}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
+      <AdminProductModal
+        showProductModal={showProductModal}
+        editingProduct={editingProduct}
+        productForm={productForm}
+        setProductForm={setProductForm}
+        handleProductFormChange={handleProductFormChange}
+        handleSaveProduct={handleSaveProduct}
+        handleCloseProductModal={handleCloseProductModal}
+        loading={loading}
+        uniqueCategories={uniqueCategories}
+      />
     );
   };
 
