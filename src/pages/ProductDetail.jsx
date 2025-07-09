@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar, faHeart, faShoppingCart, faClock, faCalendarAlt, faArrowLeft, faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faStar, faHeart, faShoppingCart, faClock, faCalendarAlt, faArrowLeft, faChevronDown, faChevronRight, faCheck, faShieldAlt, faTruck, faHeadset, faStarHalfAlt, faWeight, faRuler, faBox, faTag, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { toast, ToastContainer } from 'react-toastify';
@@ -80,7 +80,15 @@ const ProductDetail = () => {
           const mockImages = [
             foundItem.image || '/images/featuredPuja.jpg',
           ];
-          setAdditionalImages(mockImages);
+          
+          // Use actual additional images from the product data if available
+          if (foundItem.additionalImages && Array.isArray(foundItem.additionalImages) && foundItem.additionalImages.length > 0) {
+            // Filter out empty strings and add the main image first
+            const validAdditionalImages = foundItem.additionalImages.filter(img => img && img.trim() !== '');
+            setAdditionalImages([foundItem.image, ...validAdditionalImages]);
+          } else {
+            setAdditionalImages(mockImages);
+          }
           setActiveImage(0);
           
           // Generate SEO data based on item type
@@ -383,27 +391,53 @@ const ProductDetail = () => {
     return text.slice(0, maxLength) + '...';
   };
   
+  // Render star rating
+  const renderStars = (rating) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<FontAwesomeIcon key={i} icon={faStar} className="text-yellow-400" />);
+    }
+    
+    if (hasHalfStar) {
+      stars.push(<FontAwesomeIcon key="half" icon={faStarHalfAlt} className="text-yellow-400" />);
+    }
+    
+    const remainingStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    for (let i = 0; i < remainingStars; i++) {
+      stars.push(<FontAwesomeIcon key={`empty-${i}`} icon={faStar} className="text-gray-300" />);
+    }
+    
+    return stars;
+  };
+  
   // Update the loading and error states
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-          <p className="text-xl text-gray-600">Loading item details...</p>
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600 mb-6"></div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Loading...</h2>
+          <p className="text-gray-600">Please wait while we fetch the details</p>
         </div>
       </div>
     );
   }
-
+  
   if (error || !item) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center p-8 bg-white rounded-lg shadow-md max-w-md">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Item Not Found</h2>
-          <p className="text-gray-600 mb-6">{error || "We couldn't find the item you're looking for."}</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center p-8 bg-white rounded-2xl shadow-lg max-w-md">
+          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <FontAwesomeIcon icon={faArrowLeft} className="text-red-500 text-2xl" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Item Not Found</h2>
+          <p className="text-gray-600 mb-8">{error || "We couldn't find the item you're looking for."}</p>
           <button 
             onClick={() => navigate(-1)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            className="bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-all duration-300"
           >
             <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
             Go Back
@@ -414,28 +448,30 @@ const ProductDetail = () => {
   }
   
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50">
       {seoData && <SEO {...seoData} />}
       <ToastContainer position="top-right" autoClose={3000} />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Back Button */}
         <button 
           onClick={() => navigate(-1)}
-          className="mb-6 flex items-center text-blue-600 hover:text-blue-800"
+          className="mb-8 flex items-center text-orange-600 hover:text-orange-700 font-medium transition-colors group"
         >
-          <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
-          <span>Back</span>
+          <FontAwesomeIcon icon={faArrowLeft} className="mr-3 group-hover:-translate-x-1 transition-transform" />
+          <span>Back to {itemType === 'product' ? 'Shop' : 'Puja Services'}</span>
         </button>
         
         {/* Breadcrumbs */}
-        <nav className="flex mb-6" aria-label="Breadcrumb">
-          <ol className="inline-flex items-center space-x-1 md:space-x-3">
+        <nav className="flex mb-8" aria-label="Breadcrumb">
+          <ol className="inline-flex items-center space-x-2">
             <li className="inline-flex items-center">
-              <Link to="/" className="text-sm text-gray-600 hover:text-gray-900">Home</Link>
+              <Link to="/" className="text-sm text-gray-600 hover:text-orange-600 transition-colors">Home</Link>
             </li>
             <li>
               <div className="flex items-center">
                 <span className="mx-2 text-gray-400">/</span>
-                <Link to={itemType === 'product' ? '/shop' : '/puja-booking'} className="text-sm text-gray-600 hover:text-gray-900">
+                <Link to={itemType === 'product' ? '/shop' : '/puja-booking'} className="text-sm text-gray-600 hover:text-orange-600 transition-colors">
                   {itemType === 'product' ? 'Shop' : 'Puja Services'}
                 </Link>
               </div>
@@ -443,50 +479,64 @@ const ProductDetail = () => {
             <li>
               <div className="flex items-center">
                 <span className="mx-2 text-gray-400">/</span>
-                <span className="text-sm text-gray-500" aria-current="page">{item.name}</span>
+                <span className="text-sm text-gray-900 font-medium" aria-current="page">{item.name}</span>
               </div>
             </li>
           </ol>
         </nav>
         
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <div className="md:flex">
+        {/* Main Product Section */}
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
+          <div className="lg:flex">
             {/* Image Section */}
-            <div className="md:w-1/2">
+            <div className="lg:w-1/2">
               <div className="relative">
                 {/* Main Image */}
-                <div className="h-64 md:h-96 bg-gray-200 relative">
+                <div className="h-80 lg:h-96 bg-gray-100 relative overflow-hidden">
                   <img 
                     src={additionalImages[activeImage]} 
                     alt={`${item.name} - Main view ${activeImage+1}`}
                     className="w-full h-full object-cover"
-                    loading="eager" // Load main image immediately
+                    loading="eager"
                   />
+                  
+                  {/* Wishlist Button */}
                   <button 
                     onClick={toggleWishlist}
-                    className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white shadow flex items-center justify-center"
+                    className="absolute top-4 right-4 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-gray-50 transition-all duration-300"
                     aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
                   >
                     <FontAwesomeIcon 
                       icon={isWishlisted ? faHeart : farHeart} 
-                      className={`text-xl ${isWishlisted ? 'text-red-500' : 'text-gray-400'}`}
+                      className={`text-xl ${isWishlisted ? 'text-red-500' : 'text-gray-400'} hover:text-red-500 transition-colors`}
                     />
                   </button>
+                  
+                  {/* Discount Badge */}
+                  {itemType === 'product' && item.discount > 0 && (
+                    <div className="absolute top-4 left-4 bg-red-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+                      {item.discount}% OFF
+                    </div>
+                  )}
                 </div>
                 
                 {/* Thumbnail Images */}
-                <div className="flex mt-2 space-x-2 overflow-x-auto py-2">
+                <div className="flex mt-4 space-x-3 overflow-x-auto py-2 px-4">
                   {additionalImages.map((img, index) => (
                     <div 
                       key={index} 
-                      className={`w-16 h-16 flex-shrink-0 cursor-pointer border-2 ${index === activeImage ? 'border-blue-500' : 'border-transparent'}`}
+                      className={`w-20 h-20 flex-shrink-0 cursor-pointer rounded-lg overflow-hidden border-2 transition-all duration-300 ${
+                        index === activeImage 
+                          ? 'border-blue-500 shadow-md' 
+                          : 'border-transparent hover:border-gray-300'
+                      }`}
                       onClick={() => setActiveImage(index)}
                     >
                       <img 
                         src={img} 
                         alt={`${item.name} thumbnail ${index+1}`}
                         className="w-full h-full object-cover"
-                        loading="lazy" // Lazy load thumbnails
+                        loading="lazy"
                       />
                     </div>
                   ))}
@@ -495,69 +545,120 @@ const ProductDetail = () => {
             </div>
             
             {/* Details Section */}
-            <div className="md:w-1/2 p-6 md:p-8">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">{item.name}</h1>
-              
-              <div className="flex items-center mb-4">
-                <div className="flex text-yellow-400">
-                  <FontAwesomeIcon icon={faStar} />
-                  <span className="ml-1 text-gray-800">{item.rating}</span>
-                </div>
-                <span className="mx-2 text-gray-400">•</span>
-                <span className="text-gray-600">{item.reviews} reviews</span>
+            <div className="lg:w-1/2 p-6 lg:p-8">
+              {/* Product Title and Rating */}
+              <div className="mb-6">
+                <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">{item.name}</h1>
                 
-                {itemType === 'puja' && (
-                  <>
-                    <span className="mx-2 text-gray-400">•</span>
-                    <div className="flex items-center text-gray-600">
-                      <FontAwesomeIcon icon={faClock} className="mr-1" />
-                      <span>{item.duration}</span>
-                    </div>
-                  </>
-                )}
+                <div className="flex items-center mb-4">
+                  <div className="flex text-yellow-400 mr-3">
+                    {renderStars(item.rating)}
+                  </div>
+                  <span className="text-gray-700 font-medium">{item.rating}</span>
+                  <span className="mx-2 text-gray-400">•</span>
+                  <span className="text-gray-600">{item.reviews} reviews</span>
+                  
+                  {itemType === 'puja' && (
+                    <>
+                      <span className="mx-2 text-gray-400">•</span>
+                      <div className="flex items-center text-gray-600">
+                        <FontAwesomeIcon icon={faClock} className="mr-1" />
+                        <span>{item.duration}</span>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
               
-              <div className="text-2xl font-bold text-blue-600 mb-6">
-                ₹{item.price.toLocaleString()}
+              {/* Price Section */}
+              <div className="mb-6">
+                <div className="flex items-center mb-2">
+                  <span className="text-3xl font-bold text-orange-600">₹{item.price.toLocaleString()}</span>
+                  {itemType === 'product' && item.discount > 0 && (
+                    <span className="ml-3 text-lg text-gray-500 line-through">
+                      ₹{Math.round(item.price / (1 - item.discount / 100)).toLocaleString()}
+                    </span>
+                  )}
+                </div>
                 {itemType === 'product' && item.discount > 0 && (
-                  <span className="ml-2 text-sm text-green-600">
-                    ({item.discount}% off)
+                  <span className="inline-block bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-semibold">
+                    Save ₹{Math.round(item.price * item.discount / 100).toLocaleString()}
                   </span>
                 )}
               </div>
 
-              <div className="services-section mb-6">
-                <h4 className="text-lg font-semibold mb-3">Services Included</h4>
-                <ul className="list-disc pl-5 text-gray-600">
-                  <li>Pandit Service</li>
-                  <li>Samagri Kit</li>
-                  <li>Home Decoration</li>
-                </ul>
-              </div>
+              {/* Physical Attributes (for Products) */}
+              {itemType === 'product' && (item.weight || item.dimensions || item.material || item.brand) && (
+                <div className="mb-6 p-4 bg-orange-50 rounded-xl border border-orange-100">
+                  <h4 className="text-lg font-semibold mb-3 text-gray-900">Product Details</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {item.weight && (
+                      <div className="flex items-center">
+                        <FontAwesomeIcon icon={faWeight} className="text-orange-600 mr-2" />
+                        <span className="text-gray-700">Weight: {item.weight}</span>
+                      </div>
+                    )}
+                    {item.dimensions && (
+                      <div className="flex items-center">
+                        <FontAwesomeIcon icon={faRuler} className="text-orange-600 mr-2" />
+                        <span className="text-gray-700">Dimensions: {item.dimensions}</span>
+                      </div>
+                    )}
+                    {item.material && (
+                      <div className="flex items-center">
+                        <FontAwesomeIcon icon={faBox} className="text-orange-600 mr-2" />
+                        <span className="text-gray-700">Material: {item.material}</span>
+                      </div>
+                    )}
+                    {item.brand && (
+                      <div className="flex items-center">
+                        <FontAwesomeIcon icon={faTag} className="text-orange-600 mr-2" />
+                        <span className="text-gray-700">Brand: {item.brand}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
+              {/* Services Included (for Pujas) */}
+              {itemType === 'puja' && (
+                <div className="mb-6 p-4 bg-orange-50 rounded-xl border border-orange-100">
+                  <h4 className="text-lg font-semibold mb-3 text-gray-900">Services Included</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {['Pandit Service', 'Samagri Kit', 'Home Decoration'].map((service, index) => (
+                      <div key={index} className="flex items-center">
+                        <FontAwesomeIcon icon={faCheck} className="text-green-500 mr-2" />
+                        <span className="text-gray-700">{service}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Date & Time Selection (for Pujas) */}
               {itemType === 'puja' && (
                 <div className="mb-6">
-                  <h2 className="text-lg font-semibold mb-2">Select Date & Time</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <h3 className="text-lg font-semibold mb-4 text-gray-900">Select Date & Time</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-gray-700 text-sm font-medium mb-1">Date</label>
+                      <label className="block text-gray-700 text-sm font-medium mb-2">Preferred Date</label>
                       <input
                         type="date"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
                         min={new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
                       />
                     </div>
                     <div>
-                      <label className="block text-gray-700 text-sm font-medium mb-1">Time Slot</label>
+                      <label className="block text-gray-700 text-sm font-medium mb-2">Time Slot</label>
                       <select
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
                         value={selectedTime}
                         onChange={(e) => setSelectedTime(e.target.value)}
                       >
                         <option value="">Select a time slot</option>
-                        {item.availableTimeSlots.map((slot, index) => (
+                        {item.availableTimeSlots?.map((slot, index) => (
                           <option key={index} value={slot}>
                             {slot}
                           </option>
@@ -565,214 +666,196 @@ const ProductDetail = () => {
                       </select>
                     </div>
                   </div>
-                </div>)}
-
-              {itemType === 'product' ? (
-                <button
-                  onClick={handleAddToCart}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium flex items-center justify-center mb-4"
-
-                >
-                  <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
-                  Add to Cart
-                </button>
-              ) : (
-                <button
-                  onClick={handleBookNow}
-                  className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-medium flex items-center justify-center mb-4"
-                >
-                  <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
-                  Book Now
-                </button>
+                </div>
               )}
+              
+              {/* Action Buttons */}
               <div className="mb-6">
-                <h2 className="text-lg font-semibold mb-2">Description</h2>
-                <p className="text-gray-600">
-                  {itemType === 'puja' 
-                    ? truncateText(item.longDescription, 200) 
-                    : truncateText(item.description, 150)
-                  }
-                </p>
-                {((itemType === 'puja' && item.longDescription && item.longDescription.length > 200) || 
-                  (itemType === 'product' && item.description && item.description.length > 150)) && (
-                  <button 
-                    onClick={() => setShowFullDescription(!showFullDescription)}
-                    className="text-blue-600 hover:text-blue-800 text-sm mt-2 flex items-center"
+                {itemType === 'product' ? (
+                  <button
+                    onClick={handleAddToCart}
+                    className="w-full bg-orange-600 hover:bg-orange-700 text-white py-4 rounded-xl font-semibold flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl"
                   >
-                    {showFullDescription ? 'Show less' : 'Read more'}
-                    <FontAwesomeIcon 
-                      icon={showFullDescription ? faChevronDown : faChevronRight} 
-                      className="ml-1 text-xs"
-                    />
+                    <FontAwesomeIcon icon={faShoppingCart} className="mr-3" />
+                    Add to Cart
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleBookNow}
+                    className="w-full bg-orange-600 hover:bg-orange-700 text-white py-4 rounded-xl font-semibold flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl"
+                  >
+                    <FontAwesomeIcon icon={faCalendarAlt} className="mr-3" />
+                    Book Now
                   </button>
                 )}
               </div>
               
-              {itemType === 'puja' && (
-                <>
-                  <div className="mb-6">
-                    <h2 className="text-lg font-semibold mb-2">Requirements</h2>
-                    <ul className="list-disc pl-5 text-gray-600">
-                      {(item.requirements || []).map((req, index) => (
-                        <li key={index} className="mb-1">{req}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  
-                  {/* <div className="mb-6">
-                    <h2 className="text-lg font-semibold mb-2">Ritual Steps</h2>
-                    <ol className="list-decimal pl-5 text-gray-600 space-y-2">
-                      <li>Sankalpa (Statement of Intent) - Stating the purpose of performing the puja</li>
-                      <li>Setup of puja items in the correct positions according to Vedic guidelines</li>
-                      <li>Invocation of the deity through mantras and offerings</li>
-                      <li>Main worship ritual with specific mantras for {item.name}</li>
-                      <li>Offering of flowers, incense, and food items to the deity</li>
-                      <li>Aarti (ritual of light) accompanied by devotional songs</li>
-                      <li>Distribution of prasad (blessed offerings)</li>
-                    </ol>
-                  </div>
-                   */}
-                  {/* <div className="mb-6">
-                    <h2 className="text-lg font-semibold mb-2">Key Mantras</h2>
-                    <div className="bg-gray-50 p-3 rounded-md font-serif">
-                      <p className="text-gray-800 mb-2">Om Namah Shivaya</p>
-                      <p className="text-gray-800 mb-2">Om Namo Bhagavate Vasudevaya</p>
-                      <p className="text-gray-800">Om Gam Ganapataye Namaha</p>
-                      <p className="text-xs text-gray-500 mt-2">* Actual mantras may vary based on specific puja requirements</p>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-6">
-                    <h2 className="text-lg font-semibold mb-2">Spiritual Significance</h2>
-                    <p className="text-gray-600">
-                      {item.name} is performed to {item.occasions.includes('peace') ? 'bring peace and harmony' : 
-                        item.occasions.includes('prosperity') ? 'attract prosperity and wealth' : 
-                        item.occasions.includes('house-warming') ? 'bless a new home with positive energy' : 
-                        'connect with divine energy and receive blessings'}. According to Hindu traditions, this ceremony creates a powerful spiritual 
-                      connection with the divine forces and helps remove obstacles from one's life path.
-                    </p>
-                  </div> */}
-                  
-                  {/* {itemType === 'puja' && item.pandits && item.pandits.length > 0 && (
-                    <div className="mb-6">
-                      <h2 className="text-lg font-semibold mb-2">Available Pandits</h2>
-                      <div className="space-y-3">
-                        {item.pandits.map((panditId, index) => (
-                          <div key={`pandit-${index}-${panditId}`} className="flex items-center">
-                            <div className="w-10 h-10 rounded-full bg-gray-200 mr-3 flex items-center justify-center">
-                              <span className="text-gray-500">{typeof panditId === 'string' ? panditId.charAt(0).toUpperCase() : 'P'}</span>
-                            </div>
-                            <div>
-                              <p className="font-medium">Pandit {panditId}</p>
-                              <p className="text-sm text-gray-600">Ritual Specialist</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )} */}
-                  
-                </>
-              )}
+              {/* Trust Indicators */}
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="text-center p-3 bg-gray-50 rounded-xl">
+                  <FontAwesomeIcon icon={faShieldAlt} className="text-orange-600 text-xl mb-2" />
+                  <p className="text-xs text-gray-600">Secure Payment</p>
+                </div>
+                <div className="text-center p-3 bg-gray-50 rounded-xl">
+                  <FontAwesomeIcon icon={faTruck} className="text-orange-600 text-xl mb-2" />
+                  <p className="text-xs text-gray-600">Fast Delivery</p>
+                </div>
+                <div className="text-center p-3 bg-gray-50 rounded-xl">
+                  <FontAwesomeIcon icon={faHeadset} className="text-orange-600 text-xl mb-2" />
+                  <p className="text-xs text-gray-600">24/7 Support</p>
+                </div>
+              </div>
               
-
-              {itemType === 'product' && (
-                <>
-                  <div className="mb-6">
-                    <h2 className="text-lg font-semibold mb-2">Features</h2>
-                    <ul className="list-disc pl-5 text-gray-600">
-                      {(item.features || []).map((feature, index) => (
-                        <li key={index} className="mb-1">{feature}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  
-                  <div className="mb-6">
-                    <h2 className="text-lg font-semibold mb-2">Ritual Usage</h2>
-                    <p className="text-gray-600 mb-3">
-                      This {item.name.toLowerCase()} is commonly used in the following pujas and rituals:
-                    </p>
-                    <ul className="list-disc pl-5 text-gray-600">
-                      {item.category === 'puja-items' && (
-                        <>
-                          <li>Daily worship ceremonies (Nitya Puja)</li>
-                          <li>Satyanarayan Puja</li>
-                          <li>Griha Pravesh (Housewarming) ceremony</li>
-                          <li>Navratri celebrations</li>
-                        </>
-                      )}
-                      {item.category === 'idols' && (
-                        <>
-                          <li>Home temple installation</li>
-                          <li>Special festival celebrations</li>
-                          <li>Meditation and devotional practices</li>
-                        </>
-                      )}
-                    </ul>
-                  </div>
-                  
-                  <div className="mb-6">
-                    <h2 className="text-lg font-semibold mb-2">Placement & Care</h2>
-                    <p className="text-gray-600 mb-2">
-                      According to Hindu traditions, proper placement and care of religious items is important:
-                    </p>
-                    <ul className="list-disc pl-5 text-gray-600">
-                      {item.category === 'puja-items' && (
-                        <>
-                          <li>Store in a clean, elevated place away from foot traffic</li>
-                          <li>Avoid placing on the floor or in impure areas</li>
-                          <li>Clean regularly with a dry cloth</li>
-                          <li>For brass/metal items: polish occasionally with appropriate metal cleaners</li>
-                        </>
-                      )}
-                      {item.category === 'idols' && (
-                        <>
-                          <li>Place in the northeast (Ishan) corner of your home or in a dedicated temple area</li>
-                          <li>Position facing west or south for optimal energy flow</li>
-                          <li>Clean gently with a soft dry cloth</li>
-                          <li>Avoid placing directly under sunlight to prevent color fading</li>
-                        </>
-                      )}
-                    </ul>
-                  </div>
-                </>
-              )}
-              
-              
+              {/* Description */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold mb-3 text-gray-900">Description</h3>
+                <div className="text-gray-600 leading-relaxed">
+                  {showFullDescription ? (
+                    <p>{itemType === 'puja' ? item.longDescription : item.description}</p>
+                  ) : (
+                    <p>{itemType === 'puja' 
+                      ? truncateText(item.longDescription, 200) 
+                      : truncateText(item.description, 150)
+                    }</p>
+                  )}
+                  {((itemType === 'puja' && item.longDescription && item.longDescription.length > 200) || 
+                    (itemType === 'product' && item.description && item.description.length > 150)) && (
+                    <button 
+                      onClick={() => setShowFullDescription(!showFullDescription)}
+                      className="text-orange-600 hover:text-orange-700 font-medium mt-2 flex items-center transition-colors"
+                    >
+                      {showFullDescription ? 'Show less' : 'Read more'}
+                      <FontAwesomeIcon 
+                        icon={showFullDescription ? faChevronDown : faChevronRight} 
+                        className="ml-1 text-sm"
+                      />
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
         
-        {/* Suggested Products Section */}
+        {/* Additional Information Sections */}
+        <div className="mt-8 grid md:grid-cols-2 gap-8">
+          {/* Features/Requirements */}
+          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+            <h3 className="text-xl font-semibold mb-4 text-gray-900">
+              {itemType === 'product' ? 'Features' : 'Requirements'}
+            </h3>
+            <ul className="space-y-2">
+              {(itemType === 'product' ? item.features : item.requirements)?.map((feature, index) => (
+                <li key={index} className="flex items-start">
+                  <FontAwesomeIcon icon={faCheck} className="text-green-500 mr-3 mt-1 flex-shrink-0" />
+                  <span className="text-gray-700">{feature}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          
+          {/* Spiritual Significance */}
+          {item.spiritualSignificance && (
+            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+              <h3 className="text-xl font-semibold mb-4 text-gray-900">Spiritual Significance</h3>
+              <div className="text-gray-700 leading-relaxed">
+                <p>{item.spiritualSignificance}</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Key Mantras Section */}
+        {item.keyMantras && item.keyMantras.length > 0 && (
+          <div className="mt-8 bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+            <h3 className="text-xl font-semibold mb-4 text-gray-900">Key Mantras</h3>
+            <div className="bg-orange-50 p-4 rounded-xl border border-orange-100">
+              <div className="space-y-2">
+                {item.keyMantras.map((mantra, index) => (
+                  <div key={index} className="flex items-center">
+                    <FontAwesomeIcon icon={faInfoCircle} className="text-orange-600 mr-3" />
+                    <span className="text-gray-800 font-medium">{mantra}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-3">* Actual mantras may vary based on specific requirements</p>
+            </div>
+          </div>
+        )}
+
+        {/* Ritual Steps Section */}
+        {item.ritualSteps && item.ritualSteps.length > 0 && (
+          <div className="mt-8 bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+            <h3 className="text-xl font-semibold mb-4 text-gray-900">Ritual Steps</h3>
+            <ol className="space-y-3">
+              {item.ritualSteps.map((step, index) => (
+                <li key={index} className="flex items-start">
+                  <span className="bg-orange-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-0.5 flex-shrink-0">
+                    {index + 1}
+                  </span>
+                  <span className="text-gray-700">{step}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+
+        {/* Care & Placement Section */}
+        {(item.placementGuide || item.careInstructions) && (
+          <div className="mt-8 grid md:grid-cols-2 gap-8">
+            {item.placementGuide && (
+              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+                <h3 className="text-xl font-semibold mb-4 text-gray-900">Placement Guide</h3>
+                <div className="text-gray-700 leading-relaxed">
+                  <p>{item.placementGuide}</p>
+                </div>
+              </div>
+            )}
+            
+            {item.careInstructions && (
+              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+                <h3 className="text-xl font-semibold mb-4 text-gray-900">Care Instructions</h3>
+                <div className="text-gray-700 leading-relaxed">
+                  <p>{item.careInstructions}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        
+        {/* Suggested Items */}
         {suggestedItems.length > 0 && (
           <div className="mt-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              {itemType === 'product' ? 'Similar Products' : 'Related Pujas'}
-            </h2>
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                {itemType === 'product' ? 'Similar Products' : 'Related Pujas'}
+              </h2>
+              <p className="text-gray-600">You might also like these items</p>
+            </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {suggestedItems.map((item, idx) => (
                 <div 
                   key={item.id || `suggested-${idx}`}
-                  className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                  className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1 border border-gray-200"
                   onClick={() => navigate(`/${itemType === 'product' ? 'product' : 'puja-booking'}/${item.id}`)}
                 >
-                  <div className="h-48 overflow-hidden">
+                  <div className="h-48 bg-gray-100 overflow-hidden">
                     <img 
                       src={item.image} 
                       alt={item.name}
-                      className="w-full h-full object-cover"
-                      loading="lazy" // Lazy load suggested items
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                      loading="lazy"
                     />
                   </div>
                   
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.name}</h3>
+                  <div className="p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3 line-clamp-2">{item.name}</h3>
                     <div className="flex items-center justify-between">
-                      <div className="text-blue-600 font-bold">₹{item.price.toLocaleString()}</div>
+                      <div className="text-orange-600 font-bold text-lg">₹{item.price.toLocaleString()}</div>
                       <div className="flex items-center">
                         <FontAwesomeIcon icon={faStar} className="text-yellow-400 mr-1" />
-                        <span>{item.rating}</span>
+                        <span className="text-gray-700">{item.rating}</span>
                       </div>
                     </div>
                   </div>

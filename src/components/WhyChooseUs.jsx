@@ -151,7 +151,7 @@ const WhyChooseUs = () => {
       </div>
 
       {/* Hide scrollbar styles */}
-      <style jsx>{`
+      <style>{`
         .hide-scrollbar {
           -ms-overflow-style: none;  /* IE and Edge */
           scrollbar-width: none;     /* Firefox */
