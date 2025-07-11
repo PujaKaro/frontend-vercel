@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar, faHeart, faShoppingCart, faClock, faCalendarAlt, faArrowLeft, faChevronDown, faChevronRight, faCheck, faShieldAlt, faTruck, faHeadset, faStarHalfAlt, faWeight, faRuler, faBox, faTag, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../contexts/CartContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SEO from '../components/SEO';
@@ -25,6 +26,7 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuth();
+  const { addToCart } = useCart();
   
   const [item, setItem] = useState(null);
   const [suggestedItems, setSuggestedItems] = useState([]);
@@ -327,40 +329,25 @@ const ProductDetail = () => {
   };
   
   const handleAddToCart = () => {
-    // Get existing cart from localStorage or initialize empty array
-    const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
+    // Use CartContext instead of localStorage
+    const cartItem = {
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      image: item.image,
+      type: itemType
+    };
     
-    // Check if item already exists in cart
-    const existingItemIndex = existingCart.findIndex(cartItem => 
-      cartItem.id === item.id && cartItem.type === itemType
-    );
-    
-    if (existingItemIndex >= 0) {
-      // Increment quantity if item already exists
-      existingCart[existingItemIndex].quantity += 1;
-    } else {
-      // Add new item to cart
-      existingCart.push({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        image: item.image,
-        quantity: 1,
-        type: itemType
-      });
-    }
-    
-    // Save updated cart to localStorage
-    localStorage.setItem('cart', JSON.stringify(existingCart));
+    addToCart(cartItem);
     
     // Show success message
     toast.success(`${item.name} added to cart successfully!`);
     
-    // Force a refresh on header component by updating sessionStorage
-    sessionStorage.setItem('cartUpdated', Date.now().toString());
-    
     // Track add to cart event in Google Analytics
     trackAddToCart(item, 1);
+    
+    // Navigate to cart page
+    navigate('/cart');
   };
   
   const handleBookNow = () => {

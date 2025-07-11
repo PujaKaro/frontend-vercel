@@ -137,7 +137,7 @@ const NotificationBell = () => {
 
       {/* Dropdown menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg z-50 overflow-hidden">
+        <div className="fixed right-0 mt-2 w-80 sm:w-96 bg-white rounded-lg shadow-lg z-50 overflow-hidden border border-gray-200">
           {/* Header */}
           <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
             <h3 className="font-medium text-gray-700">Notifications</h3>
@@ -168,31 +168,33 @@ const NotificationBell = () => {
                       className={`p-4 border-b ${style.borderColor} ${!notification.read ? 'bg-gray-50' : ''}`}
                     >
                       <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="flex items-center">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start">
                             {!notification.read && (
-                              <FontAwesomeIcon icon={faCircle} className="text-[#317bea] text-xs mr-2" />
+                              <FontAwesomeIcon icon={faCircle} className="text-[#317bea] text-xs mr-2 mt-1 flex-shrink-0" />
                             )}
-                            <h4 className={`font-medium ${style.textColor} flex items-center`}>
-                              {style.icon && <FontAwesomeIcon icon={style.icon} className="mr-2" />}
-                              {notification.title}
-                            </h4>
-                          </div>
-                          <p className="text-gray-600 text-sm mt-1">
-                            {notification.message}
-                          </p>
-                          <div className="flex items-center justify-between mt-2">
-                            <span className="text-xs text-gray-500">
-                              {formatTimestamp(notification.createdAt)}
-                            </span>
-                            {!notification.read && (
-                              <button 
-                                onClick={(e) => handleMarkAsRead(e, notification.id)}
-                                className="text-xs text-[#317bea] hover:underline"
-                              >
-                                Mark as read
-                              </button>
-                            )}
+                            <div className="flex-1 min-w-0">
+                              <h4 className={`font-medium ${style.textColor} flex items-center text-sm`}>
+                                {style.icon && <FontAwesomeIcon icon={style.icon} className="mr-2 flex-shrink-0" />}
+                                <span className="truncate">{notification.title}</span>
+                              </h4>
+                              <p className="text-gray-600 text-sm mt-1 break-words">
+                                {notification.message}
+                              </p>
+                              <div className="flex items-center justify-between mt-2">
+                                <span className="text-xs text-gray-500 flex-shrink-0">
+                                  {formatTimestamp(notification.createdAt)}
+                                </span>
+                                {!notification.read && (
+                                  <button 
+                                    onClick={(e) => handleMarkAsRead(e, notification.id)}
+                                    className="text-xs text-[#317bea] hover:underline flex-shrink-0 ml-2"
+                                  >
+                                    Mark as read
+                                  </button>
+                                )}
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>

@@ -6,6 +6,7 @@ import PujaBooking from '../pages/PujaBooking';
 import ProductDetail from '../pages/ProductDetail';
 import BookingForm from '../pages/BookingForm';
 import Cart from '../pages/Cart';
+import Payment from '../pages/Payment';
 import FlowersAndMala from '../pages/FlowersAndMala';
 import PrashadServices from '../pages/PrashadServices';
 import OrderConfirmation from '../pages/OrderConfirmation';
@@ -47,6 +48,7 @@ const AppRouter = () => {
       <Route path="/puja-booking/:id" element={<ProductDetail />} />
       <Route path="/booking-form/:id" element={<BookingForm />} />
       <Route path="/cart" element={<Cart />} />
+      <Route path="/payment" element={<Payment />} />
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/profile" element={<Profile />} />

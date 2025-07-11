@@ -17,6 +17,7 @@ import { useCart } from '../contexts/CartContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import NotificationBell from './NotificationBell';
+import SavedAddressesModal from './SavedAddressesModal';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -29,10 +30,10 @@ const Header = () => {
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
   const [userData, setUserData] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isBannerVisible, setIsBannerVisible] = useState(true);
+  const [isSavedAddressesModalOpen, setIsSavedAddressesModalOpen] = useState(false);
 
   const navigate = useNavigate();
   const { currentUser, isAuthenticated, logout } = useAuth();
@@ -59,30 +60,6 @@ const Header = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  useEffect(() => {
-    const updateCartCount = () => {
-      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      const count = cart.reduce((total, item) => total + item.quantity, 0);
-      setCartCount(count);
-    };
-
-    updateCartCount();
-    window.addEventListener('storage', updateCartCount);
-
-    const interval = setInterval(() => {
-      const cartUpdated = sessionStorage.getItem('cartUpdated');
-      if (cartUpdated) {
-        updateCartCount();
-      }
-    }, 1000);
-
-    return () => {
-      window.removeEventListener('storage', updateCartCount);
-      clearInterval(interval);
-    };
-  }, []);
-
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -155,6 +132,29 @@ const Header = () => {
     setIsBannerVisible(false);
   };
 
+  const handleSavedAddressesClick = () => {
+    setIsSavedAddressesModalOpen(true);
+    setIsDropdownOpen(false);
+  };
+
+  const handleEditAddress = (address) => {
+    setIsSavedAddressesModalOpen(false);
+    navigate('/profile', { state: { editAddress: address } });
+  };
+
+  const handleDeleteAddress = (addressId) => {
+    // This would typically call a function to delete the address
+    console.log('Delete address:', addressId);
+  };
+
+  const handleAddAddress = (newAddress) => {
+    // This would typically call a function to add the address to the user's profile
+    console.log('Add address:', newAddress);
+    // For now, we'll just close the modal and show a success message
+    setIsSavedAddressesModalOpen(false);
+    alert('Address added successfully!');
+  };
+
   return (
     <>
       {/* Offer Banner */}
@@ -178,7 +178,6 @@ const Header = () => {
 
       {/* Header */}
       <header className={`sticky top-0 z-50 bg-white ${isScrolled ? 'shadow-md' : ''} transition-shadow duration-300`}>
-        {/* <div className="container mx-auto px-4 py-2"> */}
         <div className="container mx-auto px-4 pb-1 py-1">
           <div className="flex items-center justify-between">
             {/* Logo */}
@@ -356,7 +355,7 @@ const Header = () => {
                       </div>
                     )}
                     <span className="text-gray-700 font-medium">
-                      {currentUser.displayName?.split(' ')[0] || 'User'}
+                      {/* {currentUser.displayName?.split(' ')[0] || 'User'} */}
                     </span>
                   </button>
 
@@ -369,6 +368,14 @@ const Header = () => {
                       >
                         Profile
                       </Link>
+                      {userData?.addresses && userData.addresses.length > 0 && (
+                        <button
+                          onClick={handleSavedAddressesClick}
+                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 border-t border-gray-100"
+                        >
+                          Saved Addresses ({userData.addresses.length})
+                        </button>
+                      )}
                       <button
                         onClick={handleLogout}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -429,44 +436,154 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden absolute top-full left-0 right-0 bg-white shadow-lg border-t p-4 z-50">
-            <div className="flex flex-col space-y-3">
-              <Link to="/" className="text-gray-700 hover:text-[#317bea] font-medium py-2" onClick={() => setIsMobileMenuOpen(false)}>
-                Home
+          <div className="lg:hidden absolute top-full left-0 right-0 bg-white shadow-lg border-t z-50" style={{padding : '5px 5px 0px 30px'}}>
+            {/* User Info Section */}
+            {currentUser && (
+              <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4">
+                <div className="flex items-center">
+                  {currentUser.photoURL ? (
+                    <img
+                      src={currentUser.photoURL}
+                      alt="Profile"
+                      className="h-12 w-12 rounded-full mr-3 border-2 border-white"
+                    />
+                  ) : (
+                    <div className="h-12 w-12 rounded-full bg-white bg-opacity-20 flex items-center justify-center mr-3 border-2 border-white">
+                      <span className="text-white text-lg font-semibold">
+                        {currentUser.displayName?.[0] || 'U'}
+                      </span>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-white font-semibold text-lg">{currentUser.displayName || 'User'}</p>
+                    <p className="text-orange-100 text-sm">{currentUser.email}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Navigation Links */}
+            <div className="p-4 space-y-1">
+              <Link 
+                to="/" 
+                className="flex items-center py-3 px-3 text-gray-700 hover:text-orange-500 hover:bg-orange-50 rounded-lg transition-colors" 
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <span className="font-medium">Home</span>
               </Link>
-              <Link to="/shop" className="text-gray-700 hover:text-[#317bea] font-medium py-2" onClick={() => setIsMobileMenuOpen(false)}>
-                Shop
+              
+              <Link 
+                to="/shop" 
+                className="flex items-center py-3 px-3 text-gray-700 hover:text-orange-500 hover:bg-orange-50 rounded-lg transition-colors" 
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <span className="font-medium">Shop</span>
               </Link>
-              <Link to="/puja-booking" className="text-gray-700 hover:text-[#317bea] font-medium py-2" onClick={() => setIsMobileMenuOpen(false)}>
-                Book a Puja
+              
+              <Link 
+                to="/puja-booking" 
+                className="flex items-center py-3 px-3 text-gray-700 hover:text-orange-500 hover:bg-orange-50 rounded-lg transition-colors" 
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <span className="font-medium">Book a Puja</span>
               </Link>
-              <div className="border-t border-gray-100 pt-2">
-                <p className="text-sm font-medium text-gray-500 mb-1">Astrology</p>
-                <Link to="/daily-horoscope" className="text-gray-700 hover:text-[#317bea] font-medium py-2 pl-3 block" onClick={() => setIsMobileMenuOpen(false)}>
-                  Daily Horoscope
+
+              {/* Astrology Section */}
+              <div className="border-t border-gray-100 pt-3 mt-3">
+                <p className="text-sm font-semibold text-gray-500 mb-2 px-3">Astrology</p>
+                <Link 
+                  to="/daily-horoscope" 
+                  className="flex items-center py-2 px-3 text-gray-700 hover:text-orange-500 hover:bg-orange-50 rounded-lg transition-colors" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <span className="font-medium">Daily Horoscope</span>
                 </Link>
-                <Link to="/birth-chart" className="text-gray-700 hover:text-[#317bea] font-medium py-2 pl-3 block" onClick={() => setIsMobileMenuOpen(false)}>
-                  Birth Chart Analysis
+                <Link 
+                  to="/birth-chart" 
+                  className="flex items-center py-2 px-3 text-gray-700 hover:text-orange-500 hover:bg-orange-50 rounded-lg transition-colors" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <span className="font-medium">Birth Chart Analysis</span>
                   <span className="ml-2 px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full">New!</span>
                 </Link>
               </div>
-              <Link to="/cart" className="text-gray-700 hover:text-[#317bea] font-medium py-2 flex items-center" onClick={() => setIsMobileMenuOpen(false)}>
-                <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
-                Cart
-                {cartCount > 0 && (
-                  <span className="ml-1 bg-red-500 text-white px-2 py-0.5 rounded-full text-xs">
-                    {cartCount}
+
+              {/* Cart */}
+              <Link 
+                to="/cart" 
+                className="flex items-center py-3 px-3 text-gray-700 hover:text-orange-500 hover:bg-orange-50 rounded-lg transition-colors" 
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <FontAwesomeIcon icon={faShoppingCart} className="mr-3 text-lg" />
+                <span className="font-medium">Cart</span>
+                {cartItems.length > 0 && (
+                  <span className="ml-auto bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                    {cartItems.length}
                   </span>
                 )}
               </Link>
-              <button onClick={handleProfileClick} className="text-gray-700 hover:text-[#317bea] font-medium py-2 flex items-center">
-                <FontAwesomeIcon icon={faUser} className="mr-2" />
-                {isAuthenticated ? 'My Account' : 'Sign In'}
-              </button>
+
+              {/* User Account Section */}
+              {currentUser ? (
+                <div className="border-t border-gray-100 pt-3 mt-3">
+                  <Link 
+                    to="/profile" 
+                    className="flex items-center py-3 px-3 text-gray-700 hover:text-orange-500 hover:bg-orange-50 rounded-lg transition-colors" 
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <FontAwesomeIcon icon={faUser} className="mr-3 text-lg" />
+                    <span className="font-medium">My Account</span>
+                  </Link>
+                  
+                  {userData?.addresses && userData.addresses.length > 0 && (
+                    <button 
+                      onClick={() => {
+                        handleSavedAddressesClick();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="flex items-center w-full py-3 px-3 text-gray-700 hover:text-orange-500 hover:bg-orange-50 rounded-lg transition-colors"
+                    >
+                      <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-3 text-lg" />
+                      <span className="font-medium">Saved Addresses</span>
+                      <span className="ml-auto bg-orange-100 text-orange-600 px-2 py-1 rounded-full text-xs font-medium">
+                        {userData.addresses.length}
+                      </span>
+                    </button>
+                  )}
+                  
+                  <button 
+                    onClick={() => {
+                      handleLogout();
+                      setIsMobileMenuOpen(false);
+                    }} 
+                    className="flex items-center w-full py-3 px-3 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <span className="font-medium">Sign Out</span>
+                  </button>
+                </div>
+              ) : (
+                <button 
+                  onClick={handleProfileClick} 
+                  className="flex items-center w-full py-3 px-3 text-gray-700 hover:text-orange-500 hover:bg-orange-50 rounded-lg transition-colors"
+                >
+                  <FontAwesomeIcon icon={faUser} className="mr-3 text-lg" />
+                  <span className="font-medium">Sign In</span>
+                </button>
+              )}
             </div>
           </div>
         )}
       </header>
+
+      {/* Saved Addresses Modal */}
+      <SavedAddressesModal
+        isOpen={isSavedAddressesModalOpen}
+        onClose={() => setIsSavedAddressesModalOpen(false)}
+        addresses={userData?.addresses || []}
+        onEditAddress={handleEditAddress}
+        onDeleteAddress={handleDeleteAddress}
+        onAddAddress={handleAddAddress}
+      />
     </>
   );
 };

@@ -6,6 +6,7 @@ import { faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
 import { getAllProducts } from '../utils/dataUtils';
 import { getProductRoutingId } from '../utils/productUtils';
 import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../contexts/CartContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SEO from '../components/SEO';
@@ -25,6 +26,7 @@ const Shop = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { currentUser, isAuthenticated } = useAuth();
+  const { addToCart } = useCart();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -139,23 +141,20 @@ const Shop = () => {
     applyFilters(productList, newFilters);
   };
 
-  const addToCart = (product) => {
+  const handleAddToCart = (product) => {
     // Check if user is logged in
     const userId = currentUser?.uid;
     
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const existingProductIndex = cart.findIndex(item => getProductRoutingId(item) === getProductRoutingId(product));
+    // Use CartContext instead of localStorage
+    const cartItem = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      type: 'product'
+    };
     
-    if (existingProductIndex > -1) {
-      cart[existingProductIndex].quantity += 1;
-    } else {
-      cart.push({ ...product, quantity: 1 });
-    }
-    
-    localStorage.setItem('cart', JSON.stringify(cart));
-    
-    // Force a refresh on header component by updating sessionStorage
-    sessionStorage.setItem('cartUpdated', Date.now().toString());
+    addToCart(cartItem);
     
     // Send notification if user is logged in
     if (userId) {
@@ -421,7 +420,7 @@ const Shop = () => {
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            addToCart(product);
+                            handleAddToCart(product);
                           }}
                           className="flex items-center justify-center p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
                         >
