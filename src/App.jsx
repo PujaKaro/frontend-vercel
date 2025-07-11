@@ -12,6 +12,7 @@ import { CartProvider } from './contexts/CartContext';
 import PopupModal from './components/PopupModal';
 import LeadCaptureModal from './components/LeadCaptureModal';
 import AnnouncementBar from './components/AnnouncementBar';
+import UpdateNotification from './components/UpdateNotification';
 
 import useFacebookPixel from './hooks/useFacebookPixel';
 import FloatingWhatsAppButton from './components/FloatingWhatsAppButton';
@@ -34,6 +35,7 @@ function AppWithTracking() {
             <AppRouter />
           </main>
           <Footer />
+          <UpdateNotification />
         </CartProvider>
         <FloatingWhatsAppButton />
       </AuthProvider>
