@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pujakaro-cache-v1';
+const CACHE_NAME = 'pujakaro-cache-v3'; // Increment version to force cache update
 const urlsToCache = [
   '/',
   '/index.html',
@@ -17,14 +17,44 @@ self.addEventListener('install', event => {
         return cache.addAll(urlsToCache);
       })
   );
+  // Force the waiting service worker to become the active service worker
+  self.skipWaiting();
 });
 
 // Fetch from cache first, then network
 self.addEventListener('fetch', event => {
+  // Skip caching for development
+  if (event.request.url.includes('localhost') || event.request.url.includes('127.0.0.1')) {
+    return;
+  }
+
+  // Skip caching for API calls and dynamic content
+  if (event.request.url.includes('/api/') || event.request.url.includes('firebase')) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Return from cache if found
+        // For HTML files, try network first, then cache
+        if (event.request.destination === 'document') {
+          return fetch(event.request)
+            .then(networkResponse => {
+              // Cache the new response
+              const responseToCache = networkResponse.clone();
+              caches.open(CACHE_NAME)
+                .then(cache => {
+                  cache.put(event.request, responseToCache);
+                });
+              return networkResponse;
+            })
+            .catch(() => {
+              // If network fails, return cached version
+              return response;
+            });
+        }
+        
+        // For other resources, return from cache if found
         if (response) {
           return response;
         }
@@ -68,6 +98,9 @@ self.addEventListener('activate', event => {
           }
         })
       );
+    }).then(() => {
+      // Take control of all clients immediately
+      return self.clients.claim();
     })
   );
 }); 
