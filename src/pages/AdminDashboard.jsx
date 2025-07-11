@@ -19,7 +19,8 @@ import {
   faDatabase,
   faCommentDots,
   faHome,
-  faUser
+  faUser,
+  faMoneyBillWave
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../config/firebase';
@@ -44,6 +45,7 @@ import AdminTestimonialsTab from '../components/AdminTestimonialsTab';
 import BookingManagementTab from '../components/BookingManagementTab';
 import AdminHomeContentTab from '../components/AdminHomeContentTab';
 import AdminLeadsTab from '../components/AdminLeadsTab';
+import AdminUTRPaymentsTab from '../components/AdminUTRPaymentsTab';
 import { 
   migrateDataToFirestore, 
   getAllPujas, 
@@ -2683,6 +2685,17 @@ const AdminDashboard = () => {
                   Orders
                 </button>
                 <button
+                  onClick={() => setActiveTab('utrPayments')}
+                  className={`w-full text-left px-4 py-2 rounded-lg ${
+                    activeTab === 'utrPayments'
+                      ? 'bg-orange-50 text-orange-500'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faMoneyBillWave} className="mr-2" />
+                  UTR Payments
+                </button>
+                <button
                   onClick={() => setActiveTab('blogs')}
                   className={`w-full text-left px-4 py-2 rounded-lg ${
                     activeTab === 'blogs'
@@ -3334,8 +3347,20 @@ const AdminDashboard = () => {
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <div className="text-sm text-gray-900">{order.customerName}</div>
-                            <div className="text-sm text-gray-500">{order.shippingAddress}</div>
+                            <div className="text-sm text-gray-900">
+                              {typeof order.customerName === 'string' 
+                                ? order.customerName 
+                                : order.userName || 'Customer'
+                              }
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {typeof order.shippingAddress === 'string' 
+                                ? order.shippingAddress 
+                                : order.shippingAddress?.address 
+                                  ? `${order.shippingAddress.address}, ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.pincode}`
+                                  : 'Address not provided'
+                              }
+                            </div>
                           </td>
                           <td className="px-6 py-4">
                             <span
@@ -3376,6 +3401,10 @@ const AdminDashboard = () => {
                   </table>
                 </div>
               </div>
+            )}
+
+            {activeTab === 'utrPayments' && (
+              <AdminUTRPaymentsTab />
             )}
 
             {activeTab === 'blogs' && (

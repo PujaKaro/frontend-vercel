@@ -3,20 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinus, faPlus, faTrash, faArrowLeft, faShoppingBag } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
-import { trackPurchase } from '../utils/analytics';
 import { useCart } from '../contexts/CartContext';
-import { doc, updateDoc, arrayUnion, Timestamp } from 'firebase/firestore';
-import { db } from '../config/firebase';
-import { createPayment } from '../utils/razorpay';
-import { createOrder } from '../utils/firestoreUtils';
 
 const Cart = () => {
   const { currentUser } = useAuth();
-  const { cartItems, removeFromCart, updateQuantity, clearCart } = useCart();
+  const { cartItems, removeFromCart, updateQuantity } = useCart();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
 
   useEffect(() => {
     if (!currentUser) {
@@ -30,75 +22,24 @@ const Cart = () => {
       return;
     }
 
-    setLoading(true);
-    setError(null);
+    // Calculate total amount
+    const totalAmount = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const tax = totalAmount * 0.18;
+    const shippingCost = 99;
+    const finalAmount = totalAmount + tax + shippingCost;
 
-    try {
-      // Calculate total amount
-      const totalAmount = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      const tax = totalAmount * 0.18;
-      const shippingCost = 99;
-      const finalAmount = totalAmount + tax + shippingCost;
-
-      // Create order data
-      const orderData = {
-        userId: currentUser.uid,
-        userName: currentUser.displayName || '',
-        userEmail: currentUser.email || '',
-        items: cartItems.map(item => ({
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          type: item.type,
-          image: item.image
-        })),
-        subtotal: totalAmount,
-        tax: tax,
-        shippingCost: shippingCost,
-        total: finalAmount,
-        status: 'pending',
-        createdAt: new Date()
-      };
-
-      // Create order in Firestore
-      const orderId = await createOrder(orderData);
-
-      // Create payment
-      await createPayment(
-        finalAmount,
-        `Order #${orderId}`,
-        {
-          name: currentUser.displayName || '',
-          email: currentUser.email || '',
-          contact: currentUser.phoneNumber || ''
+    // Navigate to payment page with order details
+    navigate('/payment', {
+      state: {
+        orderDetails: {
+          subtotal: totalAmount,
+          tax: tax,
+          shippingCost: shippingCost,
+          total: finalAmount,
+          items: cartItems
         }
-      );
-
-      // Navigate to confirmation page
-      navigate('/order-confirmation', {
-        state: {
-          orderDetails: {
-            orderId,
-            items: cartItems,
-            totalAmount: finalAmount,
-            shippingAddress: {
-              name: currentUser.displayName,
-              email: currentUser.email,
-              phone: currentUser.phoneNumber
-            }
-          }
-        }
-      });
-
-      // Clear cart
-      clearCart();
-      trackPurchase(orderId, finalAmount, cartItems);
-    } catch (err) {
-      setError(err.message || 'Payment failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+      }
+    });
   };
 
   if (!currentUser) {
@@ -216,14 +157,14 @@ const Cart = () => {
                   
                   <button
                     onClick={handleProceedToPayment}
-                    disabled={loading || cartItems.length === 0}
+                    disabled={cartItems.length === 0}
                     className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#FF8C00] hover:bg-[#FF8C00]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF8C00]"
                   >
-                    {loading ? 'Processing...' : 'Proceed to Payment'}
+                    Proceed to Payment
                   </button>
                   
                   <p className="text-xs text-gray-500 mt-4 text-center">
-                    Secured payment powered by Razorpay
+                    Secured payment powered by UPI
                   </p>
                 </div>
               </div>
