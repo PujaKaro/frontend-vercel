@@ -59,8 +59,49 @@ function ScrollToTop() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    // Disable browser's scroll restoration to prevent conflicts
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+
+    // Use requestAnimationFrame to ensure DOM is ready
+    const scrollToTop = () => {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'instant' // Use instant instead of smooth to avoid conflicts
+      });
+    };
+
+    // Use both setTimeout and requestAnimationFrame for better reliability
+    const timer = setTimeout(() => {
+      requestAnimationFrame(scrollToTop);
+    }, 50);
+
+    return () => {
+      clearTimeout(timer);
+      // Re-enable scroll restoration when component unmounts
+      if ('scrollRestoration' in window.history) {
+        window.history.scrollRestoration = 'auto';
+      }
+    };
   }, [pathname]);
+
+  // Also handle popstate events (back/forward navigation)
+  useEffect(() => {
+    const handlePopState = () => {
+      setTimeout(() => {
+        window.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: 'instant'
+        });
+      }, 100);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   return null;
 }
