@@ -4,9 +4,20 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: auto;
+}
+
 body {
   font-family: 'Poppins', sans-serif;
   background-color: #fefefe;
+  /* Prevent scroll restoration issues */
+  scroll-behavior: auto;
+}
+
+/* Ensure main content area doesn't interfere with scroll */
+main {
+  min-height: 100vh;
 }
 
 /* Glide.js custom styles */

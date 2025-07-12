@@ -166,17 +166,6 @@ const Home = () => {
     aggregateOfferSchema
   ];
 
-  // Add smooth scroll behavior
-  useEffect(() => {
-    // Add smooth scroll behavior to the entire page
-    document.documentElement.style.scrollBehavior = 'smooth';
-    
-    return () => {
-      // Clean up when component unmounts
-      document.documentElement.style.scrollBehavior = '';
-    };
-  }, []);
-
   // Render section based on ID
   const renderSection = (sectionId) => {
     switch (sectionId) {
