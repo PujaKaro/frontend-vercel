@@ -30,6 +30,7 @@ import {
   doc,
   updateDoc,
   deleteDoc,
+  setDoc,
   query,
   where,
   orderBy,
@@ -138,6 +139,7 @@ const AdminDashboard = () => {
   const [showPujaModal, setShowPujaModal] = useState(false);
   const [showProductModal, setShowProductModal] = useState(false);
   const [showPanditModal, setShowPanditModal] = useState(false);
+  const [featuredPujaName, setFeaturedPujaName] = useState('');
   const [pujaForm, setPujaForm] = useState({
     id: '',
     name: '',
@@ -897,6 +899,24 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchFeaturedPuja = async () => {
+    try {
+      const docSnap = await getDoc(doc(db, 'siteContent', 'featuredPuja'));
+      if (docSnap.exists()) {
+        setFeaturedPujaName(docSnap.data().pujaName || '');
+      } else {
+        setFeaturedPujaName('');
+      }
+    } catch (error) {
+      setFeaturedPujaName('');
+    }
+  };
+  useEffect(() => {
+    if (activeTab === 'pujas') {
+      fetchFeaturedPuja();
+    }
+  }, [activeTab, pujas]);
+
   const handleMigrateData = async () => {
     try {
       setIsMigratingData(true);
@@ -1115,6 +1135,26 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleMakeFeaturedPuja = async (puja) => {
+    try {
+      // Save puja data to Firestore "siteContent/featuredPuja"
+      await setDoc(doc(db, 'siteContent', 'featuredPuja'), {
+        heading: "Featured Puja",
+        pujaName: puja.name,
+        description: puja.description,
+        price: `₹${puja.price}`,
+        nextAvailable: "Tomorrow",
+        duration: puja.duration,
+        image: puja.image
+      });
+      toast.success(`${puja.name} is now the Featured Puja!`);
+      fetchFeaturedPuja();
+    } catch (error) {
+      toast.error('Failed to set featured puja');
+      console.error(error);
+    }
+  };
+
   const renderPujasTab = () => {
     // Filter pujas based on the current filter settings
     const filteredPujas = pujas.filter(puja => {
@@ -1319,9 +1359,16 @@ const AdminDashboard = () => {
                         </button>
                         <button
                           onClick={() => handleDeletePuja(puja.id)}
-                          className="text-red-600 hover:text-red-900"
+                          className="text-red-600 hover:text-red-900 mr-3"
                         >
                           <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                        <button
+                          onClick={() => handleMakeFeaturedPuja(puja)}
+                          className={`mr-2 ${featuredPujaName === puja.name ? 'text-purple-500' : 'text-gray-400 hover:text-purple-500'}`}
+                          title={featuredPujaName === puja.name ? "Featured Puja" : "Make Featured Puja"}
+                        >
+                          <FontAwesomeIcon icon={faStar} />
                         </button>
                       </td>
                     </tr>

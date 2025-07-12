@@ -6,15 +6,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
 const FeaturedPuja = () => {
-  const [featuredPujaContent, setFeaturedPujaContent] = useState({
-    heading: "Featured Puja",
-    pujaName: "Satyanarayan Puja",
-    description: "Experience the divine blessings of Lord Vishnu through this auspicious puja performed by our expert pandits. This sacred ceremony brings prosperity and peace to your home.",
-    price: "₹5,100",
-    nextAvailable: "Tomorrow",
-    duration: "2 hours",
-    image: "/images/featuredPuja.jpg"
-  });
+  const [featuredPujaContent, setFeaturedPujaContent] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
