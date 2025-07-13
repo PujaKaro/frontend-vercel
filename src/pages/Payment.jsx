@@ -471,13 +471,14 @@ const Payment = () => {
                       Amount: <span className="font-bold text-lg">₹{orderDetails.total.toLocaleString()}</span>
                     </p>
                     <div className="bg-white p-4 rounded-lg inline-block">
-                      {/* Replace with actual QR code image */}
-                      <div className="w-48 h-48 bg-gray-200 rounded-lg flex items-center justify-center">
-                        <span className="text-gray-500">QR Code</span>
-                      </div>
+                      <img 
+                        src="/images/qrcode.jpg" 
+                        alt="UPI QR Code" 
+                        className="w-48 h-48 object-contain rounded-lg"
+                      />
                     </div>
                     <p className="text-sm text-gray-500 mt-4">
-                      UPI ID: pujakaro@upi
+                      UPI ID: <span className="font-medium">7982545360@ybl</span>
                     </p>
                   </div>
 
