@@ -1,0 +1,119 @@
+/* PaymentPortal.css */
+
+.payment-bg {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #ffe5b4 0%, #fff7e6 50%, #ffd6d6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+}
+
+.payment-card {
+  max-width: 700px;
+  width: 100%;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 2rem;
+  box-shadow: 0 8px 32px 0 rgba(255, 153, 51, 0.15);
+  padding: 2.5rem;
+  animation: fadeIn 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.payment-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  text-align: center;
+  color: #ff7e1b;
+  margin-bottom: 1.5rem;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 8px #fff2e0;
+}
+
+.summary-section {
+  background: linear-gradient(90deg, #fffbe6 0%, #ffe7c7 100%);
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 2px 16px 0 rgba(255, 153, 51, 0.07);
+  border: 1px solid #ffd6a0;
+}
+
+.summary-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1.2rem;
+  border-bottom: 2px solid #ffb366;
+  padding-bottom: 0.5rem;
+}
+
+.summary-list {
+  color: #444;
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
+.summary-label {
+  font-weight: 600;
+  color: #ff7e1b;
+}
+
+.summary-amount {
+  color: #1a7f37;
+  font-weight: 700;
+}
+
+.payment-actions {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+@media (min-width: 640px) {
+  .payment-actions {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.edit-btn {
+  color: #2563eb;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 0;
+}
+
+.edit-btn:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.pay-btn {
+  background: linear-gradient(90deg, #ffb366 0%, #ff7e1b 100%);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.08rem;
+  padding: 0.7rem 2.5rem;
+  border-radius: 0.8rem;
+  border: none;
+  box-shadow: 0 2px 8px 0 rgba(255, 153, 51, 0.18);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.pay-btn:hover {
+  background: linear-gradient(90deg, #ff7e1b 0%, #ffb366 100%);
+  transform: translateY(-2px) scale(1.04);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(40px);}
+  to { opacity: 1; transform: translateY(0);}
+}

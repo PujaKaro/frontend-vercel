@@ -29,7 +29,7 @@ import AdminDashboard from '../pages/AdminDashboard';
 import DailyHoroscope from '../pages/DailyHoroscope';
 import BirthChartAstrology from '../pages/BirthChartAstrology';
 import HoroscopeAdmin from '../pages/HoroscopeAdmin';
-  
+  import PaymentPortal from '../pages/PaymentPortal';
 // Import authentication pages
 import SignIn from '../pages/SignIn';
 import SignUp from '../pages/SignUp';
@@ -46,6 +46,7 @@ const AppRouter = () => {
       <Route path="/puja-booking" element={<PujaBooking />} />
       <Route path="/puja-booking/:id" element={<ProductDetail />} />
       <Route path="/booking-form/:id" element={<BookingForm />} />
+      <Route path="/payment" element={<PaymentPortal />} />
       <Route path="/cart" element={<Cart />} />
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />

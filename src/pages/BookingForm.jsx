@@ -12,7 +12,7 @@ import { doc, updateDoc, arrayUnion, Timestamp, addDoc, collection, serverTimest
 import { db } from '../config/firebase';
 import emailjs from 'emailjs-com';
 import { createBooking, validateReferralCode, updateReferralStats, validateCode, updateCouponStats,validateAndUseCoupon} from '../utils/firestoreUtils';
-
+import { createPayment } from '../utils/razorpay';
 // EmailJS configuration from environment variables
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
 const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_BOOKING_TEMPLATE_ID;
@@ -384,28 +384,45 @@ const handleCodeValidation = async () => {
 
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, emailParams);
 
-        // Navigate to booking confirmation page
-        navigate('/booking-confirmation', {
-          state: {
-            bookingDetails: {
-              bookingId: bookingRef.id,
-              puja,
-              price: puja.price,
-              finalPrice: finalPrice,
-              date: formData.date,
-              timeSlot: formData.time,
-              customerDetails: {
-                name: formData.name,
-                email: formData.email,
-                phone: formData.phone,
-                address: formData.address,
-                city: formData.city,
-                state: formData.state,
-                pincode: formData.pincode
-              }
-            }
-          }
-        });
+        // // Navigate to booking confirmation page
+        // navigate('/booking-confirmation', {
+        //   state: {
+        //     bookingDetails: {
+        //       bookingId: bookingRef.id,
+        //       puja,
+        //       price: puja.price,
+        //       finalPrice: finalPrice,
+        //       date: formData.date,
+        //       timeSlot: formData.time,
+        //       customerDetails: {
+        //         name: formData.name,
+        //         email: formData.email,
+        //         phone: formData.phone,
+        //         address: formData.address,
+        //         city: formData.city,
+        //         state: formData.state,
+        //         pincode: formData.pincode
+        //       }
+        //     }
+        //   }
+        // });
+        // After booking is created
+navigate('/payment', {
+  state: {
+    amount: finalPrice,
+    pujaName: puja.name,
+    name: formData.name,
+    email: formData.email,
+    phone: formData.phone,
+    date: formData.date,
+    time: formData.time,
+    address: formData.address,
+    city: formData.city,
+    state: formData.state,
+    pincode: formData.pincode
+  }
+});
+
         
         toast.success('Puja booking successful!');
       } catch (error) {
@@ -738,14 +755,14 @@ const handleCodeValidation = async () => {
               )}
               
               <div className="mt-8">
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className={`w-full bg-[#fb9548] hover:bg-[#f58232] text-white py-3 rounded-lg font-medium flex items-center justify-center
-                    ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
-                >
-                  {isSubmitting ? 'Processing...' : 'Confirm Booking'}
-                </button>
+                             <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`w-full bg-[#fb9548] hover:bg-[#f58232] text-white py-3 rounded-lg font-medium flex items-center justify-center
+                  ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+              >
+                {isSubmitting ? 'Processing...' : 'Make Payment'}
+              </button>
               </div>
             </form>
           </div>
