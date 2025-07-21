@@ -1,4 +1,6 @@
 import { RAZORPAY_CONFIG } from '../config/razorpay';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
 export const loadRazorpay = () => {
   return new Promise((resolve, reject) => {
@@ -14,10 +16,10 @@ export const loadRazorpay = () => {
   });
 };
 
-export const createPayment = async (amount, description, prefill = {}) => {
+export const createPayment = async (amount, description, prefill = {}, onSuccess) => {
   try {
     await loadRazorpay();
-    
+
     const options = {
       key: RAZORPAY_CONFIG.key_id,
       amount: amount * 100, // amount in paise
@@ -30,8 +32,26 @@ export const createPayment = async (amount, description, prefill = {}) => {
         contact: prefill.contact || ''
       },
       theme: RAZORPAY_CONFIG.theme,
-      handler: function(response) {
-        return response;
+      handler: async function(response) {
+        // Store payment info in Firestore
+        await setDoc(doc(db, 'payments', response.razorpay_payment_id), {
+          amount,
+          name: prefill.name,
+          email: prefill.email,
+          phone: prefill.contact,
+          paymentId: response.razorpay_payment_id,
+          orderId: response.razorpay_order_id,
+          signature: response.razorpay_signature,
+          status: 'success',
+          createdAt: serverTimestamp()
+        });
+
+        console.log('Payment Success:', response);
+
+        // ✅ Call success callback with payment ID
+        if (onSuccess) {
+          onSuccess(response.razorpay_payment_id);
+        }
       }
     };
 
@@ -41,4 +61,4 @@ export const createPayment = async (amount, description, prefill = {}) => {
     console.error('Payment initialization failed:', error);
     throw error;
   }
-}; 
+};
