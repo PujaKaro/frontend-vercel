@@ -10,7 +10,19 @@ import {
   faEye,
   faEdit,
   faCommentDots,
-  faEnvelope
+  faEnvelope,
+  faCog,
+  faMapMarkerAlt,
+  faPhone,
+  faEnvelope as faEnvelopeIcon,
+  faCalendar,
+  faClock,
+  faIndianRupeeSign,
+  faTag,
+  faStar,
+  faCheckCircle,
+  faTimesCircle,
+  faExclamationTriangle
 } from '@fortawesome/free-solid-svg-icons';
 import {
   collection,
@@ -38,12 +50,13 @@ const BookingManagementTab = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
-  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showManageModal, setShowManageModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [selectedBookingForReview, setSelectedBookingForReview] = useState(null);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
 
   useEffect(() => {
     fetchBookings();
@@ -66,7 +79,11 @@ const BookingManagementTab = () => {
           createdAt: data.createdAt && typeof data.createdAt.toDate === 'function' ? data.createdAt.toDate() : data.createdAt,
           date: data.date && typeof data.date.toDate === 'function' ? data.date.toDate() : data.date,
           reviewRequestedAt: data.reviewRequestedAt && typeof data.reviewRequestedAt.toDate === 'function' ? 
-            data.reviewRequestedAt.toDate() : data.reviewRequestedAt
+            data.reviewRequestedAt.toDate() : data.reviewRequestedAt,
+          updatedAt: data.updatedAt && typeof data.updatedAt.toDate === 'function' ? 
+            data.updatedAt.toDate() : data.updatedAt,
+          reviewedAt: data.reviewedAt && typeof data.reviewedAt.toDate === 'function' ? 
+            data.reviewedAt.toDate() : data.reviewedAt
         };
         
         return formattedData;
@@ -84,6 +101,7 @@ const BookingManagementTab = () => {
 
   const handleStatusChange = async (bookingId, newStatus) => {
     try {
+      setUpdatingStatus(true);
       const bookingRef = doc(db, 'bookings', bookingId);
       const bookingDoc = await getDoc(bookingRef);
       
@@ -120,6 +138,11 @@ const BookingManagementTab = () => {
         )
       );
 
+      // Update selected booking if it's the current one
+      if (selectedBooking && selectedBooking.id === bookingId) {
+        setSelectedBooking(prev => ({ ...prev, status: newStatus, updatedAt: new Date() }));
+      }
+
       // Show additional message if status is completed
       if (newStatus === 'completed') {
         toast.success(`Booking marked as completed. You can now request a review from the customer.`);
@@ -129,17 +152,26 @@ const BookingManagementTab = () => {
     } catch (error) {
       console.error('Error updating booking status:', error);
       toast.error('Failed to update booking status');
+    } finally {
+      setUpdatingStatus(false);
     }
   };
 
   const handleDelete = async (bookingId) => {
-    if (!window.confirm('Are you sure you want to delete this booking?')) {
+    if (!window.confirm('Are you sure you want to delete this booking? This action cannot be undone.')) {
       return;
     }
 
     try {
       await deleteDoc(doc(db, 'bookings', bookingId));
       setBookings(prevBookings => prevBookings.filter(booking => booking.id !== bookingId));
+      
+      // Close modal if the deleted booking was selected
+      if (selectedBooking && selectedBooking.id === bookingId) {
+        setShowManageModal(false);
+        setSelectedBooking(null);
+      }
+      
       toast.success('Booking deleted successfully');
     } catch (error) {
       console.error('Error deleting booking:', error);
@@ -173,6 +205,11 @@ const BookingManagementTab = () => {
         )
       );
 
+      // Update selected booking if it's the current one
+      if (selectedBooking && selectedBooking.id === booking.id) {
+        setSelectedBooking(prev => ({ ...prev, reviewRequested: true, reviewRequestedAt: new Date() }));
+      }
+
       toast.success('Review request sent to customer');
     } catch (error) {
       console.error('Error requesting review:', error);
@@ -189,8 +226,49 @@ const BookingManagementTab = () => {
           : booking
       )
     );
+    
+    // Update selected booking if it's the current one
+    if (selectedBooking && selectedBooking.id === selectedBookingForReview.id) {
+      setSelectedBooking(prev => ({ ...prev, hasReview: true, reviewId }));
+    }
+    
     setShowReviewForm(false);
     setSelectedBookingForReview(null);
+  };
+
+  const openManageModal = (booking) => {
+    setSelectedBooking(booking);
+    setShowManageModal(true);
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'completed':
+        return <FontAwesomeIcon icon={faCheckCircle} className="text-green-500" />;
+      case 'cancelled':
+        return <FontAwesomeIcon icon={faTimesCircle} className="text-red-500" />;
+      case 'confirmed':
+        return <FontAwesomeIcon icon={faCheckCircle} className="text-blue-500" />;
+      case 'pending':
+        return <FontAwesomeIcon icon={faExclamationTriangle} className="text-yellow-500" />;
+      default:
+        return <FontAwesomeIcon icon={faExclamationTriangle} className="text-gray-500" />;
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'confirmed':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
   };
 
   // Filter and sort bookings
@@ -200,7 +278,7 @@ const BookingManagementTab = () => {
         booking.pujaName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         booking.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         booking.userEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        booking.userPhone?.toLowerCase().includes(searchTerm.toLowerCase());
+        booking.phone?.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
       
@@ -321,10 +399,13 @@ const BookingManagementTab = () => {
                 Customer
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Date
+                Date & Time
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Price
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
@@ -338,104 +419,46 @@ const BookingManagementTab = () => {
                   <div className="text-sm font-medium text-gray-900">
                     {booking.pujaName}
                   </div>
+                  <div className="text-sm text-gray-500">
+                    ID: {booking.pujaId}
+                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">{booking.userName}</div>
                   <div className="text-sm text-gray-500">{booking.userEmail}</div>
+                  <div className="text-sm text-gray-500">{booking.phone}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">
                     {booking.date instanceof Date ? booking.date.toLocaleDateString() : 
                      typeof booking.date === 'string' ? booking.date : 'Date not available'}
                   </div>
+                  <div className="text-sm text-gray-500">{booking.time}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                    ${booking.status === 'completed' ? 'bg-green-100 text-green-800' :
-                      booking.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                      booking.status === 'confirmed' ? 'bg-blue-100 text-blue-800' :
-                      'bg-yellow-100 text-yellow-800'}`}>
-                    {booking.status}
+                  <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border ${getStatusColor(booking.status)}`}>
+                    {getStatusIcon(booking.status)} {booking.status}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => {
-                        setSelectedBooking(booking);
-                        setShowDetailModal(true);
-                      }}
-                      className="text-blue-600 hover:text-blue-900"
-                      title="View Details"
-                    >
-                      <FontAwesomeIcon icon={faEye} />
-                    </button>
-                    {booking.status === 'pending' && (
-                      <>
-                        <button
-                          onClick={() => handleStatusChange(booking.id, 'confirmed')}
-                          className="text-green-600 hover:text-green-900"
-                          title="Confirm Booking"
-                        >
-                          <FontAwesomeIcon icon={faCheck} />
-                        </button>
-                        <button
-                          onClick={() => handleStatusChange(booking.id, 'cancelled')}
-                          className="text-red-600 hover:text-red-900"
-                          title="Cancel Booking"
-                        >
-                          <FontAwesomeIcon icon={faBan} />
-                        </button>
-                      </>
-                    )}
-                    {booking.status === 'confirmed' && (
-                      <button
-                        onClick={() => handleStatusChange(booking.id, 'completed')}
-                        className="text-green-600 hover:text-green-900"
-                        title="Mark as Completed"
-                      >
-                        <FontAwesomeIcon icon={faCheck} />
-                      </button>
-                    )}
-                    <button
-                      onClick={() => {
-                        setSelectedBooking(booking);
-                        setShowEmailModal(true);
-                      }}
-                      className="text-purple-600 hover:text-purple-900"
-                      title="Send Email"
-                    >
-                      <FontAwesomeIcon icon={faEnvelope} />
-                    </button>
-                    {booking.status === 'completed' && !booking.hasReview && !booking.reviewRequested && (
-                      <button
-                        onClick={() => handleRequestReview(booking)}
-                        className="text-blue-600 hover:text-blue-900 mr-2"
-                        title="Request Review"
-                      >
-                        <FontAwesomeIcon icon={faCommentDots} />
-                      </button>
-                    )}
-                    {booking.status === 'completed' && booking.reviewRequested && !booking.hasReview && (
-                      <button
-                        onClick={() => {
-                          setSelectedBookingForReview(booking);
-                          setShowReviewForm(true);
-                        }}
-                        className="text-green-600 hover:text-green-900 mr-2"
-                        title="Submit Review"
-                      >
-                        <FontAwesomeIcon icon={faCommentDots} />
-                      </button>
-                    )}
-                    <button
-                      onClick={() => handleDelete(booking.id)}
-                      className="text-red-600 hover:text-red-900"
-                      title="Delete Booking"
-                    >
-                      <FontAwesomeIcon icon={faTrash} />
-                    </button>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-900">
+                    <FontAwesomeIcon icon={faIndianRupeeSign} className="mr-1" />
+                    {booking.finalPrice?.toLocaleString() || booking.price?.toLocaleString()}
                   </div>
+                  {booking.discountApplied > 0 && (
+                    <div className="text-xs text-green-600">
+                      {booking.discountType === 'coupon' ? 'Coupon' : 'Discount'}: {booking.discountApplied}%
+                    </div>
+                  )}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <button
+                    onClick={() => openManageModal(booking)}
+                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                  >
+                    <FontAwesomeIcon icon={faCog} className="mr-2" />
+                    Manage Booking
+                  </button>
                 </td>
               </tr>
             ))}
@@ -443,77 +466,343 @@ const BookingManagementTab = () => {
         </table>
       </div>
 
-      {/* Detail Modal */}
-      {showDetailModal && selectedBooking && (
+      {/* Comprehensive Booking Management Modal */}
+      {showManageModal && selectedBooking && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full p-6">
-            <div className="flex justify-between items-start mb-4">
-              <h3 className="text-xl font-semibold">Booking Details</h3>
-              <button
-                onClick={() => setShowDetailModal(false)}
-                className="text-gray-500 hover:text-gray-700 text-2xl"
-              >
-                &times;
-              </button>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-medium text-gray-700">Puja Details</h4>
-                <p className="text-gray-600">{selectedBooking.pujaName}</p>
-                <p className="text-gray-600">{selectedBooking.pujaDescription}</p>
-              </div>
-              <div>
-                <h4 className="font-medium text-gray-700">Customer Details</h4>
-                <p className="text-gray-600">Name: {selectedBooking.userName}</p>
-                <p className="text-gray-600">Email: {selectedBooking.userEmail}</p>
-                <p className="text-gray-600">Phone: {selectedBooking.userPhone}</p>
-              </div>
-              <div>
-                <h4 className="font-medium text-gray-700">Booking Details</h4>
-                <p className="text-gray-600">Date: {
-                  selectedBooking.date instanceof Date ? selectedBooking.date.toLocaleDateString() :
-                  typeof selectedBooking.date === 'string' ? selectedBooking.date : 'Date not available'
-                }</p>
-                <p className="text-gray-600">Time: {selectedBooking.time}</p>
-                <p className="text-gray-600">Status: {selectedBooking.status}</p>
-                <p className="text-gray-600">Created: {
-                  selectedBooking.createdAt instanceof Date ? selectedBooking.createdAt.toLocaleDateString() :
-                  typeof selectedBooking.createdAt === 'string' ? selectedBooking.createdAt : 'Date not available'
-                }</p>
-              </div>
-              {selectedBooking.notes && (
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-lg">
+              <div className="flex justify-between items-start">
                 <div>
-                  <h4 className="font-medium text-gray-700">Notes</h4>
-                  <p className="text-gray-600">{selectedBooking.notes}</p>
+                  <h3 className="text-xl font-semibold text-gray-900">Manage Booking</h3>
+                  <p className="text-sm text-gray-500 mt-1">Booking ID: {selectedBooking.id}</p>
+                </div>
+                <button
+                  onClick={() => setShowManageModal(false)}
+                  className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
+                >
+                  &times;
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-6">
+              {/* Status Section */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-lg font-medium text-gray-900">Current Status</h4>
+                    <div className="flex items-center mt-2">
+                      {getStatusIcon(selectedBooking.status)}
+                      <span className={`ml-2 px-3 py-1 text-sm font-semibold rounded-full border ${getStatusColor(selectedBooking.status)}`}>
+                        {selectedBooking.status}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex space-x-2">
+                    {selectedBooking.status === 'pending' && (
+                      <>
+                        <button
+                          onClick={() => handleStatusChange(selectedBooking.id, 'confirmed')}
+                          disabled={updatingStatus}
+                          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <FontAwesomeIcon icon={faCheck} className="mr-2" />
+                          {updatingStatus ? 'Confirming...' : 'Confirm'}
+                        </button>
+                        <button
+                          onClick={() => handleStatusChange(selectedBooking.id, 'cancelled')}
+                          disabled={updatingStatus}
+                          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <FontAwesomeIcon icon={faBan} className="mr-2" />
+                          {updatingStatus ? 'Cancelling...' : 'Cancel'}
+                        </button>
+                      </>
+                    )}
+                    {selectedBooking.status === 'confirmed' && (
+                      <button
+                        onClick={() => handleStatusChange(selectedBooking.id, 'completed')}
+                        disabled={updatingStatus}
+                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <FontAwesomeIcon icon={faCheck} className="mr-2" />
+                        {updatingStatus ? 'Completing...' : 'Mark as Completed'}
+                      </button>
+                    )}
+                    {selectedBooking.status === 'completed' && !selectedBooking.hasReview && !selectedBooking.reviewRequested && (
+                      <button
+                        onClick={() => handleRequestReview(selectedBooking)}
+                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      >
+                        <FontAwesomeIcon icon={faCommentDots} className="mr-2" />
+                        Request Review
+                      </button>
+                    )}
+                    {selectedBooking.status === 'completed' && selectedBooking.reviewRequested && !selectedBooking.hasReview && (
+                      <button
+                        onClick={() => {
+                          setSelectedBookingForReview(selectedBooking);
+                          setShowReviewForm(true);
+                          setShowManageModal(false);
+                        }}
+                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                      >
+                        <FontAwesomeIcon icon={faCommentDots} className="mr-2" />
+                        Submit Review
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Puja Details */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                    <FontAwesomeIcon icon={faEdit} className="mr-2 text-blue-500" />
+                    Puja Details
+                  </h4>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Puja Name</label>
+                      <p className="text-sm text-gray-900">{selectedBooking.pujaName}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Puja ID</label>
+                      <p className="text-sm text-gray-900">{selectedBooking.pujaId}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Date & Time</label>
+                      <p className="text-sm text-gray-900">
+                        {selectedBooking.date instanceof Date ? selectedBooking.date.toLocaleDateString() :
+                         typeof selectedBooking.date === 'string' ? selectedBooking.date : 'Date not available'} at {selectedBooking.time}
+                      </p>
+                    </div>
+                    {selectedBooking.specialInstructions && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-700">Special Instructions</label>
+                        <p className="text-sm text-gray-900">{selectedBooking.specialInstructions}</p>
+                      </div>
+                    )}
+                    {selectedBooking.additionalInfo && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-700">Additional Information</label>
+                        <p className="text-sm text-gray-900">{selectedBooking.additionalInfo}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Customer Details */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                    <FontAwesomeIcon icon={faEnvelopeIcon} className="mr-2 text-green-500" />
+                    Customer Details
+                  </h4>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Name</label>
+                      <p className="text-sm text-gray-900">{selectedBooking.userName}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Email</label>
+                      <p className="text-sm text-gray-900 flex items-center">
+                        <FontAwesomeIcon icon={faEnvelopeIcon} className="mr-2 text-gray-400" />
+                        {selectedBooking.userEmail}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Phone</label>
+                      <p className="text-sm text-gray-900 flex items-center">
+                        <FontAwesomeIcon icon={faPhone} className="mr-2 text-gray-400" />
+                        {selectedBooking.phone}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">User ID</label>
+                      <p className="text-sm text-gray-900 font-mono">{selectedBooking.userId}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Address Details */}
+              <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                  <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2 text-red-500" />
+                  Address Details
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Address</label>
+                    <p className="text-sm text-gray-900">{selectedBooking.address}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">City</label>
+                    <p className="text-sm text-gray-900">{selectedBooking.city}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">State</label>
+                    <p className="text-sm text-gray-900">{selectedBooking.state}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Pincode</label>
+                    <p className="text-sm text-gray-900">{selectedBooking.pincode}</p>
+                  </div>
+                  {selectedBooking.location && (
+                    <div className="md:col-span-2">
+                      <label className="text-sm font-medium text-gray-700">Coordinates</label>
+                      <p className="text-sm text-gray-900">
+                        Lat: {selectedBooking.location.latitude}, Long: {selectedBooking.location.longitude}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Financial Details */}
+              <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                  <FontAwesomeIcon icon={faIndianRupeeSign} className="mr-2 text-green-500" />
+                  Financial Details
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Original Price</label>
+                    <p className="text-lg font-semibold text-gray-900">
+                      <FontAwesomeIcon icon={faIndianRupeeSign} className="mr-1" />
+                      {selectedBooking.price?.toLocaleString()}
+                    </p>
+                  </div>
+                  {selectedBooking.discountApplied > 0 && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">
+                        {selectedBooking.discountType === 'coupon' ? 'Coupon Discount' : 'Discount'}
+                      </label>
+                      <p className="text-lg font-semibold text-green-600">
+                        -{selectedBooking.discountApplied}%
+                      </p>
+                      {selectedBooking.referralCode && (
+                        <p className="text-sm text-gray-500">Code: {selectedBooking.referralCode}</p>
+                      )}
+                    </div>
+                  )}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Final Price</label>
+                    <p className="text-lg font-semibold text-blue-600">
+                      <FontAwesomeIcon icon={faIndianRupeeSign} className="mr-1" />
+                      {selectedBooking.finalPrice?.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Timestamps */}
+              <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                  <FontAwesomeIcon icon={faClock} className="mr-2 text-purple-500" />
+                  Timestamps
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Created At</label>
+                    <p className="text-sm text-gray-900">
+                      {selectedBooking.createdAt instanceof Date ? selectedBooking.createdAt.toLocaleString() :
+                       typeof selectedBooking.createdAt === 'string' ? selectedBooking.createdAt : 'Not available'}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Last Updated</label>
+                    <p className="text-sm text-gray-900">
+                      {selectedBooking.updatedAt instanceof Date ? selectedBooking.updatedAt.toLocaleString() :
+                       typeof selectedBooking.updatedAt === 'string' ? selectedBooking.updatedAt : 'Not available'}
+                    </p>
+                  </div>
+                  {selectedBooking.reviewRequestedAt && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Review Requested At</label>
+                      <p className="text-sm text-gray-900">
+                        {selectedBooking.reviewRequestedAt instanceof Date ? selectedBooking.reviewRequestedAt.toLocaleString() :
+                         typeof selectedBooking.reviewRequestedAt === 'string' ? selectedBooking.reviewRequestedAt : 'Not available'}
+                      </p>
+                    </div>
+                  )}
+                  {selectedBooking.reviewedAt && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Reviewed At</label>
+                      <p className="text-sm text-gray-900">
+                        {selectedBooking.reviewedAt instanceof Date ? selectedBooking.reviewedAt.toLocaleString() :
+                         typeof selectedBooking.reviewedAt === 'string' ? selectedBooking.reviewedAt : 'Not available'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Review Status */}
+              {selectedBooking.status === 'completed' && (
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                    <FontAwesomeIcon icon={faStar} className="mr-2 text-yellow-500" />
+                    Review Status
+                  </h4>
+                  <div className="flex items-center space-x-4">
+                    {selectedBooking.hasReview ? (
+                      <div className="flex items-center text-green-600">
+                        <FontAwesomeIcon icon={faCheckCircle} className="mr-2" />
+                        <span>Review submitted</span>
+                        {selectedBooking.reviewId && (
+                          <span className="ml-2 text-sm text-gray-500">ID: {selectedBooking.reviewId}</span>
+                        )}
+                      </div>
+                    ) : selectedBooking.reviewRequested ? (
+                      <div className="flex items-center text-yellow-600">
+                        <FontAwesomeIcon icon={faExclamationTriangle} className="mr-2" />
+                        <span>Review requested - waiting for customer response</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center text-gray-600">
+                        <FontAwesomeIcon icon={faClock} className="mr-2" />
+                        <span>No review requested yet</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
-            <div className="flex justify-end space-x-3 mt-6">
-              {selectedBooking.status === 'completed' && !selectedBooking.hasReview && !selectedBooking.reviewRequested && (
+
+            {/* Footer Actions */}
+            <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 rounded-b-lg">
+              <div className="flex justify-between items-center">
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => {
+                      setSelectedBooking(selectedBooking);
+                      setShowEmailModal(true);
+                      setShowManageModal(false);
+                    }}
+                    className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    <FontAwesomeIcon icon={faEnvelope} className="mr-2" />
+                    Send Email
+                  </button>
+                  <button
+                    onClick={() => handleDelete(selectedBooking.id)}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  >
+                    <FontAwesomeIcon icon={faTrash} className="mr-2" />
+                    Delete Booking
+                  </button>
+                </div>
                 <button
-                  onClick={() => handleRequestReview(selectedBooking)}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                  onClick={() => setShowManageModal(false)}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
-                  Request Review
+                  Close
                 </button>
-              )}
-              {selectedBooking.status === 'completed' && selectedBooking.reviewRequested && !selectedBooking.hasReview && (
-                <button
-                  onClick={() => {
-                    setSelectedBookingForReview(selectedBooking);
-                    setShowReviewForm(true);
-                  }}
-                  className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-                >
-                  Submit Review
-                </button>
-              )}
-              <button
-                onClick={() => setShowDetailModal(false)}
-                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
-              >
-                Close
-              </button>
+              </div>
             </div>
           </div>
         </div>
