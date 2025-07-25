@@ -18,6 +18,8 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import NotificationBell from './NotificationBell';
 import SavedAddressesModal from './SavedAddressesModal';
+import { getAllProducts } from '../utils/dataUtils';
+import { getAllPujas } from '../utils/dataUtils';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -30,6 +32,10 @@ const Header = () => {
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [pujas, setPujas] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [userData, setUserData] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isBannerVisible, setIsBannerVisible] = useState(true);
@@ -52,6 +58,86 @@ const Header = () => {
     'Lucknow',
   ];
 
+  // Load search data
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [productsData, pujasData] = await Promise.all([
+          getAllProducts(),
+          getAllPujas()
+        ]);
+        setProducts(productsData);
+        setPujas(pujasData);
+      } catch (error) {
+        console.error('Error loading search data:', error);
+      }
+    };
+    loadData();
+  }, []);
+
+  // Generate search suggestions
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    const term = searchTerm.toLowerCase().trim();
+    const results = [];
+
+    // Search in products
+    products.forEach(product => {
+      const nameMatch = product.name?.toLowerCase().includes(term);
+      const descMatch = product.description?.toLowerCase().includes(term);
+      const categoryMatch = product.category?.toLowerCase().includes(term);
+      const materialMatch = product.material?.toLowerCase().includes(term);
+
+      if (nameMatch || descMatch || categoryMatch || materialMatch) {
+        results.push({
+          id: product.id,
+          name: product.name,
+          type: 'product',
+          category: product.category,
+          price: product.price,
+          image: product.image
+        });
+      }
+    });
+
+    // Search in pujas
+    pujas.forEach(puja => {
+      const nameMatch = puja.name?.toLowerCase().includes(term);
+      const descMatch = puja.description?.toLowerCase().includes(term);
+      const categoryMatch = puja.category?.toLowerCase().includes(term);
+      const benefitsMatch = puja.benefits?.toLowerCase().includes(term);
+
+      if (nameMatch || descMatch || categoryMatch || benefitsMatch) {
+        results.push({
+          id: puja.id,
+          name: puja.name,
+          type: 'puja',
+          category: puja.category,
+          price: puja.price,
+          image: puja.image
+        });
+      }
+    });
+
+    // Sort by relevance (exact matches first, then partial matches)
+    results.sort((a, b) => {
+      const aExact = a.name.toLowerCase() === term;
+      const bExact = b.name.toLowerCase() === term;
+      if (aExact && !bExact) return -1;
+      if (!aExact && bExact) return 1;
+      return a.name.localeCompare(b.name);
+    });
+
+    // Limit to 6 suggestions
+    setSuggestions(results.slice(0, 6));
+    setShowSuggestions(true);
+  }, [searchTerm, products, pujas]);
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -69,6 +155,11 @@ const Header = () => {
 
       if (languageRef.current && !languageRef.current.contains(event.target)) {
         setIsLanguageDropdownOpen(false);
+      }
+
+      // Close suggestions when clicking outside
+      if (!event.target.closest('.search-container')) {
+        setShowSuggestions(false);
       }
     };
 
@@ -97,9 +188,22 @@ const Header = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    navigate(`/shop?search=${searchTerm}`);
+    if (!searchTerm.trim()) return;
+    
+    navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
     setSearchTerm('');
+    setShowSuggestions(false);
     setIsSearchVisible(false);
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    if (suggestion.type === 'product') {
+      navigate(`/product/${suggestion.id}`);
+    } else if (suggestion.type === 'puja') {
+      navigate(`/puja-booking/${suggestion.id}`);
+    }
+    setSearchTerm('');
+    setShowSuggestions(false);
   };
 
   const handleProfileClick = () => {
@@ -230,18 +334,64 @@ const Header = () => {
 
             {/* Search Bar and Location/Language */}
             <div className="hidden lg:flex items-center space-x-4 flex-1 max-w-2xl mx-4">
-              <form onSubmit={handleSearch} className="relative flex-1">
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search for products, pujas..."
-                  className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#317bea] focus:border-[#317bea]"
-                />
-                <button type="submit" className="absolute right-0 top-0 mt-2 mr-3 text-gray-400">
-                  <FontAwesomeIcon icon={faSearch} />
-                </button>
-              </form>
+              <div className="relative flex-1 search-container">
+                <form onSubmit={handleSearch}>
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search for products, pujas..."
+                    className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#317bea] focus:border-[#317bea]"
+                  />
+                  <button type="submit" className="absolute right-0 top-0 mt-2 mr-3 text-gray-400">
+                    <FontAwesomeIcon icon={faSearch} />
+                  </button>
+                </form>
+
+                {/* Search Suggestions Dropdown */}
+                {showSuggestions && suggestions.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-80 overflow-y-auto">
+                    {suggestions.map((suggestion, index) => (
+                      <button
+                        key={`${suggestion.type}-${suggestion.id}-${index}`}
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        className="w-full flex items-center p-3 hover:bg-orange-50 border-b border-gray-100 last:border-b-0 transition-colors text-left"
+                      >
+                        <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center mr-3">
+                          {suggestion.image ? (
+                            <img 
+                              src={suggestion.image} 
+                              alt={suggestion.name}
+                              className="w-full h-full object-cover rounded-lg"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gray-300 rounded-lg flex items-center justify-center">
+                              <span className="text-gray-500 text-xs">
+                                {suggestion.type === 'puja' ? 'P' : 'S'}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center">
+                            <h3 className="font-medium text-gray-900 text-sm">{suggestion.name}</h3>
+                            <span className={`ml-2 px-2 py-1 text-xs rounded-full ${
+                              suggestion.type === 'puja' 
+                                ? 'bg-orange-100 text-orange-800' 
+                                : 'bg-blue-100 text-blue-800'
+                            }`}>
+                              {suggestion.type === 'puja' ? 'Puja' : 'Product'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500 capitalize">
+                            {suggestion.category} • ₹{suggestion.price?.toLocaleString()}
+                          </p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               {/* Language Selector */}
               <div className="relative" ref={languageRef}>
@@ -417,19 +567,65 @@ const Header = () => {
 
           {/* Mobile Search Bar */}
           {isSearchVisible && (
-            <div className="lg:hidden mt-4">
-              <form onSubmit={handleSearch} className="relative">
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search for products, pujas..."
-                  className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#317bea] focus:border-[#317bea]"
-                />
-                <button type="submit" className="absolute right-0 top-0 mt-2 mr-3 text-gray-400">
-                  <FontAwesomeIcon icon={faSearch} />
-                </button>
-              </form>
+            <div className="lg:hidden mt-4 search-container">
+              <div className="relative">
+                <form onSubmit={handleSearch}>
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search for products, pujas..."
+                    className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#317bea] focus:border-[#317bea]"
+                  />
+                  <button type="submit" className="absolute right-0 top-0 mt-2 mr-3 text-gray-400">
+                    <FontAwesomeIcon icon={faSearch} />
+                  </button>
+                </form>
+
+                {/* Mobile Search Suggestions */}
+                {showSuggestions && suggestions.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-80 overflow-y-auto">
+                    {suggestions.map((suggestion, index) => (
+                      <button
+                        key={`${suggestion.type}-${suggestion.id}-${index}`}
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        className="w-full flex items-center p-3 hover:bg-orange-50 border-b border-gray-100 last:border-b-0 transition-colors text-left"
+                      >
+                        <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center mr-3">
+                          {suggestion.image ? (
+                            <img 
+                              src={suggestion.image} 
+                              alt={suggestion.name}
+                              className="w-full h-full object-cover rounded-lg"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gray-300 rounded-lg flex items-center justify-center">
+                              <span className="text-gray-500 text-xs">
+                                {suggestion.type === 'puja' ? 'P' : 'S'}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center">
+                            <h3 className="font-medium text-gray-900 text-sm">{suggestion.name}</h3>
+                            <span className={`ml-2 px-2 py-1 text-xs rounded-full ${
+                              suggestion.type === 'puja' 
+                                ? 'bg-orange-100 text-orange-800' 
+                                : 'bg-blue-100 text-blue-800'
+                            }`}>
+                              {suggestion.type === 'puja' ? 'Puja' : 'Product'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500 capitalize">
+                            {suggestion.category} • ₹{suggestion.price?.toLocaleString()}
+                          </p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

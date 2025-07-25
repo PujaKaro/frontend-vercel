@@ -30,6 +30,7 @@ import AdminDashboard from '../pages/AdminDashboard';
 import DailyHoroscope from '../pages/DailyHoroscope';
 import BirthChartAstrology from '../pages/BirthChartAstrology';
 import HoroscopeAdmin from '../pages/HoroscopeAdmin';
+import SearchResults from '../pages/SearchResults';
   
 // Import authentication pages
 import SignIn from '../pages/SignIn';
@@ -73,6 +74,7 @@ const AppRouter = () => {
       <Route path="/apply/marketing-specialist" element={<MarketingSpecialistApplication />} />
       <Route path="/daily-horoscope" element={<DailyHoroscope />} />
       <Route path="/birth-chart" element={<BirthChartAstrology />} />
+      <Route path="/search" element={<SearchResults />} />
       <Route 
         path="/admin" 
         element={

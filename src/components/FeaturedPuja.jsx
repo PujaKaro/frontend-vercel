@@ -13,7 +13,8 @@ const FeaturedPuja = () => {
     price: "₹5,100",
     nextAvailable: "Tomorrow",
     duration: "2 hours",
-    image: "/images/featuredPuja.jpg"
+    image: "/images/featuredPuja.jpg",
+    link: "/puja-booking" // Default fallback link
   });
   const [loading, setLoading] = useState(true);
 
@@ -23,7 +24,11 @@ const FeaturedPuja = () => {
         setLoading(true);
         const featuredPujaDoc = await getDoc(doc(db, 'siteContent', 'featuredPuja'));
         if (featuredPujaDoc.exists()) {
-          setFeaturedPujaContent(featuredPujaDoc.data());
+          const data = featuredPujaDoc.data();
+          setFeaturedPujaContent({
+            ...data,
+            link: data.link || "/puja-booking" // Use database link or fallback to default
+          });
         }
       } catch (error) {
         console.error('Error fetching featured puja content:', error);
@@ -100,7 +105,7 @@ const FeaturedPuja = () => {
               
               <div className="flex flex-col sm:flex-row items-center gap-4">
                 <Link 
-                  to="/puja-booking" 
+                  to={featuredPujaContent.link} 
                   className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[#fb9548] to-[#fb7a48] text-white font-bold rounded-full hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
                 >
                   Book Now at {featuredPujaContent.price}
