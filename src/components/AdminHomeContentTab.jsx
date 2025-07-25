@@ -96,7 +96,8 @@ const AdminHomeContentTab = () => {
     price: "₹5,100",
     nextAvailable: "Tomorrow",
     duration: "2 hours",
-    image: "/images/featuredPuja.jpg"
+    image: "/images/featuredPuja.jpg",
+    link: "/puja-booking"
   });
 
   // Testimonial section content
@@ -1102,6 +1103,23 @@ const AdminHomeContentTab = () => {
               onChange={handleFeaturedPujaChange}
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Book Now Link
+            </label>
+            <input
+              type="text"
+              name="link"
+              value={featuredPujaContent.link}
+              onChange={handleFeaturedPujaChange}
+              placeholder="/puja-booking or /puja-booking/12"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Enter the URL where the "Book Now" button should redirect (e.g., /puja-booking or /puja-booking/12)
+            </p>
           </div>
         </div>
         
