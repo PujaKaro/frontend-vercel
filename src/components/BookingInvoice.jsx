@@ -721,13 +721,13 @@ const BookingInvoice = ({ booking, onClose, onDownload, onPrint, onEmail }) => {
             <FontAwesomeIcon icon={faDownload} className="mr-2" />
             Download PDF
           </button>
-          <button
+          {/* <button
             onClick={onEmail}
             className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             <FontAwesomeIcon icon={faEnvelope} className="mr-2" />
             Email Invoice
-          </button>
+          </button> */}
           <button
             onClick={onClose}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 primary"

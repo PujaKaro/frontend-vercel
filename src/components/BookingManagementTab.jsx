@@ -132,6 +132,14 @@ const BookingManagementTab = () => {
         updateData.paymentReceivedAt = serverTimestamp();
         updateData.paymentStatus = 'received';
       }
+      
+      // If marking as completed, ensure payment status is set to received
+      if (newStatus === 'completed') {
+        updateData.paymentStatus = 'received';
+        if (!bookingData.paymentReceivedAt) {
+          updateData.paymentReceivedAt = serverTimestamp();
+        }
+      }
 
       // Update booking status
       await updateDoc(bookingRef, updateData);
@@ -157,6 +165,10 @@ const BookingManagementTab = () => {
                 ...(newStatus === 'payment_received' && {
                   paymentReceivedAt: new Date(),
                   paymentStatus: 'received'
+                }),
+                ...(newStatus === 'completed' && {
+                  paymentStatus: 'received',
+                  paymentReceivedAt: booking.paymentReceivedAt || new Date()
                 })
               }
             : booking
@@ -172,6 +184,10 @@ const BookingManagementTab = () => {
           ...(newStatus === 'payment_received' && {
             paymentReceivedAt: new Date(),
             paymentStatus: 'received'
+          }),
+          ...(newStatus === 'completed' && {
+            paymentStatus: 'received',
+            paymentReceivedAt: prev.paymentReceivedAt || new Date()
           })
         }));
       }
@@ -180,7 +196,7 @@ const BookingManagementTab = () => {
       if (newStatus === 'payment_received') {
         toast.success('Payment marked as received. Invoice can now be generated.');
       } else if (newStatus === 'completed') {
-        toast.success(`Booking marked as completed. You can now request a review from the customer.`);
+        toast.success(`Booking marked as completed. Customer can now download invoice and you can request a review.`);
       } else {
         toast.success(`Booking ${newStatus}`);
       }
