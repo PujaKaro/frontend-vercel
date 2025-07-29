@@ -7,7 +7,7 @@ import {
   faSignOut, faCalendar, faClock, faRupeeSign,
   faBell, faHeart, faTicket, faGift, faCog,
   faStar, faQuestionCircle, faShare, faCheckCircle, faCreditCard,
-  faEye, faCopy, faTimes, faLock, faCommentDots
+  faEye, faCopy, faTimes, faLock, faCommentDots, faDownload, faFileInvoice
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
@@ -16,6 +16,7 @@ import SEO from '../components/SEO';
 import { getUserBookings, getUserOrders, getUserReferralCode, createReferralCode, getUserCoupons } from '../utils/firestoreUtils';
 import toast from 'react-hot-toast';
 import BookingReviewForm from '../components/BookingReviewForm';
+import BookingInvoice from '../components/BookingInvoice';
 
 const Profile = () => {
   const { currentUser, logout } = useAuth();
@@ -34,6 +35,8 @@ const Profile = () => {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [selectedBookingForReview, setSelectedBookingForReview] = useState(null);
+  const [showInvoice, setShowInvoice] = useState(false);
+  const [selectedBookingForInvoice, setSelectedBookingForInvoice] = useState(null);
   const [referralStats, setReferralStats] = useState({
     totalUsed: 0,
     totalDiscountGiven: 0,
@@ -295,6 +298,453 @@ const Profile = () => {
     setSelectedBooking(null);
     
     toast.success("Thank you for your review! It will be reviewed by our team.");
+  };
+
+  const handleDownloadInvoice = (booking) => {
+    setSelectedBookingForInvoice(booking);
+    setShowInvoice(true);
+  };
+
+  const handleInvoiceActions = {
+    onClose: () => setShowInvoice(false),
+    onDownload: () => {
+      // Create a new window for printing/downloading
+      const printWindow = window.open('', '_blank');
+      
+      // Create clean print content without problematic icons
+      const printContent = `
+        <div class="invoice-container">
+          <!-- Header -->
+          <div class="header">
+            <div class="header-content">
+              <div class="company-info">
+                <div>
+                  <h1>Pujakaro</h1>
+                  <p>Sacred Services & Spiritual Solutions</p>
+                </div>
+                <div class="mt-4">
+                  <p>G-275, Molarband Extn.</p>
+                  <p>Delhi - 110044</p>
+                  <p>Phone: +91 7982545360</p>
+                  <p>Email: info@pujakaro.in</p>
+                </div>
+              </div>
+              <div class="invoice-info">
+                <h2>INVOICE</h2>
+                <div>
+                  <p><strong>Invoice #:</strong> INV-${selectedBookingForInvoice.id.slice(-8).toUpperCase()}</p>
+                  <p><strong>Date:</strong> ${new Date().toLocaleDateString('en-IN')}</p>
+                  <p><strong>Due Date:</strong> ${new Date().toLocaleDateString('en-IN')}</p>
+                  <p><strong>Status:</strong> ${selectedBookingForInvoice.paymentStatus === 'received' ? 'Paid' : 'Pending'}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bill To Section -->
+          <div class="bill-to">
+            <div class="bill-to-grid">
+              <div class="section">
+                <h3>Bill To:</h3>
+                <div>
+                  <p class="customer-name">${selectedBookingForInvoice.userName}</p>
+                  <p>Email: ${selectedBookingForInvoice.userEmail}</p>
+                  <p>Phone: ${selectedBookingForInvoice.phone}</p>
+                  <p>Address: ${selectedBookingForInvoice.address}, ${selectedBookingForInvoice.city}</p>
+                  <p>${selectedBookingForInvoice.state} - ${selectedBookingForInvoice.pincode}</p>
+                </div>
+              </div>
+              <div class="section">
+                <h3>Service Details:</h3>
+                <div>
+                  <p><strong>Puja Name:</strong> ${selectedBookingForInvoice.pujaName}</p>
+                  <p><strong>Puja ID:</strong> ${selectedBookingForInvoice.pujaId}</p>
+                  <p><strong>Date:</strong> ${selectedBookingForInvoice.date instanceof Date ? selectedBookingForInvoice.date.toLocaleDateString() : selectedBookingForInvoice.date}</p>
+                  <p><strong>Time:</strong> ${selectedBookingForInvoice.time}</p>
+                  <p><strong>Booking ID:</strong> ${selectedBookingForInvoice.id}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Items Table -->
+          <div class="items-section">
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div>
+                      <p class="service-name">${selectedBookingForInvoice.pujaName}</p>
+                      <p class="service-desc">Puja service on ${selectedBookingForInvoice.date instanceof Date ? selectedBookingForInvoice.date.toLocaleDateString() : selectedBookingForInvoice.date} at ${selectedBookingForInvoice.time}</p>
+                      ${selectedBookingForInvoice.specialInstructions ? `<p class="special-instructions"><strong>Special Instructions:</strong> ${selectedBookingForInvoice.specialInstructions}</p>` : ''}
+                    </div>
+                  </td>
+                  <td class="amount">Rs. ${(selectedBookingForInvoice.price || 0).toLocaleString()}</td>
+                </tr>
+                ${selectedBookingForInvoice.discountApplied > 0 ? `
+                  <tr class="discount-row">
+                    <td>
+                      <div>
+                        <span class="discount-label">${selectedBookingForInvoice.discountType === 'coupon' ? 'Coupon Discount' : 'Discount'}</span>
+                        ${selectedBookingForInvoice.referralCode ? `<span class="discount-code">(${selectedBookingForInvoice.referralCode})</span>` : ''}
+                      </div>
+                    </td>
+                    <td class="discount-amount">-Rs. ${((selectedBookingForInvoice.price || 0) * selectedBookingForInvoice.discountApplied / 100).toLocaleString()}</td>
+                  </tr>
+                ` : ''}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Totals -->
+          <div class="totals">
+            <div class="totals-content">
+              <div class="totals-table">
+                <div class="row">
+                  <span>Subtotal:</span>
+                  <span>Rs. ${(selectedBookingForInvoice.price || 0).toLocaleString()}</span>
+                </div>
+                ${selectedBookingForInvoice.discountApplied > 0 ? `
+                  <div class="row">
+                    <span>Discount:</span>
+                    <span class="discount-text">-Rs. ${((selectedBookingForInvoice.price || 0) * selectedBookingForInvoice.discountApplied / 100).toLocaleString()}</span>
+                  </div>
+                ` : ''}
+                <div class="total-row">
+                  <span>Total:</span>
+                  <span class="total-amount">Rs. ${((selectedBookingForInvoice.price || 0) - ((selectedBookingForInvoice.price || 0) * (selectedBookingForInvoice.discountApplied || 0) / 100)).toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Information -->
+          <div class="payment-info">
+            <h3>Payment Information</h3>
+            <div class="payment-grid">
+              <div>
+                <p><strong>Payment Method:</strong> Online Payment / UPI</p>
+              </div>
+              <div>
+                <p><strong>Payment Status:</strong> ${selectedBookingForInvoice.paymentStatus === 'received' ? 'Paid' : 'Pending'}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Terms and Notes -->
+          <div class="terms">
+            <div class="terms-grid">
+              <div>
+                <h4>Terms & Conditions:</h4>
+                <ul>
+                  <li>Payment is due upon receipt of this invoice</li>
+                  <li>Service will be provided as per scheduled date and time</li>
+                  <li>Cancellation policy applies as per terms</li>
+                  <li>For any queries, contact us at info@pujakaro.in</li>
+                </ul>
+              </div>
+              <div>
+                <h4>Notes:</h4>
+                <p>Thank you for choosing Pujakaro for your spiritual needs.</p>
+                <p>We appreciate your trust in our services.</p>
+                ${selectedBookingForInvoice.additionalInfo ? `
+                  <div class="additional-info">
+                    <p class="label"><strong>Additional Information:</strong></p>
+                    <p class="content">${selectedBookingForInvoice.additionalInfo}</p>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="footer">
+            <p>© 2024 Pujakaro. All rights reserved. | Sacred Services & Spiritual Solutions</p>
+          </div>
+        </div>
+      `;
+      
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Invoice - ${selectedBookingForInvoice.pujaName}</title>
+          <style>
+            body { 
+              font-family: Arial, sans-serif; 
+              margin: 0; 
+              padding: 20px; 
+              background: #f9fafb; 
+              color: #111827; 
+            }
+            .invoice-container { 
+              max-width: 800px; 
+              margin: 0 auto; 
+              background: white; 
+              padding: 40px; 
+              border-radius: 8px; 
+              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
+            }
+            .header { 
+              border-bottom: 2px solid #f59e0b; 
+              padding-bottom: 20px; 
+              margin-bottom: 30px; 
+            }
+            .header-content { 
+              display: flex; 
+              justify-content: space-between; 
+              align-items: flex-start; 
+            }
+            .company-info h1 { 
+              margin: 0 0 5px 0; 
+              color: #f59e0b; 
+              font-size: 32px; 
+              font-weight: bold; 
+            }
+            .company-info p { 
+              margin: 3px 0; 
+              color: #6b7280; 
+              font-size: 14px; 
+            }
+            .invoice-info { 
+              text-align: right; 
+            }
+            .invoice-info h2 { 
+              margin: 0 0 10px 0; 
+              color: #111827; 
+              font-size: 28px; 
+            }
+            .invoice-info p { 
+              margin: 3px 0; 
+              color: #6b7280; 
+              font-size: 14px; 
+            }
+            .bill-to { 
+              padding: 20px 0; 
+              border-bottom: 1px solid #e5e7eb; 
+            }
+            .bill-to-grid { 
+              display: grid; 
+              grid-template-columns: 1fr 1fr; 
+              gap: 30px; 
+            }
+            .section h3 { 
+              margin: 0 0 15px 0; 
+              color: #111827; 
+              font-size: 18px; 
+            }
+            .section p { 
+              margin: 5px 0; 
+              color: #374151; 
+              font-size: 14px; 
+            }
+            .customer-name {
+              font-size: 16px;
+              font-weight: 600;
+              color: #111827;
+            }
+            .items-section {
+              padding: 20px 0;
+            }
+            .items-table { 
+              width: 100%; 
+              border-collapse: collapse;
+            }
+            .items-table th { 
+              text-align: left; 
+              padding: 12px; 
+              border-bottom: 1px solid #e5e7eb; 
+              color: #111827; 
+              font-weight: 600; 
+              font-size: 14px;
+            }
+            .items-table td { 
+              padding: 12px; 
+              border-bottom: 1px solid #f3f4f6; 
+              vertical-align: top;
+            }
+            .service-name {
+              font-weight: 600;
+              color: #111827;
+              margin-bottom: 5px;
+            }
+            .service-desc {
+              color: #6b7280;
+              font-size: 13px;
+              margin-bottom: 5px;
+            }
+            .special-instructions {
+              color: #059669;
+              font-size: 12px;
+              margin-top: 5px;
+            }
+            .amount {
+              font-weight: 600;
+              color: #111827;
+              text-align: right;
+            }
+            .discount-row {
+              background-color: #fef3c7;
+            }
+            .discount-label {
+              color: #d97706;
+              font-weight: 500;
+            }
+            .discount-code {
+              color: #92400e;
+              font-size: 12px;
+              margin-left: 5px;
+            }
+            .discount-amount {
+              color: #dc2626;
+              font-weight: 600;
+              text-align: right;
+            }
+            .totals {
+              padding: 20px 0;
+              border-top: 1px solid #e5e7eb;
+            }
+            .totals-content {
+              display: flex;
+              justify-content: flex-end;
+            }
+            .totals-table {
+              width: 300px;
+            }
+            .row {
+              display: flex;
+              justify-content: space-between;
+              padding: 8px 0;
+              color: #374151;
+            }
+            .discount-text {
+              color: #dc2626;
+            }
+            .total-row {
+              display: flex;
+              justify-content: space-between;
+              padding: 12px 0;
+              border-top: 2px solid #e5e7eb;
+              font-weight: 600;
+              font-size: 16px;
+              color: #111827;
+            }
+            .total-amount {
+              color: #f59e0b;
+            }
+            .payment-info {
+              padding: 20px 0;
+              border-top: 1px solid #e5e7eb;
+            }
+            .payment-info h3 {
+              margin: 0 0 15px 0;
+              color: #111827;
+              font-size: 18px;
+            }
+            .payment-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 20px;
+            }
+            .payment-grid p {
+              margin: 5px 0;
+              color: #374151;
+              font-size: 14px;
+            }
+            .terms {
+              padding: 20px 0;
+              border-top: 1px solid #e5e7eb;
+            }
+            .terms-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 30px;
+            }
+            .terms h4 {
+              margin: 0 0 10px 0;
+              color: #111827;
+              font-size: 16px;
+            }
+            .terms ul {
+              margin: 0;
+              padding-left: 20px;
+              color: #374151;
+              font-size: 13px;
+            }
+            .terms li {
+              margin-bottom: 5px;
+            }
+            .terms p {
+              margin: 5px 0;
+              color: #374151;
+              font-size: 13px;
+            }
+            .additional-info {
+              margin-top: 10px;
+              padding: 10px;
+              background-color: #f3f4f6;
+              border-radius: 4px;
+            }
+            .additional-info .label {
+              font-weight: 600;
+              color: #111827;
+              margin-bottom: 5px;
+            }
+            .additional-info .content {
+              color: #374151;
+              font-size: 12px;
+            }
+            .footer {
+              text-align: center;
+              padding: 20px 0;
+              border-top: 1px solid #e5e7eb;
+              color: #6b7280;
+              font-size: 12px;
+            }
+            @media print {
+              body { 
+                background: white; 
+                padding: 0; 
+              }
+              .invoice-container { 
+                box-shadow: none; 
+                border-radius: 0; 
+                padding: 20px; 
+              }
+            }
+          </style>
+        </head>
+        <body>
+          ${printContent}
+        </body>
+        </html>
+      `);
+      
+      printWindow.document.close();
+      printWindow.focus();
+      
+      // Auto print after a short delay
+      setTimeout(() => {
+        printWindow.print();
+      }, 500);
+      
+      setShowInvoice(false);
+      toast.success('Invoice downloaded successfully!');
+    },
+    onPrint: () => {
+      // Same as download for now
+      handleInvoiceActions.onDownload();
+    },
+    onEmail: () => {
+      // Email functionality can be added later
+      toast.info('Email functionality coming soon!');
+    }
   };
 
   if (loading) {
@@ -650,6 +1100,16 @@ const Profile = () => {
                                   <FontAwesomeIcon icon={faCheckCircle} className="mr-1" />
                                   Review Submitted
                                 </span>
+                              )}
+                              
+                              {booking.status === 'completed' && (
+                                <button
+                                  onClick={() => handleDownloadInvoice(booking)}
+                                  className="text-blue-600 hover:text-blue-700 flex items-center justify-end"
+                                >
+                                  <FontAwesomeIcon icon={faFileInvoice} className="mr-1" />
+                                  Download Invoice
+                                </button>
                               )}
                             </div>
                           </div>
@@ -1175,6 +1635,21 @@ const Profile = () => {
                   <BookingReviewForm
                     booking={selectedBookingForReview}
                     onReviewSubmitted={handleReviewSubmitted}
+                  />
+                </div>
+              </div>
+            )}
+            
+            {/* Invoice Modal */}
+            {showInvoice && selectedBookingForInvoice && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                  <BookingInvoice
+                    booking={selectedBookingForInvoice}
+                    onClose={handleInvoiceActions.onClose}
+                    onDownload={handleInvoiceActions.onDownload}
+                    onPrint={handleInvoiceActions.onPrint}
+                    onEmail={handleInvoiceActions.onEmail}
                   />
                 </div>
               </div>
