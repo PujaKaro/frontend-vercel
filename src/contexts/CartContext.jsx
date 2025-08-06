@@ -12,12 +12,30 @@ export const useCart = () => {
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState(() => {
-    const savedCart = localStorage.getItem('cart');
-    return savedCart ? JSON.parse(savedCart) : [];
+    try {
+      const savedCart = localStorage.getItem('cart');
+      return savedCart ? JSON.parse(savedCart) : [];
+    } catch (error) {
+      console.error('Error parsing cart data from localStorage:', error);
+      // Clear corrupted cart data
+      localStorage.removeItem('cart');
+      return [];
+    }
   });
 
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cartItems));
+    try {
+      localStorage.setItem('cart', JSON.stringify(cartItems));
+    } catch (error) {
+      console.error('Error saving cart data to localStorage:', error);
+      // If localStorage is full or unavailable, try to clear some space
+      try {
+        localStorage.clear();
+        localStorage.setItem('cart', JSON.stringify(cartItems));
+      } catch (clearError) {
+        console.error('Failed to clear localStorage:', clearError);
+      }
+    }
   }, [cartItems]);
 
   const addToCart = (item) => {

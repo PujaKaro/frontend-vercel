@@ -151,7 +151,7 @@ const Cart = () => {
                     
                     <div className="border-t border-gray-200 pt-4 flex justify-between">
                       <p className="text-lg font-bold text-gray-900">Total</p>
-                      <p className="text-lg font-bold text-blue-600">₹{cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0).toLocaleString()}</p>
+                      <p className="text-lg font-bold text-blue-600">₹{(cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) + cartItems.reduce((sum, item) => sum + (item.price * item.quantity * 0.18), 0) + 99).toLocaleString()}</p>
                     </div>
                   </div>
                   
