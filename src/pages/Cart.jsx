@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinus, faPlus, faTrash, faArrowLeft, faShoppingBag } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
+import { calculateOrderSummary } from '../utils/cartUtils';
 
 const Cart = () => {
   const { currentUser } = useAuth();
@@ -22,20 +23,17 @@ const Cart = () => {
       return;
     }
 
-    // Calculate total amount
-    const totalAmount = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const tax = totalAmount * 0.18;
-    const shippingCost = 99;
-    const finalAmount = totalAmount + tax + shippingCost;
+    // Calculate order summary using utility function
+    const orderSummary = calculateOrderSummary(cartItems);
 
     // Navigate to payment page with order details
     navigate('/payment', {
       state: {
         orderDetails: {
-          subtotal: totalAmount,
-          tax: tax,
-          shippingCost: shippingCost,
-          total: finalAmount,
+          subtotal: orderSummary.subtotal,
+          tax: orderSummary.tax,
+          shippingCost: orderSummary.deliveryCharges,
+          total: orderSummary.total,
           items: cartItems
         }
       }
@@ -134,25 +132,40 @@ const Cart = () => {
                   <h2 className="text-lg font-semibold text-gray-900 mb-4">Order Summary</h2>
                   
                   <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <p className="text-gray-600">Subtotal</p>
-                      <p className="font-medium">₹{cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0).toLocaleString()}</p>
-                    </div>
-                    
-                    <div className="flex justify-between">
-                      <p className="text-gray-600">Tax (18% GST)</p>
-                      <p className="font-medium">₹{cartItems.reduce((sum, item) => sum + (item.price * item.quantity * 0.18), 0).toLocaleString()}</p>
-                    </div>
-                    
-                    <div className="flex justify-between">
-                      <p className="text-gray-600">Delivery Charges</p>
-                      <p className="font-medium">₹99</p>
-                    </div>
-                    
-                    <div className="border-t border-gray-200 pt-4 flex justify-between">
-                      <p className="text-lg font-bold text-gray-900">Total</p>
-                      <p className="text-lg font-bold text-blue-600">₹{(cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) + cartItems.reduce((sum, item) => sum + (item.price * item.quantity * 0.18), 0) + 99).toLocaleString()}</p>
-                    </div>
+                    {(() => {
+                      const orderSummary = calculateOrderSummary(cartItems);
+                      return (
+                        <>
+                          <div className="flex justify-between">
+                            <p className="text-gray-600">Subtotal</p>
+                            <p className="font-medium">₹{orderSummary.subtotal.toLocaleString()}</p>
+                          </div>
+                          
+                                                     {/* GST commented out
+                           <div className="flex justify-between">
+                             <p className="text-gray-600">Tax (18% GST)</p>
+                             <p className="font-medium">₹{orderSummary.tax.toLocaleString()}</p>
+                           </div>
+                           */}
+                          
+                          <div className="flex justify-between">
+                            <p className="text-gray-600">Delivery Charges</p>
+                            <p className="font-medium">
+                              {orderSummary.deliveryCharges > 0 ? (
+                                `₹${orderSummary.deliveryCharges.toLocaleString()}`
+                              ) : (
+                                <span className="text-green-600">Free</span>
+                              )}
+                            </p>
+                          </div>
+                          
+                          <div className="border-t border-gray-200 pt-4 flex justify-between">
+                            <p className="text-lg font-bold text-gray-900">Total</p>
+                            <p className="text-lg font-bold text-blue-600">₹{orderSummary.total.toLocaleString()}</p>
+                          </div>
+                        </>
+                      );
+                    })()}
                   </div>
                   
                   <button
