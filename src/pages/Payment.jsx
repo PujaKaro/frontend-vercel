@@ -13,6 +13,7 @@ import { db } from '../config/firebase';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SEO from '../components/SEO';
+import { calculateOrderSummary } from '../utils/cartUtils';
 
 const Payment = () => {
   const navigate = useNavigate();
@@ -54,17 +55,14 @@ const Payment = () => {
     if (details) {
       setOrderDetails(details);
     } else {
-      // Calculate order details
-      const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      const tax = subtotal * 0.18;
-      const shippingCost = 99;
-      const total = subtotal + tax + shippingCost;
+      // Calculate order details using utility function
+      const orderSummary = calculateOrderSummary(cartItems);
       
       setOrderDetails({
-        subtotal,
-        tax,
-        shippingCost,
-        total,
+        subtotal: orderSummary.subtotal,
+        tax: orderSummary.tax,
+        shippingCost: orderSummary.deliveryCharges,
+        total: orderSummary.total,
         items: cartItems
       });
     }
@@ -579,14 +577,22 @@ const Payment = () => {
                     <p className="font-medium">₹{orderDetails.subtotal.toLocaleString()}</p>
                   </div>
                   
+                  {/* GST commented out
                   <div className="flex justify-between">
                     <p className="text-gray-600">Tax (18% GST)</p>
                     <p className="font-medium">₹{orderDetails.tax.toLocaleString()}</p>
                   </div>
+                  */}
                   
                   <div className="flex justify-between">
                     <p className="text-gray-600">Delivery Charges</p>
-                    <p className="font-medium">₹{orderDetails.shippingCost.toLocaleString()}</p>
+                    <p className="font-medium">
+                      {orderDetails.shippingCost > 0 ? (
+                        `₹${orderDetails.shippingCost.toLocaleString()}`
+                      ) : (
+                        <span className="text-green-600">Free</span>
+                      )}
+                    </p>
                   </div>
                   
                   <div className="border-t border-gray-200 pt-4 flex justify-between">
