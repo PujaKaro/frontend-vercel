@@ -19,7 +19,7 @@ const AdminCodesTabs = ({
   handleUserSelection, 
   allUsers, 
   isCreatingCoupon, 
-  handleToggleCouponStatus 
+  handleToggleCouponStatus
 }) => {
   return (
     <div>
@@ -229,7 +229,9 @@ const AdminCodesTabs = ({
           </div>
           
           <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
-            <h2 className="text-xl font-semibold mb-4">Create Coupon Code</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Create Coupon Code</h2>
+            </div>
             <form onSubmit={handleCreateCouponCode} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Coupon Code</label>
@@ -267,6 +269,48 @@ const AdminCodesTabs = ({
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                   required
                 />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Usage Limit</label>
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center">
+                    <input
+                      type="radio"
+                      id="limitedUsage"
+                      name="usageLimit"
+                      checked={newCouponCode.usageLimit === 'limited'}
+                      onChange={() => setNewCouponCode(prev => ({ 
+                        ...prev, 
+                        usageLimit: 'limited' 
+                      }))}
+                      className="h-4 w-4 text-orange-600 rounded"
+                    />
+                    <label htmlFor="limitedUsage" className="ml-2 block text-sm text-gray-700">
+                      One-time use per user (default)
+                    </label>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <input
+                      type="radio"
+                      id="unlimitedUsage"
+                      name="usageLimit"
+                      checked={newCouponCode.usageLimit === 'unlimited'}
+                      onChange={() => setNewCouponCode(prev => ({ 
+                        ...prev, 
+                        usageLimit: 'unlimited' 
+                      }))}
+                      className="h-4 w-4 text-orange-600 rounded"
+                    />
+                    <label htmlFor="unlimitedUsage" className="ml-2 block text-sm text-gray-700">
+                      Unlimited usage (can be used multiple times)
+                    </label>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-500 mt-1">
+                  Choose whether users can use this coupon once or multiple times
+                </p>
               </div>
               
               <div className="flex items-center space-x-4">
@@ -361,6 +405,9 @@ const AdminCodesTabs = ({
                       Target
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Usage Limit
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Total Uses
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -404,6 +451,9 @@ const AdminCodesTabs = ({
                             </span>
                           )}
                         </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {coupon.usageLimit === 'unlimited' ? 'Unlimited' : 'One-time per user'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {coupon.totalUsed || 0}

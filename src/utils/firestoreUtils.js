@@ -429,6 +429,7 @@ import {
       const couponsRef = collection(db, 'coupons');
       const newCoupon = {
         ...data,
+        usageLimit: data.usageLimit || 'limited', // Default to limited if not specified
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         totalUsed: 0,
@@ -852,7 +853,7 @@ import {
    * Validate a coupon code and mark it as used by the user if not already used.
    * @param {string} code - The coupon code.
    * @param {string} userIdOrEmail - The user's UID or email.
-   * @returns {Promise<{valid: boolean, discountPercentage?: number, message?: string}>}
+   * @returns {Promise<{valid: boolean, discountPercentage?: number, message?: string, isUnlimited?: boolean}>}
    */
   export const validateAndUseCoupon = async (code, userIdOrEmail) => {
     try {
@@ -867,20 +868,67 @@ import {
       const couponDoc = querySnapshot.docs[0];
       const couponData = couponDoc.data();
 
-      // Check if usedIds exists and if user has already used the coupon
-      if (couponData.usedIds && couponData.usedIds.includes(userIdOrEmail)) {
-        return { valid: false, message: 'You have already used this coupon code' };
+      // Check if coupon is assigned to specific users
+      if (couponData.assignedUsers && couponData.assignedUsers.length > 0) {
+        // Check if current user is in the assigned users list
+        if (!couponData.assignedUsers.includes(userIdOrEmail)) {
+          return { valid: false, message: 'This coupon code is not available for your account' };
+        }
       }
 
-      // Mark as used
-      await updateDoc(doc(db, 'coupons', couponDoc.id), {
-        usedIds: arrayUnion(userIdOrEmail)
-      });
+      // NEW LOGIC: Check usage limit
+      if (couponData.usageLimit !== 'unlimited') {
+        // Original logic for limited usage
+        if (couponData.usedIds && couponData.usedIds.includes(userIdOrEmail)) {
+          return { valid: false, message: 'You have already used this coupon code' };
+        }
+        
+        // Mark as used for limited coupons
+        await updateDoc(doc(db, 'coupons', couponDoc.id), {
+          usedIds: arrayUnion(userIdOrEmail)
+        });
+      }
+      // For unlimited coupons, don't add to usedIds (allows reuse)
 
-      return { valid: true, discountPercentage: couponData.discountPercentage };
+      return { 
+        valid: true, 
+        discountPercentage: couponData.discountPercentage,
+        isUnlimited: couponData.usageLimit === 'unlimited'
+      };
     } catch (error) {
       console.error('Error validating and using coupon:', error);
       return { valid: false, message: 'Error validating coupon' };
+    }
+  };
+
+  /**
+   * Migrate existing coupons to include usageLimit field
+   * This function should be run once to update existing coupons
+   */
+  export const migrateCouponsToIncludeUsageLimit = async () => {
+    try {
+      const couponsRef = collection(db, 'coupons');
+      const querySnapshot = await getDocs(couponsRef);
+      
+      const migrationPromises = querySnapshot.docs.map(async (doc) => {
+        const couponData = doc.data();
+        
+        // Only update if usageLimit field doesn't exist
+        if (!couponData.hasOwnProperty('usageLimit')) {
+          await updateDoc(doc.ref, {
+            usageLimit: 'limited', // Default existing coupons to limited usage
+            updatedAt: serverTimestamp()
+          });
+          console.log(`Migrated coupon ${couponData.code} to include usageLimit field`);
+        }
+      });
+      
+      await Promise.all(migrationPromises);
+      console.log('Coupon migration completed successfully');
+      return true;
+    } catch (error) {
+      console.error('Error migrating coupons:', error);
+      throw error;
     }
   };
 

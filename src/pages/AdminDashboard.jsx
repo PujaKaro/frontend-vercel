@@ -122,6 +122,7 @@ const AdminDashboard = () => {
     discountPercentage: '',
     description: '',
     isActive: true,
+    usageLimit: 'limited', // Default to limited usage
     selectAllUsers: true,
     assignedUsers: []
   });
@@ -797,6 +798,7 @@ const AdminDashboard = () => {
         code: newCouponCode.code,
         discountPercentage: parseInt(newCouponCode.discountPercentage),
         description: newCouponCode.description,
+        usageLimit: newCouponCode.usageLimit, // Include usage limit
         isActive: true
       };
       
@@ -828,6 +830,7 @@ const AdminDashboard = () => {
         discountPercentage: '',
         description: '',
         isActive: true,
+        usageLimit: 'limited', // Reset to default
         selectAllUsers: true,
         assignedUsers: []
       });
@@ -938,6 +941,8 @@ const AdminDashboard = () => {
       setLoading(false);
     }
   };
+
+
 
   const handleOpenPujaModal = (puja = null) => {
     if (puja) {
@@ -3683,7 +3688,7 @@ const AdminDashboard = () => {
               </div>
             )}
             {activeTab === 'codes' && (
-              <AdminCodesTabs 
+                            <AdminCodesTabs
                 activeCodesTab={activeCodesTab}
                 setActiveCodesTab={setActiveCodesTab}
                 stats={stats}
