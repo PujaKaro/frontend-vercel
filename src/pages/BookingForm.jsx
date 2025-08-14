@@ -367,22 +367,28 @@ const handleCodeValidation = async () => {
         }
 
         // Send email notification about the new booking
-        const emailParams = {
-          to_email: 'pujakaro.in@gmail.com',
-          from_name: formData.name,
-          from_email: formData.email,
-          from_phone: formData.phone,
-          subject: `New Booking: ${puja.name}`,
-          puja_name: puja.name,
-          puja_date: formData.date,
-          puja_time: formData.time,
-          puja_price: puja.price.toLocaleString(),
-          address: `${formData.address}, ${formData.city}, ${formData.state}, ${formData.pincode}`,
-          special_instructions: formData.specialInstructions || 'None',
-          reply_to: 'pujakaro.in@gmail.com'
-        };
+        try {
+          const emailParams = {
+            to_email: 'pujakaro.in@gmail.com',
+            from_name: formData.name,
+            from_email: formData.email,
+            from_phone: formData.phone,
+            subject: `New Booking: ${puja.name}`,
+            puja_name: puja.name,
+            puja_date: formData.date,
+            puja_time: formData.time,
+            puja_price: puja.price.toLocaleString(),
+            address: `${formData.address}, ${formData.city}, ${formData.state}, ${formData.pincode}`,
+            special_instructions: formData.specialInstructions || 'None',
+            reply_to: 'pujakaro.in@gmail.com'
+          };
 
-        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, emailParams);
+          await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, emailParams);
+        } catch (emailError) {
+          console.warn('Email notification failed:', emailError);
+          // Continue with booking creation even if email fails
+          // The booking is still successful, just the notification email failed
+        }
 
         // Navigate to booking confirmation page
         navigate('/booking-confirmation', {
@@ -713,6 +719,11 @@ const handleCodeValidation = async () => {
                 {validatedCodeData && (
                   <div className="mt-2 p-2 bg-green-50 text-green-700 text-sm rounded">
                     {validatedCodeData.isCoupon ? 'Coupon' : 'Referral'} code applied: {discountApplied}% discount
+                    {validatedCodeData.isUnlimited && (
+                      <div className="mt-1 text-xs text-green-600">
+                        ✨ Unlimited usage - you can use this coupon again!
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
