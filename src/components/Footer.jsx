@@ -26,7 +26,8 @@ const Footer = () => {
       { name: 'Cancellation And Refund', path: '/cancellation-and-refund' },
       { name: 'Terms of Service', path: '/terms-and-conditions' },
       { name: 'Privacy Policy', path: '/privacy-policy' },
-      { name: 'Shipping & Delivery', path: '/shipping-and-delivery' }
+      { name: 'Shipping & Delivery', path: '/shipping-and-delivery' },
+      { name: 'Delete Account', path: '/delete-account' }
     ]
   };
 

@@ -97,6 +97,18 @@ const PrivacyPolicy = () => {
               <li>Request deletion of your information</li>
               <li>Opt-out of marketing communications</li>
             </ul>
+            
+            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-blue-800 text-sm mb-3">
+                <strong>Want to delete your account?</strong> We've made it easy for you to request account deletion.
+              </p>
+              <a 
+                href="/delete-account" 
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors duration-200"
+              >
+                🗑️ Delete My Account
+              </a>
+            </div>
           </section>
 
           <section>

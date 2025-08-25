@@ -31,6 +31,7 @@ import DailyHoroscope from '../pages/DailyHoroscope';
 import BirthChartAstrology from '../pages/BirthChartAstrology';
 import HoroscopeAdmin from '../pages/HoroscopeAdmin';
 import SearchResults from '../pages/SearchResults';
+import DeleteAccount from '../pages/DeleteAccount';
   
 // Import authentication pages
 import SignIn from '../pages/SignIn';
@@ -65,6 +66,7 @@ const AppRouter = () => {
       <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
       <Route path="/shipping-and-delivery" element={<ShippingAndDelivery />} />
       <Route path="/cancellation-and-refund" element={<CancellationAndRefund />} />
+      <Route path="/delete-account" element={<DeleteAccount />} />
       <Route path="/about" element={<AboutUs />} />
       <Route path="/services" element={<Services />} />
       <Route path="/contact" element={<Contact />} />
