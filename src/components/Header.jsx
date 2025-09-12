@@ -11,9 +11,11 @@ import {
   faSearch,
   faMapMarkerAlt,
   faGlobe,
+  faCoins,
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
+import { useCoinWallet } from '../contexts/CoinWalletContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import NotificationBell from './NotificationBell';
@@ -44,6 +46,7 @@ const Header = () => {
   const navigate = useNavigate();
   const { currentUser, isAuthenticated, logout } = useAuth();
   const { cartItems } = useCart();
+  const { wallet } = useCoinWallet();
 
   const locations = [
     'Mumbai',
@@ -543,6 +546,16 @@ const Header = () => {
 
               {currentUser && <NotificationBell />}
 
+              {/* Coin Balance Display */}
+              {currentUser && wallet && (
+                <div className="hidden sm:flex items-center bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2">
+                  <FontAwesomeIcon icon={faCoins} className="text-yellow-600 mr-2" />
+                  <span className="text-yellow-800 font-medium text-sm">
+                    {wallet.balance} Coins
+                  </span>
+                </div>
+              )}
+
               <Link
                 to="/cart"
                 className="text-gray-700 hover:text-[#317bea] p-2 rounded-full hover:bg-gray-100 relative"
@@ -653,6 +666,14 @@ const Header = () => {
                   <div>
                     <p className="text-white font-semibold text-lg">{currentUser.displayName || 'User'}</p>
                     <p className="text-orange-100 text-sm">{currentUser.email}</p>
+                    {wallet && (
+                      <div className="flex items-center mt-1">
+                        <FontAwesomeIcon icon={faCoins} className="text-yellow-300 mr-1" />
+                        <span className="text-yellow-200 text-sm font-medium">
+                          {wallet.balance} Coins
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

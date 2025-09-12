@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUsers,
   faCalendar,
+  faCoins,
   faShoppingBag,
   faBlog,
   faChartLine,
@@ -46,6 +47,7 @@ import BookingManagementTab from '../components/BookingManagementTab';
 import AdminHomeContentTab from '../components/AdminHomeContentTab';
 import AdminLeadsTab from '../components/AdminLeadsTab';
 import AdminUTRPaymentsTab from '../components/AdminUTRPaymentsTab';
+import CoinManagementTab from '../components/CoinManagementTab';
 import { 
   migrateDataToFirestore, 
   getAllPujas, 
@@ -2685,6 +2687,17 @@ const AdminDashboard = () => {
                   Bookings
                 </button>
                 <button
+                  onClick={() => setActiveTab('coins')}
+                  className={`w-full text-left px-4 py-2 rounded-lg ${
+                    activeTab === 'coins'
+                      ? 'bg-orange-50 text-orange-500'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faCoins} className="mr-2" />
+                  Coin Management
+                </button>
+                <button
                   onClick={() => setActiveTab('orders')}
                   className={`w-full text-left px-4 py-2 rounded-lg ${
                     activeTab === 'orders'
@@ -3316,6 +3329,10 @@ const AdminDashboard = () => {
 
             {activeTab === 'bookings' && (
               <BookingManagementTab />
+            )}
+
+            {activeTab === 'coins' && (
+              <CoinManagementTab />
             )}
 
             {activeTab === 'orders' && (

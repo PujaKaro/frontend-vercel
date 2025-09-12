@@ -7,9 +7,11 @@ import {
   faSignOut, faCalendar, faClock, faRupeeSign,
   faBell, faHeart, faTicket, faGift, faCog,
   faStar, faQuestionCircle, faShare, faCheckCircle, faCreditCard,
-  faEye, faCopy, faTimes, faLock, faCommentDots, faDownload, faFileInvoice
+  faEye, faCopy, faTimes, faLock, faCommentDots, faDownload, faFileInvoice,
+  faCoins
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { useCoinWallet } from '../contexts/CoinWalletContext';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import SEO from '../components/SEO';
@@ -17,6 +19,7 @@ import { getUserBookings, getUserOrders, getUserReferralCode, createReferralCode
 import toast from 'react-hot-toast';
 import BookingReviewForm from '../components/BookingReviewForm';
 import BookingInvoice from '../components/BookingInvoice';
+import UserCoinDashboard from '../components/UserCoinDashboard';
 
 const Profile = () => {
   const { currentUser, logout } = useAuth();
@@ -927,6 +930,17 @@ const Profile = () => {
                   Coupons
                 </button>
                 <button
+                  onClick={() => setActiveTab('coins')}
+                  className={`w-full text-left px-4 py-2 rounded-lg ${
+                    activeTab === 'coins'
+                      ? 'bg-orange-50 text-orange-500'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faCoins} className="mr-2" />
+                  My Coins
+                </button>
+                <button
                   onClick={() => setActiveTab('settings')}
                   className={`w-full text-left px-4 py-2 rounded-lg ${
                     activeTab === 'settings'
@@ -1336,6 +1350,10 @@ const Profile = () => {
                   )}
                 </div>
               </div>
+            )}
+
+            {activeTab === 'coins' && (
+              <UserCoinDashboard />
             )}
 
             {activeTab === 'settings' && (

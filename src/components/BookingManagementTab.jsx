@@ -26,7 +26,8 @@ import {
   faCreditCard,
   faFileInvoice,
   faPrint,
-  faDownload
+  faDownload,
+  faCoins
 } from '@fortawesome/free-solid-svg-icons';
 import {
   collection,
@@ -1294,12 +1295,42 @@ const BookingManagementTab = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">
-                    <FontAwesomeIcon icon={faIndianRupeeSign} className="mr-1" />
-                    {booking.finalPrice?.toLocaleString() || booking.price?.toLocaleString()}
+                    {booking.paymentMethod === 'coins' ? (
+                      <div className="flex items-center">
+                        <FontAwesomeIcon icon={faCoins} className="mr-1 text-yellow-500" />
+                        {booking.coinsUsed?.toLocaleString() || booking.price?.toLocaleString()} coins
+                      </div>
+                    ) : booking.paymentMethod === 'partial' ? (
+                      <div className="space-y-1">
+                        <div className="flex items-center">
+                          <FontAwesomeIcon icon={faIndianRupeeSign} className="mr-1" />
+                          ₹{booking.finalPrice?.toLocaleString()}
+                        </div>
+                        <div className="flex items-center text-yellow-600">
+                          <FontAwesomeIcon icon={faCoins} className="mr-1" />
+                          {booking.coinsUsed?.toLocaleString()} coins used
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center">
+                        <FontAwesomeIcon icon={faIndianRupeeSign} className="mr-1" />
+                        ₹{booking.finalPrice?.toLocaleString() || booking.price?.toLocaleString()}
+                      </div>
+                    )}
                   </div>
-                  {booking.discountApplied > 0 && (
+                  {booking.discountApplied > 0 && booking.paymentMethod !== 'coins' && (
                     <div className="text-xs text-green-600">
                       {booking.discountType === 'coupon' ? 'Coupon' : 'Discount'}: {booking.discountApplied}%
+                    </div>
+                  )}
+                  {booking.paymentMethod === 'coins' && (
+                    <div className="text-xs text-yellow-600">
+                      Paid with Coins
+                    </div>
+                  )}
+                  {booking.paymentMethod === 'partial' && (
+                    <div className="text-xs text-blue-600">
+                      Partial Payment (Coins + Cash/UPI)
                     </div>
                   )}
                 </td>
@@ -1633,8 +1664,17 @@ const BookingManagementTab = () => {
                   <div>
                     <label className="text-sm font-medium text-gray-700">Original Price</label>
                     <p className="text-lg font-semibold text-gray-900">
-                      <FontAwesomeIcon icon={faIndianRupeeSign} className="mr-1" />
-                      {selectedBooking.price?.toLocaleString()}
+                      {selectedBooking.paymentMethod === 'coins' ? (
+                        <div className="flex items-center">
+                          <FontAwesomeIcon icon={faCoins} className="mr-1 text-yellow-500" />
+                          {selectedBooking.price?.toLocaleString()} coins
+                        </div>
+                      ) : (
+                        <div className="flex items-center">
+                          <FontAwesomeIcon icon={faIndianRupeeSign} className="mr-1" />
+                          ₹{selectedBooking.price?.toLocaleString()}
+                        </div>
+                      )}
                     </p>
                   </div>
                   {selectedBooking.discountApplied > 0 && (
@@ -1653,9 +1693,45 @@ const BookingManagementTab = () => {
                   <div>
                     <label className="text-sm font-medium text-gray-700">Final Price</label>
                     <p className="text-lg font-semibold text-blue-600">
-                      <FontAwesomeIcon icon={faIndianRupeeSign} className="mr-1" />
-                      {selectedBooking.finalPrice?.toLocaleString()}
+                      {selectedBooking.paymentMethod === 'coins' ? (
+                        <div className="flex items-center">
+                          <FontAwesomeIcon icon={faCoins} className="mr-1 text-yellow-500" />
+                          {selectedBooking.coinsUsed?.toLocaleString() || selectedBooking.price?.toLocaleString()} coins
+                        </div>
+                      ) : selectedBooking.paymentMethod === 'partial' ? (
+                        <div className="space-y-2">
+                          <div className="flex items-center">
+                            <FontAwesomeIcon icon={faIndianRupeeSign} className="mr-1" />
+                            ₹{selectedBooking.finalPrice?.toLocaleString()}
+                          </div>
+                          <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                            <div className="font-medium mb-1">Payment Breakdown:</div>
+                            <div className="flex justify-between">
+                              <span>Coins Used:</span>
+                              <span className="flex items-center text-yellow-600">
+                                <FontAwesomeIcon icon={faCoins} className="mr-1" />
+                                {selectedBooking.coinsUsed?.toLocaleString()} coins
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Cash/UPI:</span>
+                              <span>₹{((selectedBooking.price * (1 - (selectedBooking.discountApplied || 0) / 100)) - (selectedBooking.coinsUsed || 0)).toLocaleString()}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center">
+                          <FontAwesomeIcon icon={faIndianRupeeSign} className="mr-1" />
+                          ₹{selectedBooking.finalPrice?.toLocaleString()}
+                        </div>
+                      )}
                     </p>
+                    {selectedBooking.paymentMethod === 'coins' && (
+                      <p className="text-sm text-yellow-600 mt-1">Paid with Coins</p>
+                    )}
+                    {selectedBooking.paymentMethod === 'partial' && (
+                      <p className="text-sm text-blue-600 mt-1">Partial Payment (Coins + Cash/UPI)</p>
+                    )}
                   </div>
                 </div>
               </div>

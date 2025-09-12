@@ -9,6 +9,7 @@ import AppRouter from './components/AppRouter';
 import AnalyticsTracker from './components/AnalyticsTracker';
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
+import { CoinWalletProvider } from './contexts/CoinWalletContext';
 import PopupModal from './components/PopupModal';
 import LeadCaptureModal from './components/LeadCaptureModal';
 import AnnouncementBar from './components/AnnouncementBar';
@@ -26,16 +27,18 @@ function AppWithTracking() {
       <ScrollToTop />
       <AuthProvider>
         <CartProvider>
-          <AnalyticsTracker />
-          <PopupModal />
-          <LeadCaptureModal />
-          <AnnouncementBar />
-          <Header />
-          <main>
-            <AppRouter />
-          </main>
-          <Footer />
-          <UpdateNotification />
+          <CoinWalletProvider>
+            <AnalyticsTracker />
+            <PopupModal />
+            <LeadCaptureModal />
+            <AnnouncementBar />
+            <Header />
+            <main>
+              <AppRouter />
+            </main>
+            <Footer />
+            <UpdateNotification />
+          </CoinWalletProvider>
         </CartProvider>
         <FloatingWhatsAppButton />
       </AuthProvider>

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarAlt, faClock, faUser, faMapMarkerAlt, faPhoneAlt, faEnvelope, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarAlt, faClock, faUser, faMapMarkerAlt, faPhoneAlt, faEnvelope, faArrowLeft, faCoins } from '@fortawesome/free-solid-svg-icons';
 import { pujaServices } from '../data/data';
 import { trackPujaBooking, trackPurchase } from '../utils/analytics';
 import { useAuth } from '../contexts/AuthContext';
+import { useCoinWallet } from '../contexts/CoinWalletContext';
 import { saveFormData, getCurrentLocation, saveLocationToBooking } from '../utils/formUtils';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -51,6 +52,7 @@ const BookingForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { currentUser } = useAuth();
+  const { wallet, deductCoins } = useCoinWallet();
   
   // State for form fields
   const [formData, setFormData] = useState({
@@ -80,6 +82,9 @@ const BookingForm = () => {
   const [selectedServiceTier, setSelectedServiceTier] = useState('');
   const [selectedServiceOption, setSelectedServiceOption] = useState('');
   const [serviceDetails, setServiceDetails] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState('cash'); // 'cash', 'coins', or 'partial'
+  const [coinsToUse, setCoinsToUse] = useState(0);
+  const [maxCoinsAllowed, setMaxCoinsAllowed] = useState(0);
   
   // Get the correct price based on selected service tier
   const getCurrentPrice = () => {
@@ -88,6 +93,21 @@ const BookingForm = () => {
     }
     return puja?.price || 0;
   };
+
+  // Calculate maximum coins allowed (80% of price)
+  useEffect(() => {
+    if (wallet && wallet.balance > 0 && puja) {
+      const currentPrice = getCurrentPrice();
+      const maxCoins = Math.floor(currentPrice * 0.8); // 80% of price
+      const actualMaxCoins = Math.min(maxCoins, wallet.balance);
+      setMaxCoinsAllowed(actualMaxCoins);
+      
+      // If user has enough coins for 80%, set coins to use to max
+      if (actualMaxCoins > 0) {
+        setCoinsToUse(actualMaxCoins);
+      }
+    }
+  }, [wallet, serviceDetails, puja]);
   
   useEffect(() => {
     // Initialize EmailJS
@@ -347,7 +367,18 @@ const handleCodeValidation = async () => {
         }
         
         const currentPrice = getCurrentPrice();
-        const finalPrice = currentPrice * (1 - discountApplied / 100);
+        const priceAfterDiscount = currentPrice * (1 - discountApplied / 100);
+        
+        // Handle coin payment validation
+        if (paymentMethod === 'partial') {
+          if (!wallet || coinsToUse > wallet.balance || coinsToUse > maxCoinsAllowed) {
+            toast.error('Invalid coin amount selected');
+            return;
+          }
+        }
+        
+        // Calculate final price correctly: apply discount first, then subtract coins
+        const finalPrice = paymentMethod === 'partial' ? (priceAfterDiscount - coinsToUse) : priceAfterDiscount;
         
         const bookingData = {
           userId: currentUser.uid,
@@ -356,7 +387,6 @@ const handleCodeValidation = async () => {
           pujaId: puja.id,
           pujaName: puja.name,
           price: currentPrice,
-          finalPrice: finalPrice,
           discountApplied: discountApplied,
           referralCode: formData.referralCode || null,
           discountType: validatedCodeData?.isCoupon ? 'coupon' : 'referral',
@@ -374,7 +404,11 @@ const handleCodeValidation = async () => {
           // Service tier information
           serviceTier: selectedServiceTier || null,
           serviceOption: selectedServiceOption || null,
-          serviceDetails: serviceDetails || null
+          serviceDetails: serviceDetails || null,
+          // Payment information
+          paymentMethod: paymentMethod,
+          coinsUsed: paymentMethod === 'partial' ? coinsToUse : 0,
+          finalPrice: finalPrice
         };
 
         const bookingRef = await addDoc(collection(db, 'bookings'), {
@@ -383,6 +417,23 @@ const handleCodeValidation = async () => {
           updatedAt: serverTimestamp(),
           status: 'pending'
         });
+
+        // Deduct coins if payment method is partial
+        if (paymentMethod === 'partial' && coinsToUse > 0) {
+          try {
+            await deductCoins(
+              currentUser.uid,
+              coinsToUse,
+              `Puja booking: ${puja.name}`,
+              bookingRef.id
+            );
+            toast.success(`${coinsToUse} coins deducted for booking`);
+          } catch (error) {
+            console.error('Error deducting coins:', error);
+            toast.error('Failed to deduct coins. Please contact support.');
+            return;
+          }
+        }
 
         // Update stats based on code type
         if (formData.referralCode && validatedCodeData) {
@@ -490,6 +541,15 @@ const handleCodeValidation = async () => {
                   <div className="w-32 text-gray-600">Price:</div>
                   <div className="font-medium text-[#fb9548]">₹{getCurrentPrice().toLocaleString()}</div>
                 </div>
+                {wallet && wallet.balance > 0 && (
+                  <div className="flex">
+                    <div className="w-32 text-gray-600">Coin Balance:</div>
+                    <div className="font-medium text-yellow-600 flex items-center">
+                      <FontAwesomeIcon icon={faCoins} className="mr-1" />
+                      {wallet.balance}
+                    </div>
+                  </div>
+                )}
                 <div className="flex">
                   <div className="w-32 text-gray-600">Duration:</div>
                   <div className="font-medium">{serviceDetails?.duration || puja.duration}</div>
@@ -726,6 +786,77 @@ const handleCodeValidation = async () => {
                 ></textarea>
               </div>
 
+              {/* Payment Method Selection */}
+              {wallet && wallet.balance > 0 && maxCoinsAllowed > 0 && (
+                <div className="mb-6">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Payment Method
+                  </label>
+                  <div className="space-y-3">
+                    <div className="flex items-center">
+                      <input
+                        type="radio"
+                        id="cash-payment"
+                        name="paymentMethod"
+                        value="cash"
+                        checked={paymentMethod === 'cash'}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                        className="mr-3"
+                      />
+                      <label htmlFor="cash-payment" className="text-gray-700">
+                        Pay with Cash/UPI (₹{getCurrentPrice().toLocaleString()})
+                      </label>
+                    </div>
+                    <div className="flex items-center">
+                      <input
+                        type="radio"
+                        id="partial-payment"
+                        name="paymentMethod"
+                        value="partial"
+                        checked={paymentMethod === 'partial'}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                        className="mr-3"
+                      />
+                      <label htmlFor="partial-payment" className="text-gray-700 flex items-center">
+                        <FontAwesomeIcon icon={faCoins} className="mr-2 text-yellow-500" />
+                        Use Coins (Up to 80% - {maxCoinsAllowed} coins)
+                      </label>
+                    </div>
+                    {paymentMethod === 'partial' && (
+                      <div className="ml-6 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                        <div className="text-sm text-gray-700">
+                          <div className="font-medium mb-2">Partial Coin Payment:</div>
+                          <div className="mb-2">
+                            <label className="block text-sm font-medium text-gray-600 mb-1">
+                              Coins to Use (Max: {maxCoinsAllowed})
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              max={maxCoinsAllowed}
+                              value={coinsToUse}
+                              onChange={(e) => setCoinsToUse(Math.min(parseInt(e.target.value) || 0, maxCoinsAllowed))}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <div>Service Price: ₹{getCurrentPrice().toLocaleString()}</div>
+                            {discountApplied > 0 && (
+                              <div>After {discountApplied}% discount: ₹{(getCurrentPrice() * (1 - discountApplied / 100)).toLocaleString()}</div>
+                            )}
+                            <div>Coins to Use: {coinsToUse} coins</div>
+                            <div>Cash/UPI Payment: ₹{((getCurrentPrice() * (1 - discountApplied / 100)) - coinsToUse).toLocaleString()}</div>
+                            <div className="text-green-600 font-medium">
+                              You'll save ₹{coinsToUse.toLocaleString()} with coins!
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="referralCode">
                   Referral or Coupon Code (Optional)
@@ -762,7 +893,7 @@ const handleCodeValidation = async () => {
                 )}
               </div>
 
-              {discountApplied > 0 && (
+              {(discountApplied > 0 || paymentMethod === 'partial') && (
                 <div className="mb-6 p-4 bg-gray-50 rounded-lg">
                   <h3 className="text-lg font-medium mb-2">Price Breakdown</h3>
                   <div className="space-y-1">
@@ -770,14 +901,32 @@ const handleCodeValidation = async () => {
                       <span>Original Price:</span>
                       <span>₹{getCurrentPrice().toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between text-green-600">
-                      <span>Discount ({discountApplied}%):</span>
-                      <span>-₹{((getCurrentPrice() * discountApplied) / 100).toLocaleString()}</span>
-                    </div>
+                    {paymentMethod === 'partial' && (
+                      <div className="flex justify-between text-yellow-600">
+                        <span>Coins Used:</span>
+                        <span className="flex items-center">
+                          <FontAwesomeIcon icon={faCoins} className="mr-1" />
+                          {coinsToUse} coins
+                        </span>
+                      </div>
+                    )}
+                    {discountApplied > 0 && (
+                      <div className="flex justify-between text-green-600">
+                        <span>Discount ({discountApplied}%):</span>
+                        <span>-₹{((getCurrentPrice() * discountApplied) / 100).toLocaleString()}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between font-bold pt-1 border-t">
                       <span>Final Price:</span>
-                      <span>₹{(getCurrentPrice() * (1 - discountApplied / 100)).toLocaleString()}</span>
+                      <span>₹{((getCurrentPrice() * (1 - discountApplied / 100)) - (paymentMethod === 'partial' ? coinsToUse : 0)).toLocaleString()}</span>
                     </div>
+                    {paymentMethod === 'partial' && (
+                      <div className="text-sm text-gray-600 pt-1">
+                        <div>Payment breakdown:</div>
+                        <div>• Coins: {coinsToUse} coins</div>
+                        <div>• Cash/UPI: ₹{((getCurrentPrice() * (1 - discountApplied / 100)) - coinsToUse).toLocaleString()}</div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
