@@ -11,6 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { doc, updateDoc, arrayUnion, Timestamp, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import emailjs from 'emailjs-com';
+import CustomTimePicker from '../components/CustomTimePicker';
 import { createBooking, validateReferralCode, updateReferralStats, validateCode, updateCouponStats,validateAndUseCoupon} from '../utils/firestoreUtils';
 
 // EmailJS configuration from environment variables
@@ -561,23 +562,16 @@ const handleCodeValidation = async () => {
                 </div>
                 
                 <div>
-                  <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="time">
-                    Time*
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FontAwesomeIcon icon={faClock} className="text-gray-400" />
-                    </div>
-                    <input
-                      type="time"
-                      id="time"
-                      name="time"
-                      className={`w-full pl-10 pr-3 py-2 border ${errors.time ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
-                      value={formData.time}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  {errors.time && <p className="mt-1 text-sm text-red-500">{errors.time}</p>}
+                  <CustomTimePicker
+                    value={formData.time}
+                    onChange={(time) => setFormData(prev => ({ ...prev, time }))}
+                    label="Preferred Time*"
+                    placeholder="Choose your preferred time"
+                    minTime="04:00"
+                    maxTime="22:00"
+                    className="w-full"
+                    error={errors.time}
+                  />
                 </div>
               </div>
               

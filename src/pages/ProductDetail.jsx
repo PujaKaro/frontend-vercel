@@ -8,6 +8,7 @@ import { useCart } from '../contexts/CartContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SEO from '../components/SEO';
+import CustomTimePicker from '../components/CustomTimePicker';
 import { trackProductView, trackAddToCart } from '../utils/analytics';
 import useNavigationTracker from '../hooks/useNavigationTracker';
 import { 
@@ -638,19 +639,15 @@ const ProductDetail = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-gray-700 text-sm font-medium mb-2">Time Slot</label>
-                      <select
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
+                      <CustomTimePicker
                         value={selectedTime}
-                        onChange={(e) => setSelectedTime(e.target.value)}
-                      >
-                        <option value="">Select a time slot</option>
-                        {item.availableTimeSlots?.map((slot, index) => (
-                          <option key={index} value={slot}>
-                            {slot}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={setSelectedTime}
+                        label="Preferred Time"
+                        placeholder="Choose your preferred time"
+                        minTime="04:00"
+                        maxTime="22:00"
+                        className="w-full"
+                      />
                     </div>
                   </div>
                 </div>
