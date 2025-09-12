@@ -970,7 +970,8 @@ const AdminDashboard = () => {
         occasions: puja.occasions || [],
         pandits: puja.pandits || [],
         pujaTimeline: puja.pujaTimeline || [],
-        expandableSections: puja.expandableSections || []
+        expandableSections: puja.expandableSections || [],
+        serviceTiers: puja.serviceTiers || {}
       });
     } else {
       // Find the highest ID value and add 1 for new puja
@@ -1033,7 +1034,8 @@ const AdminDashboard = () => {
           occasions: [],
           pandits: [],
           pujaTimeline: [],
-          expandableSections: []
+          expandableSections: [],
+          serviceTiers: {}
         });
       });
     }

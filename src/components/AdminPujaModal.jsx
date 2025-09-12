@@ -560,6 +560,332 @@ const AdminPujaModal = ({
               Load Sample Sections
             </button>
           </div>
+
+          {/* Service Tiers Management */}
+          <div className="mb-6 border-t pt-6">
+            <h3 className="text-lg font-semibold mb-4 text-gray-800">
+              Service Tiers
+              <span className="ml-2 text-sm font-normal text-gray-500">
+                ({(pujaForm.serviceTiers ? Object.keys(pujaForm.serviceTiers).length : 0)} tiers)
+              </span>
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Configure different service tiers (Basic, Premium, Deluxe) with multiple options and pricing.
+            </p>
+            
+            {/* Service Tiers */}
+            {pujaForm.serviceTiers && Object.entries(pujaForm.serviceTiers).map(([tierKey, tier]) => (
+              <div key={tierKey} className="border border-gray-200 rounded-lg p-4 mb-4 bg-gray-50">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-md font-semibold text-gray-800 capitalize">{tier.name}</h4>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newTiers = { ...pujaForm.serviceTiers };
+                      delete newTiers[tierKey];
+                      setPujaForm(prev => ({ ...prev, serviceTiers: newTiers }));
+                    }}
+                    className="text-red-600 hover:text-red-800 text-sm"
+                  >
+                    Remove Tier
+                  </button>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Tier Name</label>
+                    <input
+                      type="text"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      value={tier.name || ''}
+                      onChange={(e) => {
+                        const newTiers = { ...pujaForm.serviceTiers };
+                        newTiers[tierKey] = { ...newTiers[tierKey], name: e.target.value };
+                        setPujaForm(prev => ({ ...prev, serviceTiers: newTiers }));
+                      }}
+                      placeholder="e.g., Basic Service"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Base Price</label>
+                    <input
+                      type="number"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2"
+                      value={tier.price || ''}
+                      onChange={(e) => {
+                        const newTiers = { ...pujaForm.serviceTiers };
+                        newTiers[tierKey] = { ...newTiers[tierKey], price: parseInt(e.target.value) || 0 };
+                        setPujaForm(prev => ({ ...prev, serviceTiers: newTiers }));
+                      }}
+                      placeholder="2500"
+                    />
+                  </div>
+                </div>
+                
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <input
+                    type="text"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={tier.description || ''}
+                    onChange={(e) => {
+                      const newTiers = { ...pujaForm.serviceTiers };
+                      newTiers[tierKey] = { ...newTiers[tierKey], description: e.target.value };
+                      setPujaForm(prev => ({ ...prev, serviceTiers: newTiers }));
+                    }}
+                    placeholder="Brief description of this service tier"
+                  />
+                </div>
+                
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Features (one per line)</label>
+                  <textarea
+                    rows="3"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                    value={(tier.features || []).join('\n')}
+                    onChange={(e) => {
+                      const newTiers = { ...pujaForm.serviceTiers };
+                      newTiers[tierKey] = { 
+                        ...newTiers[tierKey], 
+                        features: e.target.value.split('\n').filter(f => f.trim()) 
+                      };
+                      setPujaForm(prev => ({ ...prev, serviceTiers: newTiers }));
+                    }}
+                    placeholder="1 Experienced Pandit&#10;Basic Puja Samagri&#10;2 Hours Duration"
+                  />
+                </div>
+                
+                {/* Service Options */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-gray-700">Service Options</label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newTiers = { ...pujaForm.serviceTiers };
+                        const newOption = {
+                          id: `${tierKey}-${Date.now()}`,
+                          name: '',
+                          price: tier.price || 0,
+                          description: '',
+                          duration: '',
+                          pandits: 1,
+                          features: []
+                        };
+                        newTiers[tierKey] = {
+                          ...newTiers[tierKey],
+                          options: [...(newTiers[tierKey].options || []), newOption]
+                        };
+                        setPujaForm(prev => ({ ...prev, serviceTiers: newTiers }));
+                      }}
+                      className="text-blue-600 hover:text-blue-800 text-sm"
+                    >
+                      + Add Option
+                    </button>
+                  </div>
+                  
+                  {(tier.options || []).map((option, optionIndex) => (
+                    <div key={option.id} className="border border-gray-200 rounded p-3 mb-2 bg-white">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Option Name</label>
+                          <input
+                            type="text"
+                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                            value={option.name || ''}
+                            onChange={(e) => {
+                              const newTiers = { ...pujaForm.serviceTiers };
+                              newTiers[tierKey].options[optionIndex] = { ...option, name: e.target.value };
+                              setPujaForm(prev => ({ ...prev, serviceTiers: newTiers }));
+                            }}
+                            placeholder="e.g., Standard Basic"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Price</label>
+                          <input
+                            type="number"
+                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                            value={option.price || ''}
+                            onChange={(e) => {
+                              const newTiers = { ...pujaForm.serviceTiers };
+                              newTiers[tierKey].options[optionIndex] = { ...option, price: parseInt(e.target.value) || 0 };
+                              setPujaForm(prev => ({ ...prev, serviceTiers: newTiers }));
+                            }}
+                            placeholder="2500"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Duration</label>
+                          <input
+                            type="text"
+                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                            value={option.duration || ''}
+                            onChange={(e) => {
+                              const newTiers = { ...pujaForm.serviceTiers };
+                              newTiers[tierKey].options[optionIndex] = { ...option, duration: e.target.value };
+                              setPujaForm(prev => ({ ...prev, serviceTiers: newTiers }));
+                            }}
+                            placeholder="e.g., 2 hours"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Number of Pandits</label>
+                          <input
+                            type="number"
+                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                            value={option.pandits || ''}
+                            onChange={(e) => {
+                              const newTiers = { ...pujaForm.serviceTiers };
+                              newTiers[tierKey].options[optionIndex] = { ...option, pandits: parseInt(e.target.value) || 1 };
+                              setPujaForm(prev => ({ ...prev, serviceTiers: newTiers }));
+                            }}
+                            placeholder="1"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="mt-2">
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Description</label>
+                        <input
+                          type="text"
+                          className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                          value={option.description || ''}
+                          onChange={(e) => {
+                            const newTiers = { ...pujaForm.serviceTiers };
+                            newTiers[tierKey].options[optionIndex] = { ...option, description: e.target.value };
+                            setPujaForm(prev => ({ ...prev, serviceTiers: newTiers }));
+                          }}
+                          placeholder="Brief description of this option"
+                        />
+                      </div>
+                      
+                      <div className="mt-2 flex justify-between items-center">
+                        <div className="flex-1">
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Features (comma-separated)</label>
+                          <input
+                            type="text"
+                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                            value={(option.features || []).join(', ')}
+                            onChange={(e) => {
+                              const newTiers = { ...pujaForm.serviceTiers };
+                              newTiers[tierKey].options[optionIndex] = { 
+                                ...option, 
+                                features: e.target.value.split(',').map(f => f.trim()).filter(f => f)
+                              };
+                              setPujaForm(prev => ({ ...prev, serviceTiers: newTiers }));
+                            }}
+                            placeholder="Basic samagri, Standard prasad, Simple decoration"
+                          />
+                        </div>
+                        
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newTiers = { ...pujaForm.serviceTiers };
+                            newTiers[tierKey].options = newTiers[tierKey].options.filter((_, idx) => idx !== optionIndex);
+                            setPujaForm(prev => ({ ...prev, serviceTiers: newTiers }));
+                          }}
+                          className="ml-2 text-red-600 hover:text-red-800 text-sm"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+            
+            {/* Add New Tier Buttons */}
+            <div className="flex space-x-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const newTiers = { ...(pujaForm.serviceTiers || {}) };
+                  const tierKey = `tier_${Date.now()}`;
+                  newTiers[tierKey] = {
+                    name: 'New Service Tier',
+                    price: 0,
+                    description: '',
+                    features: [],
+                    options: []
+                  };
+                  setPujaForm(prev => ({ ...prev, serviceTiers: newTiers }));
+                }}
+                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm"
+              >
+                + Add Service Tier
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => {
+                  const sampleTiers = {
+                    basic: {
+                      name: 'Basic Service',
+                      price: 2500,
+                      description: 'Essential puja service with standard offerings',
+                      features: ['1 Experienced Pandit', 'Basic Puja Samagri', '2 Hours Duration', 'Standard Prasad', 'Basic Decoration'],
+                      options: [
+                        {
+                          id: 'basic-1',
+                          name: 'Standard Basic',
+                          price: 2500,
+                          description: 'Complete basic puja with essential rituals',
+                          duration: '2 hours',
+                          pandits: 1,
+                          features: ['Basic samagri', 'Standard prasad', 'Simple decoration']
+                        }
+                      ]
+                    },
+                    premium: {
+                      name: 'Premium Service',
+                      price: 4000,
+                      description: 'Enhanced puja service with premium offerings',
+                      features: ['2 Experienced Pandits', 'Premium Puja Samagri', '3 Hours Duration', 'Premium Prasad', 'Beautiful Decoration', 'Photography Session'],
+                      options: [
+                        {
+                          id: 'premium-1',
+                          name: 'Standard Premium',
+                          price: 4000,
+                          description: 'Complete premium puja with enhanced rituals',
+                          duration: '3 hours',
+                          pandits: 2,
+                          features: ['Premium samagri', 'Quality prasad', 'Beautiful decoration', 'Basic photography']
+                        }
+                      ]
+                    },
+                    deluxe: {
+                      name: 'Deluxe Service',
+                      price: 8000,
+                      description: 'Luxury puja service with royal offerings',
+                      features: ['3 Senior Pandits', 'Royal Puja Samagri', '4+ Hours Duration', 'Luxury Prasad', 'Royal Decoration', 'Professional Photography & Video', 'Live Streaming Option'],
+                      options: [
+                        {
+                          id: 'deluxe-1',
+                          name: 'Royal Deluxe',
+                          price: 8000,
+                          description: 'Royal puja experience with luxury amenities',
+                          duration: '4 hours',
+                          pandits: 3,
+                          features: ['Royal samagri', 'Luxury prasad', 'Royal decoration', 'Professional photography', 'Video recording']
+                        }
+                      ]
+                    }
+                  };
+                  setPujaForm(prev => ({ ...prev, serviceTiers: sampleTiers }));
+                }}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm"
+              >
+                Load Sample Tiers
+              </button>
+            </div>
+          </div>
           
           <div className="flex justify-end">
             <button

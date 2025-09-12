@@ -77,6 +77,17 @@ const BookingForm = () => {
   const [validatedCodeData, setValidatedCodeData] = useState(null);
   const [codeError, setCodeError] = useState('');
   const [displayTimeSlot, setDisplayTimeSlot] = useState('');
+  const [selectedServiceTier, setSelectedServiceTier] = useState('');
+  const [selectedServiceOption, setSelectedServiceOption] = useState('');
+  const [serviceDetails, setServiceDetails] = useState(null);
+  
+  // Get the correct price based on selected service tier
+  const getCurrentPrice = () => {
+    if (serviceDetails && serviceDetails.price) {
+      return serviceDetails.price;
+    }
+    return puja?.price || 0;
+  };
   
   useEffect(() => {
     // Initialize EmailJS
@@ -85,6 +96,18 @@ const BookingForm = () => {
     // Get puja info from location state or fetch it based on ID
     if (location.state?.puja) {
       setPuja(location.state.puja);
+      
+      // Set service tier data if available
+      if (location.state.serviceTier) {
+        setSelectedServiceTier(location.state.serviceTier);
+      }
+      if (location.state.serviceOption) {
+        setSelectedServiceOption(location.state.serviceOption);
+      }
+      if (location.state.serviceDetails) {
+        setServiceDetails(location.state.serviceDetails);
+      }
+      
       // Set the date and time from location state if available
       if (location.state.date) {
         // Extract the first time from the timeSlot if it contains a range
@@ -323,7 +346,8 @@ const handleCodeValidation = async () => {
           // }
         }
         
-        const finalPrice = puja.price * (1 - discountApplied / 100);
+        const currentPrice = getCurrentPrice();
+        const finalPrice = currentPrice * (1 - discountApplied / 100);
         
         const bookingData = {
           userId: currentUser.uid,
@@ -331,7 +355,7 @@ const handleCodeValidation = async () => {
           userName: formData.name || currentUser.displayName,
           pujaId: puja.id,
           pujaName: puja.name,
-          price: puja.price,
+          price: currentPrice,
           finalPrice: finalPrice,
           discountApplied: discountApplied,
           referralCode: formData.referralCode || null,
@@ -346,7 +370,11 @@ const handleCodeValidation = async () => {
           specialInstructions: formData.specialInstructions || '',
           additionalInfo: formData.additionalInfo || '',
           status: 'pending',
-          location: userLocation || null
+          location: userLocation || null,
+          // Service tier information
+          serviceTier: selectedServiceTier || null,
+          serviceOption: selectedServiceOption || null,
+          serviceDetails: serviceDetails || null
         };
 
         const bookingRef = await addDoc(collection(db, 'bookings'), {
@@ -358,7 +386,7 @@ const handleCodeValidation = async () => {
 
         // Update stats based on code type
         if (formData.referralCode && validatedCodeData) {
-          const discountAmount = puja.price - finalPrice;
+          const discountAmount = currentPrice - finalPrice;
           
           if (validatedCodeData.isCoupon) {
             await updateCouponStats(formData.referralCode, finalPrice, discountAmount);
@@ -378,7 +406,7 @@ const handleCodeValidation = async () => {
             puja_name: puja.name,
             puja_date: formData.date,
             puja_time: formData.time,
-            puja_price: puja.price.toLocaleString(),
+            puja_price: currentPrice.toLocaleString(),
             address: `${formData.address}, ${formData.city}, ${formData.state}, ${formData.pincode}`,
             special_instructions: formData.specialInstructions || 'None',
             reply_to: 'pujakaro.in@gmail.com'
@@ -397,7 +425,7 @@ const handleCodeValidation = async () => {
             bookingDetails: {
               bookingId: bookingRef.id,
               puja,
-              price: puja.price,
+              price: currentPrice,
               finalPrice: finalPrice,
               date: formData.date,
               timeSlot: formData.time,
@@ -460,12 +488,24 @@ const handleCodeValidation = async () => {
                 </div>
                 <div className="flex">
                   <div className="w-32 text-gray-600">Price:</div>
-                  <div className="font-medium text-[#fb9548]">₹{puja.price.toLocaleString()}</div>
+                  <div className="font-medium text-[#fb9548]">₹{getCurrentPrice().toLocaleString()}</div>
                 </div>
                 <div className="flex">
                   <div className="w-32 text-gray-600">Duration:</div>
-                  <div className="font-medium">{puja.duration}</div>
+                  <div className="font-medium">{serviceDetails?.duration || puja.duration}</div>
                 </div>
+                {selectedServiceTier && serviceDetails && (
+                  <>
+                    <div className="flex">
+                      <div className="w-32 text-gray-600">Service Tier:</div>
+                      <div className="font-medium capitalize">{selectedServiceTier.replace('_', ' ')}</div>
+                    </div>
+                    <div className="flex">
+                      <div className="w-32 text-gray-600">Service Option:</div>
+                      <div className="font-medium">{serviceDetails.name}</div>
+                    </div>
+                  </>
+                )}
                 <div className="flex">
                   <div className="w-32 text-gray-600">
                     <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
@@ -728,15 +768,15 @@ const handleCodeValidation = async () => {
                   <div className="space-y-1">
                     <div className="flex justify-between">
                       <span>Original Price:</span>
-                      <span>₹{puja.price.toLocaleString()}</span>
+                      <span>₹{getCurrentPrice().toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-green-600">
                       <span>Discount ({discountApplied}%):</span>
-                      <span>-₹{((puja.price * discountApplied) / 100).toLocaleString()}</span>
+                      <span>-₹{((getCurrentPrice() * discountApplied) / 100).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between font-bold pt-1 border-t">
                       <span>Final Price:</span>
-                      <span>₹{(puja.price * (1 - discountApplied / 100)).toLocaleString()}</span>
+                      <span>₹{(getCurrentPrice() * (1 - discountApplied / 100)).toLocaleString()}</span>
                     </div>
                   </div>
                 </div>

@@ -11,6 +11,7 @@ import SEO from '../components/SEO';
 import CustomTimePicker from '../components/CustomTimePicker';
 import PujaTimeline from '../components/PujaTimeline';
 import ExpandableSections from '../components/ExpandableSections';
+import ServiceTierSelector from '../components/ServiceTierSelector';
 import { trackProductView, trackAddToCart } from '../utils/analytics';
 import useNavigationTracker from '../hooks/useNavigationTracker';
 import { 
@@ -36,6 +37,8 @@ const ProductDetail = () => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
+  const [selectedServiceTier, setSelectedServiceTier] = useState('');
+  const [selectedServiceOption, setSelectedServiceOption] = useState('');
   const [itemType, setItemType] = useState('');
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
@@ -363,13 +366,24 @@ const ProductDetail = () => {
       toast.warning('Please select a time slot for your puja booking');
       return;
     }
+
+    if (!selectedServiceTier || !selectedServiceOption) {
+      toast.warning('Please select a service tier and option for your puja booking');
+      return;
+    }
+    
+    // Get selected service details
+    const selectedService = item.serviceTiers[selectedServiceTier]?.options.find(opt => opt.id === selectedServiceOption);
     
     // Navigate to booking form with selected item details
     navigate(`/booking-form/${id}`, { 
       state: { 
         puja: item,
         date: selectedDate,
-        timeSlot: selectedTime
+        timeSlot: selectedTime,
+        serviceTier: selectedServiceTier,
+        serviceOption: selectedServiceOption,
+        serviceDetails: selectedService
       } 
     });
   };
@@ -563,7 +577,13 @@ const ProductDetail = () => {
               {/* Price Section */}
               <div className="mb-6">
                 <div className="flex items-center mb-2">
-                  <span className="text-3xl font-bold text-orange-600">₹{item.price.toLocaleString()}</span>
+                  <span className="text-3xl font-bold text-orange-600">
+                    {selectedServiceTier && selectedServiceOption && item.serviceTiers ? (
+                      `₹${item.serviceTiers[selectedServiceTier]?.options.find(opt => opt.id === selectedServiceOption)?.price.toLocaleString()}`
+                    ) : (
+                      `₹${item.price.toLocaleString()}`
+                    )}
+                  </span>
                   {itemType === 'product' && item.discount > 0 && (
                     <span className="ml-3 text-lg text-gray-500 line-through">
                       ₹{Math.round(item.price / (1 - item.discount / 100)).toLocaleString()}
@@ -625,6 +645,19 @@ const ProductDetail = () => {
                 </div>
               )}
               
+              {/* Service Tier Selection (for Pujas) */}
+              {itemType === 'puja' && item.serviceTiers && (
+                <div className="mb-6">
+                  <ServiceTierSelector
+                    serviceTiers={item.serviceTiers}
+                    selectedTier={selectedServiceTier}
+                    selectedOption={selectedServiceOption}
+                    onTierChange={setSelectedServiceTier}
+                    onOptionChange={setSelectedServiceOption}
+                  />
+                </div>
+              )}
+
               {/* Date & Time Selection (for Pujas) */}
               {itemType === 'puja' && (
                 <div className="mb-6">

@@ -267,7 +267,126 @@ export const products = [
           title: 'Cultural Acceptance',
           content: 'Satyanarayan Puja is widely accepted across all Hindu communities and regions. It is particularly popular in North India, Maharashtra, and Gujarat, where it is performed during house-warming ceremonies, new business ventures, and important life events. The puja transcends caste, creed, and regional boundaries, uniting devotees in their common goal of seeking divine blessings and spiritual growth.'
         }
-      ]
+      ],
+      serviceTiers: {
+        basic: {
+          name: 'Basic Service',
+          price: 2500,
+          description: 'Essential puja service with standard offerings',
+          features: [
+            '1 Experienced Pandit',
+            'Basic Puja Samagri',
+            '2 Hours Duration',
+            'Standard Prasad',
+            'Basic Decoration'
+          ],
+          options: [
+            {
+              id: 'basic-1',
+              name: 'Standard Basic',
+              price: 2500,
+              description: 'Complete basic puja with essential rituals',
+              duration: '2 hours',
+              pandits: 1,
+              features: ['Basic samagri', 'Standard prasad', 'Simple decoration']
+            },
+            {
+              id: 'basic-2',
+              name: 'Basic Plus',
+              price: 3000,
+              description: 'Enhanced basic service with additional offerings',
+              duration: '2.5 hours',
+              pandits: 1,
+              features: ['Enhanced samagri', 'Premium prasad', 'Better decoration']
+            }
+          ]
+        },
+        premium: {
+          name: 'Premium Service',
+          price: 4000,
+          description: 'Enhanced puja service with premium offerings',
+          features: [
+            '2 Experienced Pandits',
+            'Premium Puja Samagri',
+            '3 Hours Duration',
+            'Premium Prasad',
+            'Beautiful Decoration',
+            'Photography Session'
+          ],
+          options: [
+            {
+              id: 'premium-1',
+              name: 'Standard Premium',
+              price: 4000,
+              description: 'Complete premium puja with enhanced rituals',
+              duration: '3 hours',
+              pandits: 2,
+              features: ['Premium samagri', 'Quality prasad', 'Beautiful decoration', 'Basic photography']
+            },
+            {
+              id: 'premium-2',
+              name: 'Premium Plus',
+              price: 5000,
+              description: 'Deluxe premium service with all amenities',
+              duration: '3.5 hours',
+              pandits: 2,
+              features: ['Deluxe samagri', 'Premium prasad', 'Elaborate decoration', 'Professional photography']
+            },
+            {
+              id: 'premium-3',
+              name: 'Premium Gold',
+              price: 6000,
+              description: 'Ultimate premium experience with gold offerings',
+              duration: '4 hours',
+              pandits: 2,
+              features: ['Gold samagri', 'Luxury prasad', 'Royal decoration', 'Professional photography', 'Video recording']
+            }
+          ]
+        },
+        deluxe: {
+          name: 'Deluxe Service',
+          price: 8000,
+          description: 'Luxury puja service with royal offerings',
+          features: [
+            '3 Senior Pandits',
+            'Royal Puja Samagri',
+            '4+ Hours Duration',
+            'Luxury Prasad',
+            'Royal Decoration',
+            'Professional Photography & Video',
+            'Live Streaming Option'
+          ],
+          options: [
+            {
+              id: 'deluxe-1',
+              name: 'Royal Deluxe',
+              price: 8000,
+              description: 'Royal puja experience with luxury amenities',
+              duration: '4 hours',
+              pandits: 3,
+              features: ['Royal samagri', 'Luxury prasad', 'Royal decoration', 'Professional photography', 'Video recording']
+            },
+            {
+              id: 'deluxe-2',
+              name: 'Imperial Deluxe',
+              price: 10000,
+              description: 'Imperial puja with all royal features',
+              duration: '5 hours',
+              pandits: 3,
+              features: ['Imperial samagri', 'Royal prasad', 'Imperial decoration', 'Professional photography', '4K video recording', 'Live streaming']
+            },
+            {
+              id: 'deluxe-3',
+              name: 'Maharaja Deluxe',
+              price: 15000,
+              description: 'Ultimate royal experience like ancient kings',
+              duration: '6 hours',
+              pandits: 4,
+              features: ['Maharaja samagri', 'Royal luxury prasad', 'Palace decoration', 'Professional photography', '4K video recording', 'Live streaming', 'Special royal attire', 'Royal music']
+            }
+          ]
+        }
+      }
     },
     {
       id: 2,

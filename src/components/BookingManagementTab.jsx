@@ -1224,6 +1224,9 @@ const BookingManagementTab = () => {
                 Puja Name
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Service Tier
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Customer
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -1250,6 +1253,27 @@ const BookingManagementTab = () => {
                   <div className="text-sm text-gray-500">
                     ID: {booking.pujaId}
                   </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {booking.serviceTier && booking.serviceDetails ? (
+                    <div>
+                      <div className="text-sm font-medium text-gray-900 capitalize">
+                        {booking.serviceTier.replace('_', ' ')}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {booking.serviceDetails.name}
+                      </div>
+                      {booking.serviceDetails.duration && (
+                        <div className="text-xs text-gray-400">
+                          {booking.serviceDetails.duration}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-400 italic">
+                      No service tier selected
+                    </div>
+                  )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">{booking.userName}</div>
@@ -1494,6 +1518,29 @@ const BookingManagementTab = () => {
                          typeof selectedBooking.date === 'string' ? selectedBooking.date : 'Date not available'} at {selectedBooking.time}
                       </p>
                     </div>
+                    {selectedBooking.serviceTier && selectedBooking.serviceDetails && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-700">Service Tier</label>
+                        <div className="text-sm text-gray-900">
+                          <div className="font-medium capitalize text-blue-600">
+                            {selectedBooking.serviceTier.replace('_', ' ')}
+                          </div>
+                          <div className="text-gray-600">
+                            {selectedBooking.serviceDetails.name}
+                          </div>
+                          {selectedBooking.serviceDetails.duration && (
+                            <div className="text-xs text-gray-500">
+                              Duration: {selectedBooking.serviceDetails.duration}
+                            </div>
+                          )}
+                          {selectedBooking.serviceDetails.pandits && (
+                            <div className="text-xs text-gray-500">
+                              Pandits: {selectedBooking.serviceDetails.pandits}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                     {selectedBooking.specialInstructions && (
                       <div>
                         <label className="text-sm font-medium text-gray-700">Special Instructions</label>
