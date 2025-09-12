@@ -9,6 +9,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SEO from '../components/SEO';
 import CustomTimePicker from '../components/CustomTimePicker';
+import PujaTimeline from '../components/PujaTimeline';
+import ExpandableSections from '../components/ExpandableSections';
 import { trackProductView, trackAddToCart } from '../utils/analytics';
 import useNavigationTracker from '../hooks/useNavigationTracker';
 import { 
@@ -804,6 +806,20 @@ const ProductDetail = () => {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Puja Timeline - Only for Pujas */}
+        {itemType === 'puja' && item.pujaTimeline && item.pujaTimeline.length > 0 && (
+          <div className="mt-8">
+            <PujaTimeline timeline={item.pujaTimeline} />
+          </div>
+        )}
+
+        {/* Expandable Sections - Only for Pujas */}
+        {itemType === 'puja' && item.expandableSections && item.expandableSections.length > 0 && (
+          <div className="mt-8">
+            <ExpandableSections sections={item.expandableSections} />
           </div>
         )}
         

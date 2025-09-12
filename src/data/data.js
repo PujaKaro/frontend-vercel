@@ -187,6 +187,86 @@ export const products = [
         'Afternoon (12 PM - 2 PM)',
         'Afternoon (2 PM - 4 PM)',
         'Evening (4 PM - 6 PM)'
+      ],
+      pujaTimeline: [
+        {
+          title: 'Pre-Puja Preparation',
+          description: 'Our team arrives 30 minutes early to set up the sacred space and prepare all necessary materials',
+          icon: 'settings',
+          duration: '30 mins',
+          color: 'blue'
+        },
+        {
+          title: 'Sacred Space Setup',
+          description: 'Arrangement of puja samagri, lighting of diyas, and preparation of havan kund',
+          icon: 'home',
+          duration: '15 mins',
+          color: 'green'
+        },
+        {
+          title: 'Kalash Sthapana',
+          description: 'Installation of the sacred pot (kalash) and invocation of divine energies',
+          icon: 'auto_stories',
+          duration: '20 mins',
+          color: 'orange'
+        },
+        {
+          title: 'Ganesh Puja',
+          description: 'Worship of Lord Ganesh to remove obstacles and ensure successful completion',
+          icon: 'celebration',
+          duration: '15 mins',
+          color: 'purple'
+        },
+        {
+          title: 'Main Satyanarayan Puja',
+          description: 'Performance of traditional Vedic rituals and recitation of sacred mantras',
+          icon: 'auto_stories',
+          duration: '1 Hour',
+          color: 'red'
+        },
+        {
+          title: 'Havan Ceremony',
+          description: 'Sacred fire ritual with offerings and chanting of mantras',
+          icon: 'local_fire_department',
+          duration: '30 mins',
+          color: 'yellow'
+        },
+        {
+          title: 'Prasad Distribution',
+          description: 'Blessed prasad is distributed to all family members',
+          icon: 'celebration',
+          duration: '15 mins',
+          color: 'teal'
+        },
+        {
+          title: 'Post-Puja Guidance',
+          description: 'Spiritual guidance and recommendations for continued practice',
+          icon: 'lightbulb',
+          duration: '10 mins',
+          color: 'indigo'
+        }
+      ],
+      expandableSections: [
+        {
+          title: 'Legends and Fables',
+          content: 'The Satyanarayan Katha is one of the most revered stories in Hindu tradition. It narrates the tale of a poor Brahmin who, through his devotion to Lord Satyanarayan, overcame all obstacles and achieved prosperity. The story teaches us that truth (Satya) and devotion (Narayan) are the keys to success and happiness in life. This ancient tale has been passed down through generations, inspiring millions to follow the path of righteousness.'
+        },
+        {
+          title: 'Religious Philosophy',
+          content: 'Satyanarayan Puja embodies the core principles of Hindu philosophy - truth (Satya), righteousness (Dharma), and devotion (Bhakti). The ritual symbolizes the eternal cycle of creation, preservation, and transformation. Through this puja, devotees seek to align themselves with cosmic energies and invoke divine blessings for spiritual growth, material prosperity, and overall well-being. It represents the union of the individual soul (Atman) with the universal consciousness (Brahman).'
+        },
+        {
+          title: 'Puja Vidhi',
+          content: 'The puja follows a specific sequence as prescribed in ancient Vedic texts. It begins with Sankalpa (intention setting), followed by Kalash Sthapana (pot installation), Ganesh Puja (obstacle removal), main Satyanarayan worship with 16 upacharas (offerings), Havan (fire ritual), and concludes with Aarti and Prasad distribution. Each step is performed with specific mantras, hand gestures (mudras), and offerings to ensure maximum spiritual benefit.'
+        },
+        {
+          title: 'Samagri',
+          content: 'Essential items include: Fresh flowers (especially lotus and marigold), fruits (banana, coconut, apple), betel leaves and nuts, ghee (clarified butter), rice grains, incense sticks, camphor, sacred thread (kalava), turmeric, kumkum, sandalwood paste, sacred water (Ganga jal), and a copper or silver pot for kalash. All items should be fresh and pure to ensure the effectiveness of the ritual.'
+        },
+        {
+          title: 'Cultural Acceptance',
+          content: 'Satyanarayan Puja is widely accepted across all Hindu communities and regions. It is particularly popular in North India, Maharashtra, and Gujarat, where it is performed during house-warming ceremonies, new business ventures, and important life events. The puja transcends caste, creed, and regional boundaries, uniting devotees in their common goal of seeking divine blessings and spiritual growth.'
+        }
       ]
     },
     {
@@ -425,6 +505,61 @@ export const products = [
         'Afternoon (12 PM - 2 PM)',
         'Afternoon (2 PM - 4 PM)',
         'Evening (4 PM - 6 PM)'
+      ],
+      pujaTimeline: [
+        {
+          title: 'Pre-Consultation Preparation',
+          description: 'Our astrologer reviews your birth details and prepares your personalized chart analysis',
+          icon: 'settings',
+          duration: '10 mins',
+          color: 'blue'
+        },
+        {
+          title: 'Chart Analysis',
+          description: 'Detailed examination of your birth chart, planetary positions, and cosmic influences',
+          icon: 'auto_stories',
+          duration: '20 mins',
+          color: 'green'
+        },
+        {
+          title: 'Life Area Assessment',
+          description: 'Analysis of career, relationships, health, and spiritual aspects based on planetary positions',
+          icon: 'lightbulb',
+          duration: '15 mins',
+          color: 'orange'
+        },
+        {
+          title: 'Remedy Recommendations',
+          description: 'Personalized suggestions for gemstones, mantras, and rituals to harmonize energies',
+          icon: 'celebration',
+          duration: '10 mins',
+          color: 'purple'
+        },
+        {
+          title: 'Q&A Session',
+          description: 'Interactive discussion to address your specific questions and concerns',
+          icon: 'check',
+          duration: '5 mins',
+          color: 'teal'
+        }
+      ],
+      expandableSections: [
+        {
+          title: 'Vedic Astrology Philosophy',
+          content: 'Vedic astrology, also known as Jyotish, is an ancient Indian system of astrology that has been practiced for over 5,000 years. Unlike Western astrology, Vedic astrology uses the sidereal zodiac, which accounts for the precession of the equinoxes. This system is based on the belief that the positions of planets at the time of birth influence our lives and personalities. The fundamental principle is that we are all connected to the cosmic energies, and understanding these connections can help us navigate life more effectively.'
+        },
+        {
+          title: 'Birth Chart Components',
+          content: 'A Vedic birth chart (Janam Kundali) consists of 12 houses representing different life areas, 9 planets (Navagraha) including the Sun and Moon, and 27 lunar mansions (Nakshatras). Each house governs specific aspects like career (10th house), relationships (7th house), health (6th house), and spirituality (9th house). The planets in these houses and their relationships (aspects) create the unique blueprint of your life. Understanding these components helps predict life events and provides guidance for decision-making.'
+        },
+        {
+          title: 'Remedial Measures',
+          content: 'Vedic astrology offers various remedial measures to mitigate challenging planetary influences and enhance positive ones. These include wearing specific gemstones that resonate with beneficial planets, chanting mantras associated with particular deities, performing specific pujas and rituals, following certain dietary restrictions, and practicing meditation. The remedies are personalized based on your birth chart and current planetary transits. These practices help align your energy with cosmic forces and bring about positive changes in your life.'
+        },
+        {
+          title: 'Dasha System',
+          content: 'The Dasha system is a unique feature of Vedic astrology that predicts the timing of events in your life. It operates on the principle that different planets influence your life during specific periods. The major dasha periods can last from 6 to 20 years, while sub-periods provide more detailed timing. Understanding your dasha periods helps you make informed decisions about career changes, relationships, investments, and other important life events. This system is considered one of the most accurate predictive tools in Vedic astrology.'
+        }
       ]
     },
     
