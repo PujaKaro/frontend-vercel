@@ -51,6 +51,30 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
+  // Helper function to find the service option with minimum price
+  const findMinimumPriceOption = (serviceTiers) => {
+    if (!serviceTiers) return { tier: null, option: null };
+    
+    let minPrice = Infinity;
+    let selectedTier = null;
+    let selectedOption = null;
+    
+    // Iterate through all service tiers
+    Object.entries(serviceTiers).forEach(([tierKey, tier]) => {
+      if (tier.options && Array.isArray(tier.options)) {
+        tier.options.forEach(option => {
+          if (option.price < minPrice) {
+            minPrice = option.price;
+            selectedTier = tierKey;
+            selectedOption = option.id;
+          }
+        });
+      }
+    });
+    
+    return { tier: selectedTier, option: selectedOption };
+  };
+
   useEffect(() => {
     // Determine if this is a product or puja service
     const typeFromPath = location.pathname.includes('/product/') ? 'product' : 'puja';
@@ -72,6 +96,15 @@ const ProductDetail = () => {
         // Only proceed if we found a valid item
         if (foundItem) {
           setItem(foundItem);
+          
+          // Auto-select basic service with minimum price for puja services
+          if (typeFromPath === 'puja' && foundItem.serviceTiers) {
+            const { tier, option } = findMinimumPriceOption(foundItem.serviceTiers);
+            if (tier && option) {
+              setSelectedServiceTier(tier);
+              setSelectedServiceOption(option);
+            }
+          }
           
           // Get related items
           let suggestions = [];

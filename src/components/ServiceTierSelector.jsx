@@ -15,6 +15,13 @@ import {
 const ServiceTierSelector = ({ serviceTiers, selectedTier, selectedOption, onTierChange, onOptionChange }) => {
   const [expandedTier, setExpandedTier] = useState(selectedTier || 'basic');
 
+  // Auto-expand the selected tier when it changes
+  React.useEffect(() => {
+    if (selectedTier) {
+      setExpandedTier(selectedTier);
+    }
+  }, [selectedTier]);
+
   const getTierIcon = (tierKey) => {
     const iconMap = {
       'basic': faCheck,
