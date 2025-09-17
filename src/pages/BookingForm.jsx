@@ -20,31 +20,14 @@ const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
 const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_BOOKING_TEMPLATE_ID;
 const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
-// Check if pincode exists using India Post API
-const checkPincodeExists = async (pincode) => {
-  try {
-    const res = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
-    const data = await res.json();
-    return data[0].Status === 'Success';
-  } catch {
-    return false;
-  }
+// Simple pincode validation - just check if it's 6 digits
+const isValidPincode = (pincode) => {
+  return /^\d{6}$/.test(pincode.replace(/\D/g, ''));
 };
-// Check if city lies in state for the given pincode
-const checkCityInState = async (city, state, pincode) => {
-  try {
-    const res = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
-    const data = await res.json();
-    if (data[0].Status !== 'Success') return false;
-    const postOffices = data[0].PostOffice || [];
-    return postOffices.some(
-      po =>
-        po.District.toLowerCase() === city.trim().toLowerCase() &&
-        po.State.toLowerCase() === state.trim().toLowerCase()
-    );
-  } catch {
-    return false;
-  }
+
+// Basic city-state validation - just check if fields are filled
+const isValidCityState = (city, state) => {
+  return city.trim().length > 0 && state.trim().length > 0;
 };
 
 const BookingForm = () => {
@@ -200,45 +183,8 @@ const BookingForm = () => {
     }
   }, [id, location, navigate, currentUser]);
   
-  useEffect(() => {
-    const fetchCityState = async () => {
-      const pincode = formData.pincode.trim();
-      if (/^\d{6}$/.test(pincode)) {
-        try {
-          const res = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
-          const data = await res.json();
-          if (data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
-            const postOffice = data[0].PostOffice[0];
-            setFormData(prev => ({
-              ...prev,
-              city: postOffice.District,
-              state: postOffice.State
-            }));
-            setErrors(prev => ({
-              ...prev,
-              pincode: '', // clear pincode error if any
-              city: '',    // clear city error if any
-              state: ''    // clear state error if any
-            }));
-          } else {
-            setErrors(prev => ({
-              ...prev,
-              pincode: 'Invalid or non-existent pincode'
-            }));
-          }
-        } catch {
-          setErrors(prev => ({
-            ...prev,
-            pincode: 'Error validating pincode'
-          }));
-        }
-      }
-    };
-
-    fetchCityState();
-    // Only run when pincode changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData.pincode]);
+  // Removed the problematic postal code API call useEffect
+  // Users will now need to manually enter city and state
   
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -285,29 +231,20 @@ const BookingForm = () => {
     if (!formData.state.trim()) {
       newErrors.state = 'State is required';
     }
-    // Only check if all three fields are filled and pincode is valid
-    if (
-      formData.city.trim() &&
-      formData.state.trim() &&
-      formData.pincode.trim() &&
-      /^\d{6}$/.test(formData.pincode.replace(/\D/g, ''))
-    ) {
-      const isValidCityState = await checkCityInState(formData.city, formData.state, formData.pincode);
-      if (!isValidCityState) {
-        newErrors.city = 'City does not match the state for this pincode';
-        newErrors.state = 'State does not match the city for this pincode';
+    // Basic validation for city and state
+    if (!isValidCityState(formData.city, formData.state)) {
+      if (!formData.city.trim()) {
+        newErrors.city = 'City is required';
+      }
+      if (!formData.state.trim()) {
+        newErrors.state = 'State is required';
       }
     }
 
     if (!formData.pincode.trim()) {
       newErrors.pincode = 'Pincode is required';
-    } else if (!/^\d{6}$/.test(formData.pincode.replace(/\D/g, ''))) {
+    } else if (!isValidPincode(formData.pincode)) {
       newErrors.pincode = 'Pincode must be 6 digits';
-    } else {
-      const exists = await checkPincodeExists(formData.pincode);
-      if (!exists) {
-        newErrors.pincode = 'Pincode does not exist';
-      }
     }
 
     if (!formData.date.trim()) newErrors.date = 'Date is required';
