@@ -40,7 +40,7 @@ const Header = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [userData, setUserData] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isBannerVisible, setIsBannerVisible] = useState(true);
+  const [isBannerVisible, setIsBannerVisible] = useState(false);
   const [isSavedAddressesModalOpen, setIsSavedAddressesModalOpen] = useState(false);
 
   const navigate = useNavigate();
