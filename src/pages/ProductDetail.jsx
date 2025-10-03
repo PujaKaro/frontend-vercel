@@ -14,6 +14,7 @@ import ExpandableSections from '../components/ExpandableSections';
 import ServiceTierSelector from '../components/ServiceTierSelector';
 import { trackProductView, trackAddToCart } from '../utils/analytics';
 import useNavigationTracker from '../hooks/useNavigationTracker';
+import ImageOptimized from '../components/ImageOptimized';
 import { 
   getProductById, 
   getPujaById, 
@@ -569,11 +570,10 @@ const ProductDetail = () => {
                       }`}
                       onClick={() => setActiveImage(index)}
                     >
-                      <img 
+                      <ImageOptimized 
                         src={img} 
                         alt={`${item.name} thumbnail ${index+1}`}
                         className="w-full h-full object-cover"
-                        loading="lazy"
                       />
                     </div>
                   ))}
@@ -907,11 +907,10 @@ const ProductDetail = () => {
                   onClick={() => navigate(`/${itemType === 'product' ? 'product' : 'puja-booking'}/${item.id}`)}
                 >
                   <div className="h-48 bg-gray-100 overflow-hidden">
-                    <img 
+                    <ImageOptimized 
                       src={item.image} 
                       alt={item.name}
                       className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                      loading="lazy"
                     />
                   </div>
                   

@@ -23,6 +23,7 @@ import {
 import { db } from '../config/firebase';
 import { toast } from 'react-hot-toast';
 import { sendTestimonialStatusNotification } from '../utils/notificationUtils';
+import ImageOptimized from '../components/ImageOptimized';
 
 const AdminTestimonialsTab = () => {
   const [testimonials, setTestimonials] = useState([]);
@@ -332,7 +333,7 @@ const AdminTestimonialsTab = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           {testimonial.userImage ? (
-                            <img
+                            <ImageOptimized
                               src={testimonial.userImage}
                               alt={testimonial.userName}
                               className="h-8 w-8 rounded-full object-cover"
@@ -428,7 +429,7 @@ const AdminTestimonialsTab = () => {
             <div className="mb-4">
               <div className="flex items-center mb-4">
                 {selectedTestimonial.userImage ? (
-                  <img
+                  <ImageOptimized
                     src={selectedTestimonial.userImage}
                     alt={selectedTestimonial.userName}
                     className="h-12 w-12 rounded-full object-cover mr-4"

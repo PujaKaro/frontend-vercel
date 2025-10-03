@@ -22,6 +22,7 @@ import NotificationBell from './NotificationBell';
 import SavedAddressesModal from './SavedAddressesModal';
 import { getAllProducts } from '../utils/dataUtils';
 import { getAllPujas } from '../utils/dataUtils';
+import ImageOptimized from '../components/ImageOptimized';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -362,7 +363,7 @@ const Header = () => {
                       >
                         <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center mr-3">
                           {suggestion.image ? (
-                            <img 
+                            <ImageOptimized 
                               src={suggestion.image} 
                               alt={suggestion.name}
                               className="w-full h-full object-cover rounded-lg"
@@ -606,7 +607,7 @@ const Header = () => {
                       >
                         <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center mr-3">
                           {suggestion.image ? (
-                            <img 
+                            <ImageOptimized 
                               src={suggestion.image} 
                               alt={suggestion.name}
                               className="w-full h-full object-cover rounded-lg"

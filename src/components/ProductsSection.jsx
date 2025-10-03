@@ -5,6 +5,7 @@ import { db } from '../config/firebase';
 import Glide from '@glidejs/glide';
 import '@glidejs/glide/dist/css/glide.core.min.css';
 import '@glidejs/glide/dist/css/glide.theme.min.css';
+import ImageOptimized from '../components/ImageOptimized';
 
 const ProductsSection = () => {
   const glideRef = useRef(null);
@@ -230,7 +231,7 @@ const ProductsSection = () => {
                         <span className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">Out of Stock</span>
                       )}
                       <div className="h-40 flex-shrink-0 flex items-center justify-center bg-gray-50">
-                        <img 
+                        <ImageOptimized 
                           src={product.image} 
                           className="w-auto h-full max-h-36 object-contain" 
                           alt={product.name || product.title} 
