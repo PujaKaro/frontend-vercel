@@ -2152,6 +2152,7 @@ const AdminDashboard = () => {
                             className="h-10 w-10 rounded-full object-cover"
                             src={product.image || 'https://via.placeholder.com/150'}
                             alt={product.name}
+                            loading="eager"
                           />
                         </div>
                         <div className="ml-4">
@@ -2407,6 +2408,7 @@ const AdminDashboard = () => {
                             className="h-10 w-10 rounded-full object-cover"
                             src={pandit.image || 'https://via.placeholder.com/150'}
                             alt={pandit.name}
+                            loading="eager"
                           />
                         </div>
                         <div className="ml-4">

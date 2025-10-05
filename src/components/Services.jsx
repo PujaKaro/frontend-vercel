@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import ImageOptimized from '../components/ImageOptimized';
 
 const Services = () => {
   const [servicesContent, setServicesContent] = useState({
@@ -101,7 +102,7 @@ const Services = () => {
             <div className="w-10 h-10 mx-auto mb-6 relative">
               <div className="absolute inset-0 bg-[#ffeee7] rounded-full transform group-hover:scale-110 transition-transform duration-300"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <img src={service.image} alt={service.title} className="w-12 h-12 object-contain" />
+                <ImageOptimized src={service.image} alt={service.title} className="w-12 h-12 object-cover"/>
               </div>
             </div>
             
