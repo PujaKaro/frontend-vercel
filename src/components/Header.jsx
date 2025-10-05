@@ -314,7 +314,8 @@ const Header = () => {
               <Link to="/puja-booking" className="text-gray-700 hover:text-[#317bea] font-medium">
                 Book a Puja
               </Link>
-              <div className="relative group">
+              {/* Astrology dropdown - commented out */}
+              {/* <div className="relative group">
                 <button className="text-gray-700 hover:text-[#317bea] font-medium flex items-center">
                   Astrology
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -332,7 +333,7 @@ const Header = () => {
                     </Link>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </nav>
 
             {/* Search Bar and Location/Language */}
@@ -705,8 +706,8 @@ const Header = () => {
                 <span className="font-medium">Book a Puja</span>
               </Link>
 
-              {/* Astrology Section */}
-              <div className="border-t border-gray-100 pt-3 mt-3">
+              {/* Astrology Section - commented out */}
+              {/* <div className="border-t border-gray-100 pt-3 mt-3">
                 <p className="text-sm font-semibold text-gray-500 mb-2 px-3">Astrology</p>
                 <Link 
                   to="/daily-horoscope" 
@@ -723,7 +724,7 @@ const Header = () => {
                   <span className="font-medium">Birth Chart Analysis</span>
                   <span className="ml-2 px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full">New!</span>
                 </Link>
-              </div>
+              </div> */}
 
               {/* Cart */}
               <Link 
