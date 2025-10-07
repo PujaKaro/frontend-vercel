@@ -163,9 +163,9 @@ const CancellationAndRefund = () => {
             <p className="text-gray-600">
               For refund related queries, contact us at:
               <br />
-              Email: refunds@pujaservices.com
+              Email: info@pujakaro.in
               <br />
-              Phone: +91 XXXXXXXXXX
+              Phone: +91 8800627513
               <br />
               (Monday to Saturday, 9 AM - 6 PM)
             </p>

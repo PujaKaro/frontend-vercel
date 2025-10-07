@@ -19,8 +19,8 @@ const Footer = () => {
     services: [
       { name: 'Puja Booking', path: '/puja-booking' },
       { name: 'Flowers & Mala', path: '/flowers-and-mala' },
-      { name: 'Prashad Services', path: '/prashad-services' },
-      { name: 'Custom Services', path: '/custom-services' }
+      // { name: 'Prashad Services', path: '/prashad-services' },
+      // { name: 'Custom Services', path: '/custom-services' }
     ],
     support: [
       { name: 'Cancellation And Refund', path: '/cancellation-and-refund' },

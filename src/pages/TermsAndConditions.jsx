@@ -28,7 +28,6 @@ const TermsAndConditions = () => {
             </p>
             <ul className="list-disc pl-6 mt-2 text-gray-600">
               <li>Online puja booking</li>
-              <li>Prasad delivery</li>
               <li>Religious consultations</li>
               <li>Sacred items delivery</li>
             </ul>
@@ -100,7 +99,7 @@ const TermsAndConditions = () => {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Governing Law</h2>
             <p className="text-gray-600">
               These terms are governed by the laws of India. Any disputes shall be subject
-              to the exclusive jurisdiction of the courts in [Your City], India.
+              to the exclusive jurisdiction of the courts in Delhi NCR, India.
             </p>
           </section>
 
@@ -109,9 +108,9 @@ const TermsAndConditions = () => {
             <p className="text-gray-600">
               For questions about these Terms and Conditions, please contact us at:
               <br />
-              Email: support@pujaservices.com
+              Email: info@pujakaro.in
               <br />
-              Phone: +91 XXXXXXXXXX
+              Phone: +91 8800627513
             </p>
           </section>
         </div>
