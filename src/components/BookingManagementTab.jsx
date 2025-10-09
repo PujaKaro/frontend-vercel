@@ -65,6 +65,9 @@ const BookingManagementTab = () => {
   const [selectedBookingForReview, setSelectedBookingForReview] = useState(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [showInvoice, setShowInvoice] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentType, setPaymentType] = useState('full'); // 'full' or 'partial'
+  const [partialAmount, setPartialAmount] = useState('');
 
   useEffect(() => {
     fetchBookings();
@@ -109,7 +112,7 @@ const BookingManagementTab = () => {
     }
   };
 
-  const handleStatusChange = async (bookingId, newStatus) => {
+  const handleStatusChange = async (bookingId, newStatus, paymentData = null) => {
     try {
       setUpdatingStatus(true);
       const bookingRef = doc(db, 'bookings', bookingId);
@@ -132,7 +135,28 @@ const BookingManagementTab = () => {
       // Add payment received timestamp if status is payment_received
       if (newStatus === 'payment_received') {
         updateData.paymentReceivedAt = serverTimestamp();
-        updateData.paymentStatus = 'received';
+        
+        if (paymentData) {
+          // Handle partial payment
+          if (paymentData.type === 'partial') {
+            updateData.paymentStatus = 'partial';
+            updateData.paidAmount = parseFloat(paymentData.amount);
+            updateData.remainingAmount = bookingData.price - parseFloat(paymentData.amount);
+            updateData.paymentType = 'partial';
+          } else {
+            // Handle full payment
+            updateData.paymentStatus = 'received';
+            updateData.paidAmount = bookingData.price;
+            updateData.remainingAmount = 0;
+            updateData.paymentType = 'full';
+          }
+        } else {
+          // Default to full payment if no payment data provided
+          updateData.paymentStatus = 'received';
+          updateData.paidAmount = bookingData.price;
+          updateData.remainingAmount = 0;
+          updateData.paymentType = 'full';
+        }
       }
       
       // If marking as completed, ensure payment status is set to received
@@ -166,11 +190,17 @@ const BookingManagementTab = () => {
                 updatedAt: new Date(),
                 ...(newStatus === 'payment_received' && {
                   paymentReceivedAt: new Date(),
-                  paymentStatus: 'received'
+                  paymentStatus: paymentData?.type === 'partial' ? 'partial' : 'received',
+                  paidAmount: paymentData?.type === 'partial' ? parseFloat(paymentData.amount) : booking.price,
+                  remainingAmount: paymentData?.type === 'partial' ? booking.price - parseFloat(paymentData.amount) : 0,
+                  paymentType: paymentData?.type || 'full'
                 }),
                 ...(newStatus === 'completed' && {
                   paymentStatus: 'received',
-                  paymentReceivedAt: booking.paymentReceivedAt || new Date()
+                  paymentReceivedAt: booking.paymentReceivedAt || new Date(),
+                  paidAmount: booking.paidAmount || booking.price,
+                  remainingAmount: 0,
+                  paymentType: 'full'
                 })
               }
             : booking
@@ -185,18 +215,28 @@ const BookingManagementTab = () => {
           updatedAt: new Date(),
           ...(newStatus === 'payment_received' && {
             paymentReceivedAt: new Date(),
-            paymentStatus: 'received'
+            paymentStatus: paymentData?.type === 'partial' ? 'partial' : 'received',
+            paidAmount: paymentData?.type === 'partial' ? parseFloat(paymentData.amount) : prev.price,
+            remainingAmount: paymentData?.type === 'partial' ? prev.price - parseFloat(paymentData.amount) : 0,
+            paymentType: paymentData?.type || 'full'
           }),
           ...(newStatus === 'completed' && {
             paymentStatus: 'received',
-            paymentReceivedAt: prev.paymentReceivedAt || new Date()
+            paymentReceivedAt: prev.paymentReceivedAt || new Date(),
+            paidAmount: prev.paidAmount || prev.price,
+            remainingAmount: 0,
+            paymentType: 'full'
           })
         }));
       }
 
       // Show appropriate messages
       if (newStatus === 'payment_received') {
-        toast.success('Payment marked as received. Invoice can now be generated.');
+        if (paymentData?.type === 'partial') {
+          toast.success(`Partial payment of ₹${paymentData.amount} marked as received. Remaining: ₹${bookingData.price - parseFloat(paymentData.amount)}`);
+        } else {
+          toast.success('Full payment marked as received. Invoice can now be generated.');
+        }
       } else if (newStatus === 'completed') {
         toast.success(`Booking marked as completed. Customer can now download invoice and you can request a review.`);
       } else {
@@ -208,6 +248,62 @@ const BookingManagementTab = () => {
     } finally {
       setUpdatingStatus(false);
     }
+  };
+
+  const handlePaymentModalOpen = () => {
+    setShowPaymentModal(true);
+    setPaymentType('full');
+    setPartialAmount('');
+  };
+
+  const handlePaymentModalClose = () => {
+    setShowPaymentModal(false);
+    setPaymentType('full');
+    setPartialAmount('');
+  };
+
+  const handlePaymentSubmit = () => {
+    if (paymentType === 'partial') {
+      const amount = parseFloat(partialAmount);
+      if (!amount || amount <= 0) {
+        toast.error('Please enter a valid partial amount');
+        return;
+      }
+      
+      // Check if this is a remaining payment for partial payment
+      if (selectedBooking.paymentStatus === 'partial') {
+        const totalPaid = (selectedBooking.paidAmount || 0) + amount;
+        if (totalPaid >= selectedBooking.price) {
+          // Mark as full payment received
+          handleStatusChange(selectedBooking.id, 'payment_received', {
+            type: 'full',
+            amount: selectedBooking.price
+          });
+        } else {
+          // Update partial payment
+          handleStatusChange(selectedBooking.id, 'payment_received', {
+            type: 'partial',
+            amount: totalPaid
+          });
+        }
+      } else {
+        // New partial payment
+        if (amount >= selectedBooking.price) {
+          toast.error('Partial amount must be less than total amount');
+          return;
+        }
+        handleStatusChange(selectedBooking.id, 'payment_received', {
+          type: 'partial',
+          amount: partialAmount
+        });
+      }
+    } else {
+      handleStatusChange(selectedBooking.id, 'payment_received', {
+        type: 'full',
+        amount: selectedBooking.price
+      });
+    }
+    handlePaymentModalClose();
   };
 
   const handleDelete = async (bookingId) => {
@@ -324,7 +420,7 @@ const BookingManagementTab = () => {
                   <p><strong>Invoice #:</strong> INV-${selectedBooking.id.slice(-8).toUpperCase()}</p>
                   <p><strong>Date:</strong> ${new Date().toLocaleDateString('en-IN')}</p>
                   <p><strong>Due Date:</strong> ${new Date().toLocaleDateString('en-IN')}</p>
-                  <p><strong>Status:</strong> ${selectedBooking.paymentStatus === 'received' ? 'Paid' : 'Pending'}</p>
+                  <p><strong>Status:</strong> ${selectedBooking.paymentStatus === 'received' ? 'Paid' : selectedBooking.paymentStatus === 'partial' ? 'Partially Paid' : 'Pending'}</p>
                 </div>
               </div>
             </div>
@@ -421,9 +517,16 @@ const BookingManagementTab = () => {
                 <p><strong>Payment Method:</strong> Online Payment / UPI</p>
               </div>
               <div>
-                <p><strong>Payment Status:</strong> ${selectedBooking.paymentStatus === 'received' ? 'Paid' : 'Pending'}</p>
+                <p><strong>Payment Status:</strong> ${selectedBooking.paymentStatus === 'received' ? 'Paid' : selectedBooking.paymentStatus === 'partial' ? 'Partially Paid' : 'Pending'}</p>
               </div>
             </div>
+            ${selectedBooking.paymentStatus === 'partial' ? `
+              <div class="partial-payment-details" style="background: #dbeafe; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                <h4 style="color: #1e40af; margin: 0 0 10px 0; font-size: 14px;">Payment Details:</h4>
+                <p style="margin: 5px 0; color: #1e3a8a;"><strong>Paid Amount:</strong> Rs. ${selectedBooking.paidAmount?.toLocaleString() || '0'}</p>
+                <p style="margin: 5px 0; color: #1e3a8a;"><strong>Remaining Amount:</strong> Rs. ${selectedBooking.remainingAmount?.toLocaleString() || '0'}</p>
+              </div>
+            ` : ''}
           </div>
 
           <!-- Terms and Notes -->
@@ -743,7 +846,11 @@ const BookingManagementTab = () => {
           return 0;
         };
         const calculateTotal = () => calculateSubtotal() - calculateDiscount();
-        const getPaymentStatus = () => selectedBooking.paymentStatus === 'received' ? 'Paid' : 'Pending';
+        const getPaymentStatus = () => {
+          if (selectedBooking.paymentStatus === 'received') return 'Paid';
+          if (selectedBooking.paymentStatus === 'partial') return 'Partially Paid';
+          return 'Pending';
+        };
         
         // Try to add company logo image with better error handling
         let logoAdded = false;
@@ -984,6 +1091,23 @@ const BookingManagementTab = () => {
         pdf.text('Total:', 120, totalsStartY + 25);
         pdf.text(`Rs. ${calculateTotal().toLocaleString()}`, 170, totalsStartY + 25);
         
+        // Partial payment details if applicable
+        if (selectedBooking.paymentStatus === 'partial') {
+          const paymentDetailsY = totalsStartY + 40;
+          pdf.setFontSize(12);
+          pdf.setTextColor(30, 64, 175);
+          pdf.text('Payment Details:', 20, paymentDetailsY);
+          
+          pdf.setFontSize(10);
+          pdf.setTextColor(55, 65, 81);
+          pdf.text(`Paid Amount: Rs. ${selectedBooking.paidAmount?.toLocaleString() || '0'}`, 20, paymentDetailsY + 8);
+          pdf.text(`Remaining Amount: Rs. ${selectedBooking.remainingAmount?.toLocaleString() || '0'}`, 20, paymentDetailsY + 16);
+          
+          // Draw box around payment details
+          pdf.setDrawColor(30, 64, 175);
+          pdf.rect(18, paymentDetailsY - 2, 174, 28);
+        }
+        
         // Payment information
         const paymentStartY = totalsStartY + 40;
         pdf.setFontSize(14);
@@ -1067,7 +1191,12 @@ const BookingManagementTab = () => {
     }
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status, paymentStatus) => {
+    // Handle partial payment status
+    if (status === 'payment_received' && paymentStatus === 'partial') {
+      return 'bg-orange-100 text-orange-800 border-orange-200';
+    }
+    
     switch (status) {
       case 'completed':
         return 'bg-green-100 text-green-800 border-green-200';
@@ -1291,8 +1420,8 @@ const BookingManagementTab = () => {
                   <div className="text-sm text-gray-500">{booking.time}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border ${getStatusColor(booking.status)}`}>
-                    {getStatusIcon(booking.status)} {booking.status}
+                  <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border ${getStatusColor(booking.status, booking.paymentStatus)}`}>
+                    {getStatusIcon(booking.status)} {booking.status === 'payment_received' && booking.paymentStatus === 'partial' ? 'Partial Payment' : booking.status}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -1412,8 +1541,8 @@ const BookingManagementTab = () => {
                     <h4 className="text-lg font-medium text-gray-900">Current Status</h4>
                     <div className="flex items-center mt-2">
                       {getStatusIcon(selectedBooking.status)}
-                      <span className={`ml-2 px-3 py-1 text-sm font-semibold rounded-full border ${getStatusColor(selectedBooking.status)}`}>
-                        {selectedBooking.status}
+                      <span className={`ml-2 px-3 py-1 text-sm font-semibold rounded-full border ${getStatusColor(selectedBooking.status, selectedBooking.paymentStatus)}`}>
+                        {selectedBooking.status === 'payment_received' && selectedBooking.paymentStatus === 'partial' ? 'Partial Payment' : selectedBooking.status}
                       </span>
                     </div>
                   </div>
@@ -1440,7 +1569,7 @@ const BookingManagementTab = () => {
                     )}
                     {selectedBooking.status === 'confirmed' && (
                       <button
-                        onClick={() => handleStatusChange(selectedBooking.id, 'payment_received')}
+                        onClick={handlePaymentModalOpen}
                         disabled={updatingStatus}
                         className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
@@ -1448,7 +1577,17 @@ const BookingManagementTab = () => {
                         {updatingStatus ? 'Marking Payment...' : 'Mark Payment Received'}
                       </button>
                     )}
-                    {selectedBooking.status === 'payment_received' && (
+                    {selectedBooking.status === 'payment_received' && selectedBooking.paymentStatus === 'partial' && (
+                      <button
+                        onClick={handlePaymentModalOpen}
+                        disabled={updatingStatus}
+                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <FontAwesomeIcon icon={faCreditCard} className="mr-2" />
+                        {updatingStatus ? 'Processing...' : 'Mark Remaining Payment'}
+                      </button>
+                    )}
+                    {selectedBooking.status === 'payment_received' && selectedBooking.paymentStatus === 'received' && (
                       <button
                         onClick={() => handleStatusChange(selectedBooking.id, 'completed')}
                         disabled={updatingStatus}
@@ -1856,6 +1995,108 @@ const BookingManagementTab = () => {
         </div>
       )}
 
+      {/* Payment Selection Modal */}
+      {showPaymentModal && selectedBooking && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full">
+            {/* Header */}
+            <div className="border-b border-gray-200 px-6 py-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">Mark Payment Received</h3>
+                <button
+                  onClick={handlePaymentModalClose}
+                  className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
+                >
+                  &times;
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-4">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-600">Total Amount:</p>
+                <p className="text-xl font-semibold text-gray-900">₹{selectedBooking.price?.toLocaleString()}</p>
+                {selectedBooking.paymentStatus === 'partial' && (
+                  <div className="mt-2 pt-2 border-t border-gray-200">
+                    <p className="text-sm text-gray-600">Already Paid:</p>
+                    <p className="text-lg font-medium text-green-600">₹{selectedBooking.paidAmount?.toLocaleString()}</p>
+                    <p className="text-sm text-gray-600">Remaining:</p>
+                    <p className="text-lg font-medium text-orange-600">₹{selectedBooking.remainingAmount?.toLocaleString()}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-gray-700">Payment Type</label>
+                <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="paymentType"
+                      value="full"
+                      checked={paymentType === 'full'}
+                      onChange={(e) => setPaymentType(e.target.value)}
+                      className="mr-3"
+                    />
+                    <span className="text-sm text-gray-700">Full Payment (₹{selectedBooking.price?.toLocaleString()})</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="paymentType"
+                      value="partial"
+                      checked={paymentType === 'partial'}
+                      onChange={(e) => setPaymentType(e.target.value)}
+                      className="mr-3"
+                    />
+                    <span className="text-sm text-gray-700">Partial Payment</span>
+                  </label>
+                </div>
+              </div>
+
+              {paymentType === 'partial' && (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Partial Amount (₹)</label>
+                  <input
+                    type="number"
+                    value={partialAmount}
+                    onChange={(e) => setPartialAmount(e.target.value)}
+                    placeholder="Enter partial amount"
+                    min="1"
+                    max={selectedBooking.price - 1}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <p className="text-xs text-gray-500">
+                    {selectedBooking.paymentStatus === 'partial' 
+                      ? `Remaining: ₹${partialAmount ? (selectedBooking.remainingAmount - parseFloat(partialAmount || 0)).toLocaleString() : selectedBooking.remainingAmount?.toLocaleString()}`
+                      : `Remaining: ₹${partialAmount ? (selectedBooking.price - parseFloat(partialAmount || 0)).toLocaleString() : selectedBooking.price?.toLocaleString()}`
+                    }
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-gray-200 px-6 py-4 flex justify-end space-x-3">
+              <button
+                onClick={handlePaymentModalClose}
+                className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePaymentSubmit}
+                disabled={updatingStatus || (paymentType === 'partial' && (!partialAmount || parseFloat(partialAmount) <= 0))}
+                className="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {updatingStatus ? 'Processing...' : 'Mark Payment Received'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Invoice Modal */}
       {showInvoice && selectedBooking && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -1896,4 +2137,5 @@ const BookingManagementTab = () => {
 };
 
 export default BookingManagementTab; 
+
 
