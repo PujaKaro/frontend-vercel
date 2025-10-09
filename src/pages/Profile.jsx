@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { companyConfig, getCompanyContactInfo } from '../config/company';
 import { 
   faUser, faEnvelope, faPhone, faLocationDot, faEdit, 
   faShoppingBag, faPray, faHistory, faAddressBook, 
@@ -325,12 +326,12 @@ const Profile = () => {
                   <h1>Pujakaro</h1>
                   <p>Sacred Services & Spiritual Solutions</p>
                 </div>
-                <div class="mt-4">
-                  <p>G-275, Molarband Extn.</p>
-                  <p>Delhi - 110044</p>
-                  <p>Phone: +91 7982545360</p>
-                  <p>Email: info@pujakaro.in</p>
-                </div>
+              <div class="mt-4">
+                <p>${companyConfig.address.line1}</p>
+                <p>${companyConfig.address.line2}</p>
+                <p>Phone: ${companyConfig.contact.phone}</p>
+                <p>Email: ${companyConfig.contact.email}</p>
+              </div>
               </div>
               <div class="invoice-info">
                 <h2>INVOICE</h2>
@@ -449,7 +450,7 @@ const Profile = () => {
                   <li>Payment is due upon receipt of this invoice</li>
                   <li>Service will be provided as per scheduled date and time</li>
                   <li>Cancellation policy applies as per terms</li>
-                  <li>For any queries, contact us at info@pujakaro.in</li>
+                  <li>For any queries, contact us at ${companyConfig.contact.email}</li>
                 </ul>
               </div>
               <div>
@@ -468,7 +469,7 @@ const Profile = () => {
 
           <!-- Footer -->
           <div class="footer">
-            <p>© 2024 Pujakaro. All rights reserved. | Sacred Services & Spiritual Solutions</p>
+            <p>${companyConfig.copyright}</p>
           </div>
         </div>
       `;

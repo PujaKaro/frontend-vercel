@@ -1,5 +1,6 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { companyConfig, getCompanyContactInfo } from '../config/company';
 import {
   faIndianRupeeSign,
   faDownload,
@@ -64,14 +65,14 @@ const BookingInvoice = ({ booking, onClose, onDownload, onPrint, onEmail }) => {
           <div class="header-content">
             <div class="company-info">
               <div>
-                <h1>Pujakaro</h1>
+                <h1>PUJAKARO CONNECT PVT LTD</h1>
                 <p>Sacred Services & Spiritual Solutions</p>
               </div>
               <div class="mt-4">
-                <p>G-275, Molarband Extn.</p>
-                <p>Delhi - 110044</p>
-                <p>Phone: +91 7982545360</p>
-                <p>Email: info@pujakaro.in</p>
+                <p>${companyConfig.address.line1}</p>
+                <p>${companyConfig.address.line2}</p>
+                <p>Phone: ${companyConfig.contact.phone}</p>
+                <p>Email: ${companyConfig.contact.email}</p>
               </div>
             </div>
             <div class="invoice-info">
@@ -191,7 +192,7 @@ const BookingInvoice = ({ booking, onClose, onDownload, onPrint, onEmail }) => {
                 <li>Payment is due upon receipt of this invoice</li>
                 <li>Service will be provided as per scheduled date and time</li>
                 <li>Cancellation policy applies as per terms</li>
-                <li>For any queries, contact us at info@pujakaro.in</li>
+                <li>For any queries, contact us at ${companyConfig.contact.email}</li>
               </ul>
             </div>
             <div>
@@ -210,7 +211,7 @@ const BookingInvoice = ({ booking, onClose, onDownload, onPrint, onEmail }) => {
 
         <!-- Footer -->
         <div class="footer">
-          <p>© 2024 Pujakaro. All rights reserved. | Sacred Services & Spiritual Solutions</p>
+          <p>${companyConfig.copyright}</p>
         </div>
       </div>
     `;
@@ -495,15 +496,15 @@ const BookingInvoice = ({ booking, onClose, onDownload, onPrint, onEmail }) => {
                 }}
               />
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Pujakaro</h1>
+                <h1 className="text-2xl font-bold text-gray-900">PUJAKARO CONNECT PVT LTD</h1>
                 <p className="text-gray-600">Sacred Services & Spiritual Solutions</p>
               </div>
             </div>
             <div className="mt-4 text-sm text-gray-600">
-              <p>G-275, Molarband Extn.</p>
-              <p>Delhi - 110044</p>
-              <p>Phone: +91 7982545360</p>
-              <p>Email: info@pujakaro.in</p>
+              <p>{companyConfig.address.line1}</p>
+              <p>{companyConfig.address.line2}</p>
+              <p>Phone: {companyConfig.contact.phone}</p>
+              <p>Email: {companyConfig.contact.email}</p>
             </div>
           </div>
           <div className="text-right invoice-info">
@@ -678,7 +679,7 @@ const BookingInvoice = ({ booking, onClose, onDownload, onPrint, onEmail }) => {
               <li>• Payment is due upon receipt of this invoice</li>
               <li>• Service will be provided as per scheduled date and time</li>
               <li>• Cancellation policy applies as per terms</li>
-              <li>• For any queries, contact us at info@pujakaro.in</li>
+              <li>• For any queries, contact us at {companyConfig.contact.email}</li>
             </ul>
           </div>
           <div>
@@ -700,7 +701,7 @@ const BookingInvoice = ({ booking, onClose, onDownload, onPrint, onEmail }) => {
       {/* Footer */}
       <div className="px-8 py-4 bg-gray-900 text-white text-center footer">
         <p className="text-sm">
-          © 2024 Pujakaro. All rights reserved. | Sacred Services & Spiritual Solutions
+          {companyConfig.copyright}
         </p>
       </div>
 

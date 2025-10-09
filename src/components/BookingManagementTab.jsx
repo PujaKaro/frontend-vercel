@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { companyConfig, getCompanyContactInfo } from '../config/company';
 import {
   faCheck,
   faBan,
@@ -307,15 +308,15 @@ const BookingManagementTab = () => {
             <div class="header-content">
               <div class="company-info">
                 <div>
-                  <h1>Pujakaro</h1>
+                  <h1>PUJAKARO CONNECT PVT LTD</h1>
                   <p>Sacred Services & Spiritual Solutions</p>
                 </div>
-                <div class="mt-4">
-                  <p>G-275, Molarband Extn.</p>
-                  <p>Delhi - 110044</p>
-                  <p>Phone: +91 7982545360</p>
-                  <p>Email: info@pujakaro.in</p>
-                </div>
+              <div class="mt-4">
+                <p>${companyConfig.address.line1}</p>
+                <p>${companyConfig.address.line2}</p>
+                <p>Phone: ${companyConfig.contact.phone}</p>
+                <p>Email: ${companyConfig.contact.email}</p>
+              </div>
               </div>
               <div class="invoice-info">
                 <h2>INVOICE</h2>
@@ -434,7 +435,7 @@ const BookingManagementTab = () => {
                   <li>Payment is due upon receipt of this invoice</li>
                   <li>Service will be provided as per scheduled date and time</li>
                   <li>Cancellation policy applies as per terms</li>
-                  <li>For any queries, contact us at info@pujakaro.in</li>
+                  <li>For any queries, contact us at ${companyConfig.contact.email}</li>
                 </ul>
               </div>
               <div>
@@ -788,7 +789,7 @@ const BookingManagementTab = () => {
                     // Add company name next to logo
                     pdf.setFontSize(24);
                     pdf.setTextColor(17, 24, 39);
-                    pdf.text('Pujakaro', 25 + logoWidth, 30);
+                    pdf.text('PUJAKARO CONNECT PVT LTD', 25 + logoWidth, 30);
                     
                     logoAdded = true;
                     resolve();
@@ -828,7 +829,7 @@ const BookingManagementTab = () => {
           // Add company name
           pdf.setFontSize(24);
           pdf.setTextColor(17, 24, 39);
-          pdf.text('Pujakaro', 35, 30);
+          pdf.text('PUJAKARO CONNECT PVT LTD', 35, 30);
           
           // Add decorative line
           pdf.setDrawColor(37, 99, 235);
@@ -847,10 +848,11 @@ const BookingManagementTab = () => {
         }
         
         // Company contact information
-        pdf.text('G-275, Molarband Extn.', 20, 50);
-        pdf.text('Delhi - 110044', 20, 55);
-        pdf.text('Phone: +91 7982545360', 20, 60);
-        pdf.text('Email: info@pujakaro.in', 20, 65);
+        const contactInfo = getCompanyContactInfo();
+        pdf.text(companyConfig.address.line1, 20, 50);
+        pdf.text(companyConfig.address.line2, 20, 55);
+        pdf.text(`Phone: ${companyConfig.contact.phone}`, 20, 60);
+        pdf.text(`Email: ${companyConfig.contact.email}`, 20, 65);
         
         // Invoice title and details
         pdf.setFontSize(28);
@@ -1005,7 +1007,7 @@ const BookingManagementTab = () => {
           '• Payment is due upon receipt of this invoice',
           '• Service will be provided as per scheduled date and time',
           '• Cancellation policy applies as per terms',
-          '• For any queries, contact us at info@pujakaro.in'
+          `• For any queries, contact us at ${companyConfig.contact.email}`
         ];
         
         terms.forEach((term, index) => {
@@ -1032,7 +1034,7 @@ const BookingManagementTab = () => {
         pdf.rect(0, footerY, 210, 30, 'F');
         pdf.setTextColor(255, 255, 255);
         pdf.setFontSize(10);
-        pdf.text('© 2024 Pujakaro. All rights reserved. | Sacred Services & Spiritual Solutions', 105, footerY + 15, { align: 'center' });
+        pdf.text(companyConfig.copyright, 105, footerY + 15, { align: 'center' });
         
         // Save the PDF
         pdf.save(`Invoice-${invoiceNumber}.pdf`);
