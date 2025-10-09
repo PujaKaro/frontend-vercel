@@ -46,11 +46,15 @@ const BookingInvoice = ({ booking, onClose, onDownload, onPrint, onEmail }) => {
   };
 
   const getPaymentStatus = () => {
-    return booking.paymentStatus === 'received' ? 'Paid' : 'Pending';
+    if (booking.paymentStatus === 'received') return 'Paid';
+    if (booking.paymentStatus === 'partial') return 'Partially Paid';
+    return 'Pending';
   };
 
   const getPaymentStatusColor = () => {
-    return booking.paymentStatus === 'received' ? 'text-green-600' : 'text-red-600';
+    if (booking.paymentStatus === 'received') return 'text-green-600';
+    if (booking.paymentStatus === 'partial') return 'text-yellow-600';
+    return 'text-red-600';
   };
 
   const handlePrint = () => {
@@ -181,6 +185,13 @@ const BookingInvoice = ({ booking, onClose, onDownload, onPrint, onEmail }) => {
               <p><strong>Payment Status:</strong> ${getPaymentStatus()}</p>
             </div>
           </div>
+          ${booking.paymentStatus === 'partial' ? `
+            <div class="partial-payment-details" style="background: #dbeafe; padding: 15px; border-radius: 8px; margin-top: 15px;">
+              <h4 style="color: #1e40af; margin: 0 0 10px 0; font-size: 14px;">Payment Details:</h4>
+              <p style="margin: 5px 0; color: #1e3a8a;"><strong>Paid Amount:</strong> Rs. ${booking.paidAmount?.toLocaleString() || '0'}</p>
+              <p style="margin: 5px 0; color: #1e3a8a;"><strong>Remaining Amount:</strong> Rs. ${booking.remainingAmount?.toLocaleString() || '0'}</p>
+            </div>
+          ` : ''}
         </div>
 
         <!-- Terms and Notes -->
@@ -668,6 +679,19 @@ const BookingInvoice = ({ booking, onClose, onDownload, onPrint, onEmail }) => {
             </div>
           </div>
         </div>
+        {booking.paymentStatus === 'partial' && (
+          <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <h4 className="text-sm font-semibold text-blue-800 mb-2">Payment Details:</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-blue-700"><strong>Paid Amount:</strong> ₹{booking.paidAmount?.toLocaleString() || '0'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-blue-700"><strong>Remaining Amount:</strong> ₹{booking.remainingAmount?.toLocaleString() || '0'}</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Terms and Notes */}
