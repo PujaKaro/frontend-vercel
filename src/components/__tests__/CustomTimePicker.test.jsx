@@ -107,3 +107,4 @@ describe('CustomTimePicker', () => {
     expect(onChange).toHaveBeenCalledWith('14:00');
   });
 });
+
